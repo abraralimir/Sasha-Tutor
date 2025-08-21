@@ -37,14 +37,14 @@ Topic: {{{topic}}}
 Difficulty: {{{difficulty}}}
 
 Exercise:
-```python
+\`\`\`
 {{exercise}}
-```
+\`\`\`
 
 Solution:
-```python
+\`\`\`
 {{solution}}
-````,
+\`\`\``,
 });
 
 const generateCodingExerciseFlow = ai.defineFlow(

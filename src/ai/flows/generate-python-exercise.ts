@@ -32,20 +32,20 @@ const prompt = ai.definePrompt({
   name: 'generatePythonExercisePrompt',
   input: {schema: GeneratePythonExerciseInputSchema},
   output: {schema: GeneratePythonExerciseOutputSchema},
-  prompt: `You are a coding exercise generator. Generate a coding exercise in Python based on the given lesson topic and student level.\
-\
-Lesson Topic: {{{lessonTopic}}}\
-Student Level: {{{studentLevel}}}\
-\
-Exercise:\
-```python\
-{{exercise}}\
-```\
-\
-Solution:\
-```python\
-{{solution}}\
-````,
+  prompt: `You are a coding exercise generator. Generate a coding exercise in Python based on the given lesson topic and student level.
+
+Lesson Topic: {{{lessonTopic}}}
+Student Level: {{{studentLevel}}}
+
+Exercise:
+\`\`\`
+{{exercise}}
+\`\`\`
+
+Solution:
+\`\`\`
+{{solution}}
+\`\`\``,
 });
 
 const generatePythonExerciseFlow = ai.defineFlow(
