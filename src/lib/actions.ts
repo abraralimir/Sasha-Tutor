@@ -17,9 +17,9 @@ import {
   type AiIdeTeacherInput,
 } from "@/ai/flows/ai-ide-teacher";
 import {
-  generateLessonContent as generateLessonContentFlow,
-  type GenerateLessonContentInput,
-} from "@/ai/flows/generate-lesson-content";
+  explainCode as explainCodeFlow,
+  type ExplainCodeInput,
+} from "@/ai/flows/explain-code";
 
 
 export async function generateCodingExercise(
@@ -40,6 +40,6 @@ export async function aiIdeTeacher(input: AiIdeTeacherInput) {
   return await aiIdeTeacherFlow(input);
 }
 
-export async function generateLessonContent(input: GenerateLessonContentInput) {
-  return await generateLessonContentFlow(input);
+export async function explainCode(input: ExplainCodeInput) {
+    return await explainCodeFlow(input);
 }

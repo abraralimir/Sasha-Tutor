@@ -8,3 +8,4 @@ import '@/ai/flows/generate-coding-exercise.ts';
 import '@/ai/flows/evaluate-python-code.ts';
 import '@/ai/flows/generate-python-exercise.ts';
 import '@/ai/flows/generate-lesson-content.ts';
+import '@/ai/flows/explain-code.ts';
