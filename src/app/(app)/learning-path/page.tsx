@@ -1,6 +1,7 @@
 'use client';
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Check, Lock, Play, Loader2, Sparkles } from 'lucide-react';
+import Link from 'next/link';
+import { Check, Lock, Play, Loader2, Sparkles, Pencil } from 'lucide-react';
 import { explainCode } from '@/lib/actions';
 import { getCourse, Chapter, Lesson } from '@/services/python-course-service';
 import { cn } from '@/lib/utils';
@@ -12,6 +13,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { PageHeader } from '@/components/page-header';
 
 const course = getCourse();
 const chapters = course.chapters;
@@ -66,7 +68,8 @@ function CodeBlockExplainer({ code }: { code: string }) {
     try {
       const result = await explainCode({ codeToExplain: code });
       setExplanation(result.explanation);
-    } catch (error) {
+    } catch (error)
+ {
       console.error('Failed to get explanation', error);
       setExplanation('Sorry, I was unable to generate an explanation.');
     } finally {
@@ -219,6 +222,8 @@ export default function LearningPathPage() {
   const isCurrentLessonComplete = completedLessons.includes(activeLesson.id);
   const isFinalLesson = chapters[chapters.length-1].lessons[chapters[chapters.length-1].lessons.length-1].id === activeLesson.id;
 
+  const isChapterComplete = activeChapter.lessons.every(l => completedLessons.includes(l.id));
+
   return (
     <div className="grid md:grid-cols-[280px_1fr] h-[calc(100vh-3.5rem)]">
       <aside className="border-r flex flex-col">
@@ -264,6 +269,16 @@ export default function LearningPathPage() {
                     )
                 })}
                 </div>
+                {isChapterComplete && (
+                   <div className="mt-2 px-3">
+                     <Link href={`/practice/${encodeURIComponent(chapter.title)}`}>
+                        <Button size="sm" className="w-full">
+                           <Pencil className="mr-2 h-4 w-4" />
+                           Practice Chapter
+                        </Button>
+                      </Link>
+                   </div>
+                )}
             </div>
           ))}
         </nav>

@@ -37,13 +37,6 @@ const tools = [
     description:
       'Our AI assistant is here to answer any Python questions you have.',
   },
-    {
-    title: 'Jupyter Path',
-    href: '/jupyter-path',
-    icon: Notebook,
-    description:
-      'Experience interactive, cell-by-cell Python exercises.',
-  },
 ];
 
 export function Header() {
@@ -57,9 +50,11 @@ export function Header() {
         <NavigationMenu>
           <NavigationMenuList>
             <NavigationMenuItem>
-              <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-                <Link href="/learning-path">Learning Path</Link>
-              </NavigationMenuLink>
+              <Link href="/learning-path" legacyBehavior={false} passHref>
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  Learning Path
+                </NavigationMenuLink>
+              </Link>
             </NavigationMenuItem>
             <NavigationMenuItem>
               <NavigationMenuTrigger>AI Tools</NavigationMenuTrigger>
