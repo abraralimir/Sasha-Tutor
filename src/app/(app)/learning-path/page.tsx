@@ -218,11 +218,10 @@ export default function LearningPathPage() {
                   !isUnlocked && 'opacity-50 cursor-not-allowed'
                 )}
               >
-                <div className="flex items-center justify-center w-6 h-6 rounded-full border-2 text-xs font-bold shrink-0",
-                  cn(
-                    isCompleted ? 'border-green-500 bg-green-500 text-white' : 'border-muted-foreground',
-                    isActive && 'border-primary-foreground'
-                  )
+                <div className={cn("flex items-center justify-center w-6 h-6 rounded-full border-2 text-xs font-bold shrink-0",
+                  isCompleted ? 'border-green-500 bg-green-500 text-white' : 'border-muted-foreground',
+                  isActive && 'border-primary-foreground'
+                )}
                 >
                   {isCompleted ? <Check className="w-4 h-4" /> : !isUnlocked ? <Lock className="w-3 h-3"/> : index + 1}
                 </div>
