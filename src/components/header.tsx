@@ -59,7 +59,7 @@ export function Header() {
           <NavigationMenu>
             <NavigationMenuList>
               <NavigationMenuItem>
-                <Link href="/learning-path" legacyBehavior passHref>
+                <Link href="/python/learning-path" legacyBehavior passHref>
                   <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                     Learning Path
                   </NavigationMenuLink>
