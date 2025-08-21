@@ -3,10 +3,10 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Check, Lock, Play, Loader2, Sparkles, Pencil, ChevronRight, AlertCircle, CheckCircle } from 'lucide-react';
-import { explainCode, evaluatePythonCode, generatePracticeSession } from '@/lib/actions';
+import { explainCode, evaluatePythonCode, generatePracticeSession, generateLessonContent } from '@/lib/actions';
 import type { EvaluatePythonCodeOutput } from '@/ai/flows/evaluate-python-code';
 import type { GeneratePracticeSessionOutput } from '@/ai/flows/generate-practice-session';
-import { getCourse, Chapter, Lesson } from '@/services/python-course-service';
+import { getCourse, setCourse, Course, Chapter, Lesson } from '@/services/python-course-service';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -21,9 +21,8 @@ import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import { Skeleton } from '@/components/ui/skeleton';
 
-const course = getCourse();
-const chapters = course.chapters;
 
 function CircularProgress({ progress }: { progress: number }) {
   const size = 60;
@@ -179,8 +178,6 @@ function ArticleWithInteractiveContent({ content }: { content: string }) {
       {parts.map((part, index) => {
         if (index % 3 === 0) {
           // This is a regular content part
-          // To render code blocks with syntax highlighting, we can wrap them.
-          // For now, we'll just render the HTML.
           return <div key={index} dangerouslySetInnerHTML={{ __html: part.replace(/<code>(.*?)<\/code>/gs, '<code class="font-code bg-muted px-1 rounded-sm">$1</code>') }} />;
         } else if (index % 3 === 1) {
           // This is an interactive cell
@@ -214,15 +211,6 @@ function EndOfLessonQuiz({ lessonTitle, onQuizComplete }: { lessonTitle: string,
         setError(null);
         setIsLoading(false);
     }, []);
-
-    useEffect(() => {
-        // Reset state if the lesson title changes.
-        if (isOpen) {
-            handleGenerateQuiz();
-        } else {
-            resetQuizState();
-        }
-    }, [lessonTitle, isOpen, resetQuizState]);
 
     const handleGenerateQuiz = useCallback(async () => {
         if (isLoading) return;
@@ -260,6 +248,15 @@ function EndOfLessonQuiz({ lessonTitle, onQuizComplete }: { lessonTitle: string,
             [activeQuestion]: { selected: selectedOption, isCorrect },
         }));
     };
+
+    useEffect(() => {
+        // Reset state when the dialog is closed or the lesson changes
+        if (isOpen) {
+            handleGenerateQuiz();
+        } else {
+            resetQuizState();
+        }
+    }, [lessonTitle, isOpen, resetQuizState, handleGenerateQuiz]);
 
     const isQuizComplete = quizSession && Object.values(quizAttempts).filter(a => a).length === quizSession.quiz.length;
     const currentQuestion = quizSession?.quiz[activeQuestion];
@@ -347,12 +344,63 @@ function EndOfLessonQuiz({ lessonTitle, onQuizComplete }: { lessonTitle: string,
 }
 
 export default function LearningPathPage({ params }: { params: { topic: string } }) {
-  const [activeChapter, setActiveChapter] = useState<Chapter>(chapters[0]);
-  const [activeLesson, setActiveLesson] = useState<Lesson>(chapters[0].lessons[0]);
+  const [course, setCourseState] = useState<Course | null>(getCourse(params.topic));
+  const [activeChapter, setActiveChapter] = useState<Chapter | null>(course?.chapters[0] ?? null);
+  const [activeLesson, setActiveLesson] = useState<Lesson | null>(course?.chapters[0]?.lessons[0] ?? null);
   const [completedLessons, setCompletedLessons] = useState<string[]>([]);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [isGeneratingContent, setIsGeneratingContent] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
+  
+  const chapters = course?.chapters ?? [];
 
+  useEffect(() => {
+    const storedCourse = getCourse(params.topic);
+    setCourseState(storedCourse);
+    setActiveChapter(storedCourse?.chapters[0] ?? null);
+    setActiveLesson(storedCourse?.chapters[0]?.lessons[0] ?? null);
+  }, [params.topic]);
+
+  const handleLessonChange = useCallback(async (lessonId: string) => {
+    if (!course) return;
+    for (const chapter of course.chapters) {
+      const lesson = chapter.lessons.find(l => l.id === lessonId);
+      if (lesson) {
+        setActiveChapter(chapter);
+        setActiveLesson(lesson);
+        if (!lesson.content) {
+          setIsGeneratingContent(true);
+          try {
+            const { content } = await generateLessonContent({ topic: lesson.title, studentLevel: 'beginner' });
+            const updatedLesson = { ...lesson, content };
+            const updatedChapters = course.chapters.map(c => 
+              c.id === chapter.id 
+                ? { ...c, lessons: c.lessons.map(l => l.id === lessonId ? updatedLesson : l) }
+                : c
+            );
+            const updatedCourse = { ...course, chapters: updatedChapters };
+            setCourse(updatedCourse);
+            setCourseState(updatedCourse);
+            setActiveLesson(updatedLesson);
+          } catch (error) {
+            console.error("Failed to generate lesson content", error);
+            // Handle error, maybe show a toast
+          } finally {
+            setIsGeneratingContent(false);
+          }
+        }
+        return;
+      }
+    }
+  }, [course]);
+
+  useEffect(() => {
+    // Prime the first lesson if it has no content
+    if (activeLesson && !activeLesson.content) {
+      handleLessonChange(activeLesson.id);
+    }
+  }, [activeLesson, handleLessonChange]);
+  
   const handleScroll = useCallback(() => {
     const contentEl = contentRef.current;
     if (contentEl) {
@@ -382,18 +430,9 @@ export default function LearningPathPage({ params }: { params: { topic: string }
     }
   }, [activeLesson, handleScroll]);
 
-  const handleLessonChange = (lessonId: string) => {
-    for (const chapter of chapters) {
-      const lesson = chapter.lessons.find(l => l.id === lessonId);
-      if (lesson) {
-        setActiveChapter(chapter);
-        setActiveLesson(lesson);
-        return;
-      }
-    }
-  };
-
   const completeLesson = () => {
+    if (!activeLesson || !activeChapter) return;
+    
     if (!completedLessons.includes(activeLesson.id)) {
       setCompletedLessons(prev => [...prev, activeLesson.id]);
     }
@@ -402,15 +441,17 @@ export default function LearningPathPage({ params }: { params: { topic: string }
     const currentLessonIndex = activeChapter.lessons.findIndex(l => l.id === activeLesson.id);
 
     if (currentLessonIndex < activeChapter.lessons.length - 1) {
-      setActiveLesson(activeChapter.lessons[currentLessonIndex + 1]);
+      const nextLesson = activeChapter.lessons[currentLessonIndex + 1];
+      handleLessonChange(nextLesson.id);
     } else if (currentChapterIndex < chapters.length - 1) {
       const nextChapter = chapters[currentChapterIndex + 1];
-      setActiveChapter(nextChapter);
-      setActiveLesson(nextChapter.lessons[0]);
+      const nextLesson = nextChapter.lessons[0];
+      handleLessonChange(nextLesson.id);
     }
   };
 
   const isLessonUnlocked = (lessonId: string) => {
+    if (!chapters.length || !chapters[0].lessons.length) return false;
     // The very first lesson is always unlocked
     if (chapters[0].lessons[0].id === lessonId) return true;
 
@@ -426,11 +467,21 @@ export default function LearningPathPage({ params }: { params: { topic: string }
     return false;
   }
   
-  const totalLessons = chapters.reduce((sum, chap) => sum + chap.lessons.length, 0);
-  const pathProgress = (completedLessons.length / totalLessons) * 100;
+  if (!course || !activeChapter || !activeLesson) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="w-12 h-12 animate-spin text-primary" />
+        <p className="ml-4 text-lg">Loading your course...</p>
+      </div>
+    );
+  }
 
+  const totalLessons = chapters.reduce((sum, chap) => sum + chap.lessons.length, 0);
+  const pathProgress = totalLessons > 0 ? (completedLessons.length / totalLessons) * 100 : 0;
   const isCurrentLessonComplete = completedLessons.includes(activeLesson.id);
-  const isFinalLesson = chapters[chapters.length-1].lessons[chapters[chapters.length-1].lessons.length-1].id === activeLesson.id;
+  const isFinalLesson = chapters.length > 0 && 
+                      chapters[chapters.length-1].lessons.length > 0 &&
+                      chapters[chapters.length-1].lessons[chapters[chapters.length-1].lessons.length-1].id === activeLesson.id;
   
   return (
     <div className="grid md:grid-cols-[280px_1fr] h-[calc(100vh-3.5rem)]">
@@ -496,7 +547,22 @@ export default function LearningPathPage({ params }: { params: { topic: string }
       </aside>
       <div className="flex flex-col relative overflow-hidden">
         <div className="flex-1 overflow-y-auto" ref={contentRef}>
-            <ArticleWithInteractiveContent content={activeLesson.content} />
+            {isGeneratingContent ? (
+                <div className="p-12 max-w-4xl mx-auto space-y-6">
+                    <Skeleton className="h-10 w-3/4" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-5/6" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-20 w-full" />
+                    <Skeleton className="h-4 w-4/5" />
+                </div>
+            ) : activeLesson.content ? (
+                <ArticleWithInteractiveContent content={activeLesson.content} />
+            ) : (
+                <div className="flex items-center justify-center h-full">
+                    <p>No content for this lesson yet.</p>
+                </div>
+            )}
         </div>
         <footer className="p-4 border-t bg-background/80 backdrop-blur-sm sticky bottom-0">
           <div className="max-w-4xl mx-auto flex items-center justify-between">

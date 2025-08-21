@@ -3,7 +3,8 @@
 
 import { useState } from 'react';
 import { Bot, Loader2, Search, Sparkles } from 'lucide-react';
-import { aiChatbot } from '@/lib/actions';
+import { useRouter } from 'next/navigation';
+import { generateCourse } from '@/lib/actions';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -14,25 +15,30 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { setCourse, formatGeneratedCourse } from '@/services/python-course-service';
 
 export function AISearch() {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [result, setResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!query) return;
 
     setIsLoading(true);
-    setResult(null);
     setError(null);
 
     try {
-      const response = await aiChatbot({ message: query });
-      setResult(response.response);
+      const result = await generateCourse({ topic: query });
+      const formattedCourse = formatGeneratedCourse(result);
+      setCourse(formattedCourse); // Store the generated course
+      const courseId = formattedCourse.id.toLowerCase().replace(/\s+/g, '-');
+      router.push(`/${courseId}/learning-path`);
+      setIsOpen(false);
+      setQuery('');
     } catch (err) {
       setError('Sorry, something went wrong. Please try again.');
       console.error(err);
@@ -55,14 +61,14 @@ export function AISearch() {
         >
            <div className="absolute inset-[-1px] -z-10 rounded-[inherit] bg-[conic-gradient(from_0deg_at_50%_50%,hsl(var(--primary))_0%,transparent_10%,transparent_90%,hsl(var(--primary))_100%)] opacity-20 group-hover:opacity-100 transition-opacity duration-500 animate-[spin_4s_linear_infinite]"></div>
           <Search className="h-4 w-4 mr-2" />
-          Ask AI about Python...
+          Ask AI to create a course...
         </button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[625px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
-            AI-Powered Search
+            AI Course Generator
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSearch}>
@@ -70,7 +76,7 @@ export function AISearch() {
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="e.g., How do list comprehensions work?"
+              placeholder="e.g., Learn Java from scratch"
             />
             <Button type="submit" disabled={isLoading || !query}>
               {isLoading ? (
@@ -86,7 +92,7 @@ export function AISearch() {
             <div className="flex flex-col items-center justify-center pt-8">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
               <p className="mt-2 text-muted-foreground">
-                Sasha is thinking...
+                Generating your custom learning path...
               </p>
             </div>
           )}
@@ -95,15 +101,11 @@ export function AISearch() {
               {error}
             </div>
           )}
-          {result && (
-            <div className="prose prose-sm max-w-none prose-p:my-2 whitespace-pre-wrap">
-              {result}
-            </div>
-          )}
-          {!result && !isLoading && !error && (
+          
+          {!isLoading && !error && (
               <div className="text-center pt-8">
                 <Bot className="mx-auto h-12 w-12 text-muted-foreground/30" />
-                <p className="mt-2 text-muted-foreground">Ask any question about Python.</p>
+                <p className="mt-2 text-muted-foreground">What do you want to learn today?</p>
               </div>
           )}
         </div>

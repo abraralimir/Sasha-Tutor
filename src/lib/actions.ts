@@ -1,3 +1,4 @@
+
 "use server";
 
 import {
@@ -32,6 +33,10 @@ import {
     generateCourse as generateCourseFlow,
     type GenerateCourseInput,
 } from "@/ai/flows/generate-course";
+import {
+    generateLessonContent as generateLessonContentFlow,
+    type GenerateLessonContentInput,
+} from "@/ai/flows/generate-lesson-content";
 
 
 export async function generateCodingExercise(
@@ -66,4 +71,8 @@ export async function evaluatePythonCode(input: EvaluatePythonCodeInput) {
 
 export async function generateCourse(input: GenerateCourseInput) {
     return await generateCourseFlow(input);
+}
+
+export async function generateLessonContent(input: GenerateLessonContentInput) {
+    return await generateLessonContentFlow(input);
 }

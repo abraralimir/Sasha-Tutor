@@ -1,3 +1,6 @@
+
+import type { GenerateCourseOutput } from "@/ai/flows/generate-course";
+
 // In a real application, this data would likely come from a database or a CMS.
 // For this prototype, we'll keep it in a local file.
 
@@ -20,7 +23,7 @@ export interface Course {
 }
 
 const pythonCourse: Course = {
-    id: 'sashas-python-path',
+    id: 'python',
     title: 'Sasha\'s Python Path',
     chapters: [
         {
@@ -1232,6 +1235,27 @@ Congratulations on completing the learning path! Keep practicing, building, and 
     ]
 };
 
-export function getCourse(): Course {
-    return pythonCourse;
+const courseCache = new Map<string, Course>();
+courseCache.set('python', pythonCourse);
+
+export function getCourse(topic: string): Course | null {
+    return courseCache.get(topic) || null;
+}
+
+export function setCourse(course: Course): void {
+    // In a real app, you'd also save this to localStorage or a DB
+    courseCache.set(course.id, course);
+}
+
+export function formatGeneratedCourse(generated: GenerateCourseOutput): Course {
+    return {
+        ...generated,
+        chapters: generated.chapters.map(chapter => ({
+            ...chapter,
+            lessons: chapter.lessons.map(lesson => ({
+                ...lesson,
+                content: '' // Initialize with empty content
+            }))
+        }))
+    }
 }
