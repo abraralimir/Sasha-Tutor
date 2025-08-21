@@ -1,10 +1,4 @@
-import {
-  BookOpen,
-  Code,
-  MessageCircle,
-  Notebook,
-  Terminal,
-} from 'lucide-react';
+import { BookOpen, Code, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 import {
   Card,
@@ -13,37 +7,29 @@ import {
   CardDescription,
 } from '@/components/ui/card';
 import { PageHeader } from '@/components/page-header';
+import { Button } from '@/components/ui/button';
 
-const features = [
+const steps = [
+  {
+    href: '/resources',
+    icon: BookOpen,
+    title: 'Step 1: Learn the Basics',
+    description: 'Start with core Python concepts. Our resource hub has simple explanations and code examples to get you started.',
+    cta: 'Go to Resources',
+  },
   {
     href: '/exercises',
     icon: Code,
-    title: 'AI-Powered Exercises',
-    description: 'Generate and solve coding exercises with instant AI feedback.',
-  },
-  {
-    href: '/ide-teacher',
-    icon: Terminal,
-    title: 'AI IDE Teacher',
-    description: 'Learn algorithms and libraries with an AI-powered teacher.',
+    title: 'Step 2: Practice Your Skills',
+    description: 'Apply what you\'ve learned. Generate coding exercises and get instant AI feedback to improve faster.',
+    cta: 'Try Exercises',
   },
   {
     href: '/chatbot',
     icon: MessageCircle,
-    title: 'AI Chatbot',
-    description: 'Ask any Python-related question and get instant help from AI.',
-  },
-  {
-    href: '/resources',
-    icon: BookOpen,
-    title: 'Python Resource Hub',
-    description: 'Explore curated learning materials and examples.',
-  },
-  {
-    href: '/jupyter-path',
-    icon: Notebook,
-    title: 'Jupyter Exercises',
-    description: 'Engage with interactive, line-by-line Python exercises.',
+    title: 'Stuck? Ask our AI Chatbot',
+    description: 'Don\'t hesitate to ask for help. Our AI assistant is here to answer any Python questions you have, big or small.',
+    cta: 'Ask the Chatbot',
   },
 ];
 
@@ -55,20 +41,33 @@ export default function DashboardPage() {
         description="Your AI-powered journey to mastering Python starts here."
       />
       <main className="flex-1 overflow-auto p-6">
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {features.map((feature) => (
-            <Link href={feature.href} key={feature.href}>
-              <Card className="h-full hover:bg-muted/50 transition-colors duration-200 hover:shadow-lg">
-                <CardHeader>
-                  <feature.icon className="h-10 w-10 mb-4 text-primary" />
-                  <CardTitle>{feature.title}</CardTitle>
-                  <CardDescription className="pt-1">
-                    {feature.description}
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            </Link>
-          ))}
+        <div className="max-w-3xl mx-auto space-y-8">
+            <div className="text-center">
+                <h2 className="text-3xl font-bold tracking-tight">Your Learning Journey</h2>
+                <p className="mt-2 text-lg text-muted-foreground">
+                    Follow these simple steps to begin your adventure in Python programming.
+                </p>
+            </div>
+            {steps.map((step) => (
+                <Card key={step.href} className="hover:shadow-lg transition-shadow duration-200">
+                    <CardHeader className="md:flex-row md:items-start md:gap-6">
+                        <div className="flex-shrink-0 mb-4 md:mb-0">
+                            <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-primary text-primary-foreground">
+                                <step.icon className="h-6 w-6" />
+                            </div>
+                        </div>
+                        <div className="flex-1">
+                            <CardTitle>{step.title}</CardTitle>
+                            <CardDescription className="pt-2 text-base">
+                                {step.description}
+                            </CardDescription>
+                            <Link href={step.href} className='mt-4 inline-block'>
+                                <Button>{step.cta}</Button>
+                            </Link>
+                        </div>
+                    </CardHeader>
+                </Card>
+            ))}
         </div>
       </main>
     </div>
