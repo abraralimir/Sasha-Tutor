@@ -185,6 +185,307 @@ print("Python is fun.")
 
 Each \`print()\` statement will output its content on a new line. This is the fundamental way to see the results of your code and provide information to the user.
 `
+                },
+                {
+                    id: 'lesson-2-2',
+                    title: 'Variables & Data Types',
+                    content: `
+# Variables and Data Types
+
+In programming, we need to store information. A **variable** is like a container or a labeled box where you can store a value.
+
+## Creating Variables
+
+Creating a variable in Python is simple. You just need to choose a name and use the assignment operator (\`=\`) to give it a value.
+
+\`\`\`python
+# A variable named 'name' that stores a string
+name = "Sasha"
+
+# A variable named 'age' that stores an integer
+age = 25
+
+# A variable named 'pi' that stores a floating-point number
+pi = 3.14
+\`\`\`
+
+You can then use the variable's name to access its value.
+
+\`\`\`python
+print(name)
+print(age)
+\`\`\`
+
+## Naming Rules
+
+Variable names must follow a few rules:
+- They can only contain letters (a-z, A-Z), numbers (0-9), and the underscore character (\_).
+- They cannot start with a number.
+- They are case-sensitive (\`age\` is different from \`Age\`).
+
+It's a convention in Python to use \`snake_case\` for variable names (all lowercase with underscores between words). For example: \`user_first_name\`.
+
+## Common Data Types
+
+Every value in Python has a type. Here are some of the most common ones:
+
+- **String (\`str\`)**: Text, enclosed in quotes. Example: \`"Hello, Python"\`.
+- **Integer (\`int\`)**: Whole numbers, without a fractional part. Example: \`10\`, \`-5\`.
+- **Float (\`float\`)**: Numbers with a decimal point. Example: \`3.14\`, \`-0.001\`.
+- **Boolean (\`bool\`)**: Represents truth values. Can only be \`True\` or \`False\`.
+
+You can find out the type of a variable using the \`type()\` function.
+
+\`\`\`python
+greeting = "Hi there"
+year = 2024
+is_learning = True
+
+print(type(greeting))
+print(type(year))
+print(type(is_learning))
+\`\`\`
+`
+                }
+            ]
+        },
+        {
+            id: 'chapter-3',
+            title: 'Data Structures',
+            lessons: [
+                {
+                    id: 'lesson-3-1',
+                    title: 'Lists',
+                    content: `
+# Data Structures: Lists
+
+Often, you'll want to store a collection of items, not just a single value. A **list** is a fundamental data structure in Python that allows you to store an ordered sequence of items.
+
+## Creating a List
+
+You create a list by placing items inside square brackets \`[]\`, separated by commas.
+
+\`\`\`python
+# A list of numbers
+numbers = [1, 2, 3, 4, 5]
+
+# A list of strings
+fruits = ["apple", "banana", "cherry"]
+
+# A list with mixed data types
+mixed_list = ["hello", 100, True, 3.14]
+
+# An empty list
+empty_list = []
+\`\`\`
+
+## Accessing Elements
+
+List items are indexed, and the first item has index \`[0]\`. You can access an item by referring to its index number.
+
+\`\`\`python
+fruits = ["apple", "banana", "cherry"]
+
+# Get the first item
+print(fruits[0])  # Output: apple
+
+# Get the third item
+print(fruits[2])  # Output: cherry
+\`\`\`
+
+You can also use negative indexing to start from the end. \`-1\` refers to the last item.
+
+\`\`\`python
+# Get the last item
+print(fruits[-1]) # Output: cherry
+\`\`\`
+
+## Modifying Lists
+
+Lists are **mutable**, which means you can change their content.
+
+\`\`\`python
+fruits = ["apple", "banana", "cherry"]
+
+# Change an item
+fruits[1] = "blackberry"
+print(fruits) # Output: ['apple', 'blackberry', 'cherry']
+
+# Add an item to the end
+fruits.append("orange")
+print(fruits) # Output: ['apple', 'blackberry', 'cherry', 'orange']
+
+# Remove an item
+fruits.remove("apple")
+print(fruits) # Output: ['blackberry', 'cherry', 'orange']
+\`\`\`
+`
+                },
+                {
+                    id: 'lesson-3-2',
+                    title: 'Dictionaries',
+                    content: `
+# Data Structures: Dictionaries
+
+A **dictionary** is a collection which is unordered, changeable and indexed. In Python dictionaries are written with curly brackets \`{}\`, and they have keys and values.
+
+It's a powerful way to store data in a \`key: value\` pair format. Think of it like a real-world dictionary where you look up a word (the key) to find its definition (the value).
+
+## Creating a Dictionary
+
+\`\`\`python
+# A simple dictionary
+student = {
+  "name": "Sasha",
+  "course": "Python Path",
+  "year": 2024
+}
+
+print(student)
+\`\`\`
+
+## Accessing Items
+
+You can access the items of a dictionary by referring to its key name, inside square brackets.
+
+\`\`\`python
+# Get the value of the "name" key
+x = student["name"]
+print(x) # Output: Sasha
+\`\`\`
+
+There is also a method called \`get()\` that will give you the same result.
+
+\`\`\`python
+x = student.get("course")
+print(x) # Output: Python Path
+\`\`\`
+
+## Modifying Dictionaries
+
+You can change the value of a specific item by referring to its key name.
+
+\`\`\`python
+student = {
+  "name": "Sasha",
+  "course": "Python Path",
+  "year": 2024
+}
+
+# Change the year
+student["year"] = 2025
+print(student)
+
+# Add a new key-value pair
+student["is_enrolled"] = True
+print(student)
+
+# Remove a key-value pair
+student.pop("course")
+print(student)
+\`\`\`
+`
+                }
+            ]
+        },
+        {
+            id: 'chapter-4',
+            title: 'Control Flow',
+            lessons: [
+                {
+                    id: 'lesson-4-1',
+                    title: 'Conditional Statements',
+                    content: `
+# Control Flow: Conditional Statements
+
+So far, our code has executed line by line, from top to bottom. But what if we want to run certain code only if a specific condition is met? This is where conditional statements come in.
+
+The most common conditional statements are \`if\`, \`elif\` (else if), and \`else\`.
+
+## The \`if\` Statement
+
+The \`if\` statement is used to execute a block of code only when its condition is \`True\`.
+
+\`\`\`python
+age = 20
+
+if age >= 18:
+  print("You are an adult.")
+\`\`\`
+
+Notice the colon \`:\` at the end of the \`if\` line and the **indentation** of the \`print\` statement. Indentation is very important in Python; it's how Python knows which code belongs to the \`if\` block.
+
+## The \`else\` Statement
+
+The \`else\` keyword catches anything which isn't caught by the preceding conditions. It executes a block of code when the \`if\` condition is \`False\`.
+
+\`\`\`python
+age = 15
+
+if age >= 18:
+  print("You are an adult.")
+else:
+  print("You are a minor.")
+\`\`\`
+
+## The \`elif\` Statement
+
+The \`elif\` keyword is Python's way of saying "if the previous conditions were not true, then try this condition". It allows you to check for multiple conditions.
+
+\`\`\`python
+score = 85
+
+if score >= 90:
+  print("Grade: A")
+elif score >= 80:
+  print("Grade: B")
+elif score >= 70:
+  print("Grade: C")
+else:
+  print("Grade: F")
+\`\`\`
+In this example, since \`score\` is 85, the first condition (\`>= 90\`) is false. The program then checks the first \`elif\` condition (\`>= 80\`), which is true, so it prints "Grade: B" and stops.
+`
+                },
+                {
+                    id: 'lesson-4-2',
+                    title: 'Loops',
+                    content: `
+# Control Flow: Loops
+
+Loops are a fundamental concept in programming that allow you to execute a block of code repeatedly. Python has two primary loop types: \`for\` loops and \`while\` loops.
+
+## The \`for\` Loop
+
+A \`for\` loop is used for iterating over a sequence (that is either a list, a tuple, a dictionary, a set, or a string). This is less like the \`for\` keyword in other programming languages, and works more like an iterator method as found in other object-orientated programming languages.
+
+\`\`\`python
+fruits = ["apple", "banana", "cherry"]
+
+for fruit in fruits:
+  print(fruit)
+\`\`\`
+This loop will go through the \`fruits\` list one item at a time. In each iteration, the current item is assigned to the variable \`fruit\`, and the code inside the loop (\`print(fruit)\`) is executed.
+
+You can also loop through a string:
+\`\`\`python
+for letter in "Python":
+  print(letter)
+\`\`\`
+
+## The \`while\` Loop
+
+With the \`while\` loop we can execute a set of statements as long as a condition is true.
+
+\`\`\`python
+# A loop that counts from 1 to 5
+count = 1
+while count <= 5:
+  print(count)
+  count = count + 1 # Increment the counter
+\`\`\`
+It's crucial to have a line that eventually makes the condition \`False\` (like \`count = count + 1\`), otherwise the loop will run forever! This is called an **infinite loop**.
+`
                 }
             ]
         }
