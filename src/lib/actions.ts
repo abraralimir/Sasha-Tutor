@@ -16,6 +16,11 @@ import {
   aiIdeTeacher as aiIdeTeacherFlow,
   type AiIdeTeacherInput,
 } from "@/ai/flows/ai-ide-teacher";
+import {
+  generateLessonContent as generateLessonContentFlow,
+  type GenerateLessonContentInput,
+} from "@/ai/flows/generate-lesson-content";
+
 
 export async function generateCodingExercise(
   input: GenerateCodingExerciseInput
@@ -33,4 +38,8 @@ export async function aiChatbot(input: AIChatbotInput) {
 
 export async function aiIdeTeacher(input: AiIdeTeacherInput) {
   return await aiIdeTeacherFlow(input);
+}
+
+export async function generateLessonContent(input: GenerateLessonContentInput) {
+  return await generateLessonContentFlow(input);
 }

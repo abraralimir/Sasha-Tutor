@@ -1,7 +1,7 @@
 'use client';
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Check, Lock, Play } from 'lucide-react';
-
+import { Check, Lock, Play, Loader2 } from 'lucide-react';
+import { generateLessonContent } from '@/lib/actions';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
@@ -9,93 +9,20 @@ const chapters = [
   {
     id: 'intro',
     title: 'What is Python?',
-    content: `
-# 1. Welcome to the Path to Python
-Python is a high-level, interpreted programming language known for its readability and simplicity. Created by Guido van Rossum and first released in 1991, Python's design philosophy emphasizes code readability with its notable use of significant whitespace.
-
-## Key Features
-- **Easy to Learn:** Python has a simple syntax similar to the English language.
-- **Versatile:** It's used in web development, data science, artificial intelligence, automation, and more.
-- **Large Community:** A massive community means plenty of libraries, frameworks, and support.
-
-This course will take you from the very basics to more advanced topics. Let's get started!
-`,
   },
   {
     id: 'hello-world',
     title: 'Hello, World!',
-    content: `
-# 2. Your First Python Program
-The "Hello, World!" program is a classic tradition in computer programming. It's a simple program that outputs "Hello, World!" on the screen. It's often the very first program developers write.
-
-## The 'print()' function
-In Python, you use the \`print()\` function to output text to the console. Whatever you put inside the parentheses will be displayed.
-
-## Writing the code
-To print "Hello, World!", you just need one line of code:
-\`\`\`python
-print("Hello, World!")
-\`\`\`
-
-This tells Python to call the print function and pass it the string "Hello, World!" as an argument.
-`,
   },
   {
     id: 'variables',
     title: 'Variables & Data Types',
-    content: `
-# 3. Storing Information
-Variables are containers for storing data values. In Python, you don't need to declare the type of a variable; the type is inferred when you assign a value to it.
-
-## Common Data Types
-- **Text Type:** \`str\` (e.g., "Sasha")
-- **Numeric Types:** \`int\` (e.g., 5), \`float\` (e.g., 2.8)
-- **Sequence Types:** \`list\` (e.g., ["apple", "banana"]), \`tuple\`
-- **Mapping Type:** \`dict\` (e.g., {"name": "John", "age": 30})
-- **Boolean Type:** \`bool\` (e.g., True or False)
-
-## Example
-\`\`\`python
-name = "Sasha"       # A string variable
-age = 8              # An integer variable
-is_learning = True   # A boolean variable
-
-print(name)
-print(age)
-\`\`\`
-`,
   },
   {
     id: 'functions',
     title: 'Functions',
-    content: `
-# 4. Reusable Blocks of Code
-A function is a block of organized, reusable code that is used to perform a single, related action. Functions provide better modularity for your application and a high degree of code reusing.
-
-## Defining a Function
-You define a function using the \`def\` keyword.
-\`\`\`python
-def greet(name):
-  """This function greets the person passed in as a parameter."""
-  print("Hello, " + name + "!")
-
-# Calling the function
-greet('Sasha')
-\`\`\`
-
-## Functions with Return Values
-Functions can also return values using the \`return\` statement.
-\`\`\`python
-def add_numbers(x, y):
-  return x + y
-
-result = add_numbers(5, 3)
-print(result) # Output: 8
-\`\`\`
-`,
   },
 ];
-
 
 function CircularProgress({ progress }: { progress: number }) {
   const size = 60;
@@ -136,12 +63,42 @@ function CircularProgress({ progress }: { progress: number }) {
   );
 }
 
-
 export default function LearningPathPage() {
-  const [activeChapter, setActiveChapter] = useState(chapters[0].id);
+  const [activeChapter, setActiveChapter] = useState(chapters[0]);
   const [completedChapters, setCompletedChapters] = useState<string[]>([]);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [lessonContent, setLessonContent] = useState('');
+  const [isLoadingContent, setIsLoadingContent] = useState(true);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  const fetchLessonContent = useCallback(async (chapterId: string) => {
+    setIsLoadingContent(true);
+    setLessonContent('');
+    try {
+      const chapter = chapters.find(c => c.id === chapterId);
+      if (chapter) {
+        const result = await generateLessonContent({ 
+          topic: chapter.title,
+          studentLevel: 'beginner' 
+        });
+        setLessonContent(result.content);
+      }
+    } catch (error) {
+      console.error('Failed to load lesson content', error);
+      setLessonContent('## Error\n\nSorry, we could not load the lesson content. Please try again later.');
+    } finally {
+      setIsLoadingContent(false);
+      setScrollProgress(0);
+      if (contentRef.current) {
+        contentRef.current.scrollTop = 0;
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchLessonContent(activeChapter.id);
+  }, [activeChapter, fetchLessonContent]);
+  
 
   const handleScroll = useCallback(() => {
     const contentEl = contentRef.current;
@@ -163,21 +120,20 @@ export default function LearningPathPage() {
       handleScroll(); // Initial check
       return () => contentEl.removeEventListener('scroll', handleScroll);
     }
-  }, [activeChapter, handleScroll]);
+  }, [lessonContent, handleScroll]);
 
   const handleChapterChange = (chapterId: string) => {
-    setActiveChapter(chapterId);
-    setScrollProgress(0);
-    if(contentRef.current) {
-        contentRef.current.scrollTop = 0;
+    const chapter = chapters.find(c => c.id === chapterId);
+    if(chapter) {
+      setActiveChapter(chapter);
     }
   };
 
   const completeChapter = () => {
-    if (!completedChapters.includes(activeChapter)) {
-      setCompletedChapters(prev => [...prev, activeChapter]);
+    if (!completedChapters.includes(activeChapter.id)) {
+      setCompletedChapters(prev => [...prev, activeChapter.id]);
     }
-    const currentIndex = chapters.findIndex(c => c.id === activeChapter);
+    const currentIndex = chapters.findIndex(c => c.id === activeChapter.id);
     if (currentIndex < chapters.length - 1) {
       handleChapterChange(chapters[currentIndex + 1].id);
     }
@@ -190,7 +146,8 @@ export default function LearningPathPage() {
     return completedChapters.includes(prevChapterId);
   }
 
-  const currentChapter = chapters.find(c => c.id === activeChapter);
+  const isCurrentChapterComplete = completedChapters.includes(activeChapter.id);
+  const isFinalChapter = chapters.findIndex(c => c.id === activeChapter.id) === chapters.length - 1;
 
   return (
     <div className="grid md:grid-cols-[280px_1fr] h-[calc(100vh-3.5rem)]">
@@ -205,7 +162,7 @@ export default function LearningPathPage() {
           {chapters.map((chapter, index) => {
             const isUnlocked = isChapterUnlocked(chapter.id);
             const isCompleted = completedChapters.includes(chapter.id);
-            const isActive = chapter.id === activeChapter;
+            const isActive = chapter.id === activeChapter.id;
 
             return (
               <button
@@ -233,9 +190,14 @@ export default function LearningPathPage() {
       </aside>
       <div className="flex flex-col relative overflow-hidden">
         <div className="flex-1 overflow-y-auto" ref={contentRef}>
-            {currentChapter && (
+            {isLoadingContent ? (
+                 <div className="flex flex-col items-center justify-center h-full pt-20">
+                    <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                    <p className="mt-4 text-muted-foreground">Preparing your lesson on "{activeChapter.title}"...</p>
+                </div>
+            ) : (
                 <article className="prose prose-lg dark:prose-invert max-w-4xl mx-auto p-8 md:p-12">
-                   <div dangerouslySetInnerHTML={{ __html: currentChapter.content.replace(/```python/g, '<pre><code class="language-python">').replace(/```/g, '</code></pre>') }} />
+                   <div dangerouslySetInnerHTML={{ __html: lessonContent.replace(/```python/g, '<pre><code class="language-python">').replace(/```/g, '</code></pre>') }} />
                 </article>
             )}
         </div>
@@ -244,13 +206,15 @@ export default function LearningPathPage() {
             <div className="flex items-center gap-4">
                <CircularProgress progress={scrollProgress} />
                <div>
-                <h3 className="font-semibold">{currentChapter?.title}</h3>
-                <p className="text-sm text-muted-foreground">Scroll to complete the chapter.</p>
+                <h3 className="font-semibold">{activeChapter?.title}</h3>
+                <p className="text-sm text-muted-foreground">Scroll to the end to complete the chapter.</p>
                </div>
             </div>
             <Button onClick={completeChapter} disabled={scrollProgress < 100}>
-                {completedChapters.includes(activeChapter) ? "Chapter Complete" : "Mark as Complete"}
-                <Play className="w-4 h-4 ml-2" />
+                {isCurrentChapterComplete && !isFinalChapter && "Next Chapter"}
+                {isCurrentChapterComplete && isFinalChapter && "Path Complete!"}
+                {!isCurrentChapterComplete && "Mark as Complete"}
+                {!isFinalChapter && <Play className="w-4 h-4 ml-2" />}
             </Button>
           </div>
         </footer>
