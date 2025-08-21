@@ -56,14 +56,14 @@ const prompt = ai.definePrompt({
   name: 'generatePracticeSessionPrompt',
   input: { schema: GeneratePracticeSessionInputSchema },
   output: { schema: GeneratePracticeSessionOutputSchema },
-  prompt: `You are an expert Python educator. Generate a practice session for a student based on the provided topic and their skill level.
-
-The practice session must include exactly:
-1.  Three multiple-choice quiz questions. Each question must have four options.
-2.  Three coding exercises. Each exercise must include a clear problem statement, a correct solution, and a simple test case or expected output.
+  prompt: `You are an expert Python educator creating a practice session for a student. Your task is to generate questions and exercises that are STRICTLY related to the specified topic and appropriate for the student's skill level. Do NOT ask questions about topics beyond what is mentioned in the topic.
 
 Topic: {{{topic}}}
 Student Level: {{{studentLevel}}}
+
+The practice session must include exactly:
+1.  Three multiple-choice quiz questions. Each question must have four options and directly test concepts from the given topic.
+2.  Three coding exercises. Each exercise must be a direct application of the concepts from the given topic. It should include a clear problem statement, a correct solution, and a simple test case or expected output.
 
 Generate the quiz and exercises now.
 `,
