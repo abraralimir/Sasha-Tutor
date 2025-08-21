@@ -250,15 +250,22 @@ function EndOfLessonQuiz({ lessonTitle, onQuizComplete }: { lessonTitle: string,
     };
 
     useEffect(() => {
-        // Reset state when the dialog is closed or the lesson changes
+        if (!isOpen) return;
+
+        const wasOpen = quizSession !== null || isLoading || error !== null;
+        if (!wasOpen) {
+            handleGenerateQuiz();
+        }
+    }, [isOpen, quizSession, isLoading, error, handleGenerateQuiz]);
+
+    // Reset state when the lesson changes, but only if the dialog is open
+    useEffect(() => {
         if (isOpen) {
             handleGenerateQuiz();
-        } else {
-            resetQuizState();
         }
-    }, [lessonTitle, isOpen, resetQuizState, handleGenerateQuiz]);
+    }, [lessonTitle, isOpen, handleGenerateQuiz]);
 
-    const isQuizComplete = quizSession && Object.values(quizAttempts).filter(a => a).length === quizSession.quiz.length;
+    const isQuizComplete = quizSession && Object.keys(quizAttempts).length === quizSession.quiz.length;
     const currentQuestion = quizSession?.quiz[activeQuestion];
     const currentAttempt = quizAttempts[activeQuestion];
 
@@ -344,23 +351,29 @@ function EndOfLessonQuiz({ lessonTitle, onQuizComplete }: { lessonTitle: string,
 }
 
 export default function LearningPathPage({ params }: { params: { topic: string } }) {
-  const topic = decodeURIComponent(params.topic);
-  const [course, setCourseState] = useState<Course | null>(getCourse(topic));
-  const [activeChapter, setActiveChapter] = useState<Chapter | null>(course?.chapters[0] ?? null);
-  const [activeLesson, setActiveLesson] = useState<Lesson | null>(course?.chapters[0]?.lessons[0] ?? null);
+  const [topic, setTopic] = useState('');
+  const [course, setCourseState] = useState<Course | null>(null);
+  const [activeChapter, setActiveChapter] = useState<Chapter | null>(null);
+  const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
   const [completedLessons, setCompletedLessons] = useState<string[]>([]);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isGeneratingContent, setIsGeneratingContent] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   
-  const chapters = course?.chapters ?? [];
-
   useEffect(() => {
-    const storedCourse = getCourse(topic);
-    setCourseState(storedCourse);
-    setActiveChapter(storedCourse?.chapters[0] ?? null);
-    setActiveLesson(storedCourse?.chapters[0]?.lessons[0] ?? null);
-  }, [topic]);
+    const decodedTopic = decodeURIComponent(params.topic);
+    setTopic(decodedTopic);
+    const storedCourse = getCourse(decodedTopic);
+    if (storedCourse) {
+      setCourseState(storedCourse);
+      const firstChapter = storedCourse.chapters[0] ?? null;
+      const firstLesson = firstChapter?.lessons[0] ?? null;
+      setActiveChapter(firstChapter);
+      setActiveLesson(firstLesson);
+    }
+  }, [params.topic]);
+
+  const chapters = course?.chapters ?? [];
 
   const handleLessonChange = useCallback(async (lessonId: string) => {
     if (!course) return;
@@ -380,8 +393,8 @@ export default function LearningPathPage({ params }: { params: { topic: string }
                 : c
             );
             const updatedCourse = { ...course, chapters: updatedChapters };
-            setCourse(updatedCourse);
-            setCourseState(updatedCourse);
+            setCourse(updatedCourse); // This is the service that saves to cache
+            setCourseState(updatedCourse); // This updates the component state
             setActiveLesson(updatedLesson);
           } catch (error) {
             console.error("Failed to generate lesson content", error);
@@ -587,5 +600,3 @@ export default function LearningPathPage({ params }: { params: { topic: string }
     </div>
   );
 }
-
-    
