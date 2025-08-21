@@ -24,6 +24,10 @@ import {
     generatePracticeSession as generatePracticeSessionFlow,
     type GeneratePracticeSessionInput,
 } from "@/ai/flows/generate-practice-session";
+import {
+    evaluatePythonCode as evaluatePythonCodeFlow,
+    type EvaluatePythonCodeInput,
+} from "@/ai/flows/evaluate-python-code";
 
 
 export async function generateCodingExercise(
@@ -50,4 +54,8 @@ export async function explainCode(input: ExplainCodeInput) {
 
 export async function generatePracticeSession(input: GeneratePracticeSessionInput) {
     return await generatePracticeSessionFlow(input);
+}
+
+export async function evaluatePythonCode(input: EvaluatePythonCodeInput) {
+    return await evaluatePythonCodeFlow(input);
 }

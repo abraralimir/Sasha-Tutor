@@ -4,7 +4,7 @@
 export interface Lesson {
     id: string;
     title: string;
-    content: string; // Markdown content
+    content: string; // Markdown content with special placeholders
 }
 
 export interface Chapter {
@@ -62,12 +62,10 @@ You should see the installed Python version, like \`Python 3.12.3\`.
 Python was designed for readability. It has a simple syntax similar to the English language.
 
 ## Your First Program
-The traditional first program is "Hello, World!". In Python, it's just one line:
-\`\`\`python
-print("Hello, World!")
-\`\`\`
-- \`print()\`: A built-in function that outputs text to the console.
-- \`"Hello, World!"\`: A string of text. Strings are enclosed in quotes.
+The traditional first program is "Hello, World!". In Python, it's just one line. The \`print()\` function is a built-in function that outputs text to the console. The text inside the parentheses, \`"Hello, World!"\`, is called a string.
+
+Now you try! Type the "Hello, World!" program in the box below and run it.
+<interactive-code-cell description="Write a Python program to print 'Hello, World!'." expected="print(\"Hello, World!\")" />
 
 ## Indentation
 Python uses indentation (whitespace at the beginning of a line) to define scope, like loops, functions, and classes. Other languages often use curly brackets for this purpose.
@@ -88,11 +86,13 @@ Comments can be used to explain Python code, make it more readable, and prevent 
 
 ## Single-line Comments
 Comments start with a \`#\`, and Python will ignore the rest of the line.
+
+<interactive-code-cell description="Add a comment above the print statement." expected="# This is a comment" />
+
 \`\`\`python
 # This is a comment
-print("Hello, World!") # This is also a comment
+print("Hello, World!")
 \`\`\`
-
 ## Multi-line Comments
 Python does not have a specific syntax for multi-line comments. To add them, you can either use \`#\` for each line or use a multi-line string (triple quotes), which Python will ignore if it's not assigned to a variable.
 \`\`\`python
@@ -115,11 +115,8 @@ A variable is a container for storing a value.
 
 ## Creating Variables
 Python has no command for declaring a variable. A variable is created the moment you first assign a value to it.
-\`\`\`python
-name = "Sasha"  # A string variable
-age = 20        # An integer variable
-is_learning = True # A boolean variable
-\`\`\`
+
+<interactive-code-cell description="Create a variable named 'name' and assign it the string value 'Sasha'." expected="name = \"Sasha\"" />
 
 ## Common Data Types
 - **String (\`str\`)**: \`"Hello"\`
@@ -143,6 +140,9 @@ print(type(x)) # Output: <class 'int'>
 Python has various types of numbers. We will mainly focus on integers (\`int\`) and floating-point numbers (\`float\`).
 
 You can perform all standard mathematical operations.
+
+<interactive-code-cell description="Add the numbers 10 and 5 together and print the result." expected="print(10 + 5)" />
+
 \`\`\`python
 x = 10
 y = 3
@@ -177,6 +177,8 @@ print(x ** y) # Output: 1000
 # Strings & String Operations
 
 Strings in python are surrounded by either single quotation marks, or double quotation marks.
+
+<interactive-code-cell description="Use an f-string to print 'Hello, Sasha'." expected="name = 'Sasha'; print(f'Hello, {name}')" />
 
 ## Basic Operations
 \`\`\`python
@@ -222,6 +224,8 @@ print(my_string.strip().replace("Python", "World")) # Output: "Hello World!"
 
 In programming you often need to know if an expression is **True** or **False**. These are the two boolean values.
 
+<interactive-code-cell description="Check if 10 is greater than 5 and print the result." expected="print(10 > 5)" />
+
 ## Comparison Operators
 \`\`\`python
 x = 10
@@ -258,6 +262,8 @@ print(not (age > 18)) # Output: False
 # Type Conversion & Input/Output
 
 Sometimes you need to convert values from one type to another. This is called type casting.
+
+<interactive-code-cell description="Convert the string '100' to an integer and print it." expected="print(int('100'))" />
 
 ## Type Conversion
 \`\`\`python
@@ -325,6 +331,8 @@ If you run this code and enter text instead of a number, the program won't crash
 
 Conditional statements allow your program to make decisions and execute different code blocks based on certain conditions.
 
+<interactive-code-cell description="Write an if statement to print 'Positive' if the variable 'x' is greater than 0." expected="x = 5; print('Positive' if x > 0 else 'Not Positive')" />
+
 \`\`\`python
 temperature = 25
 
@@ -345,6 +353,8 @@ The code checks conditions from top to bottom. As soon as a \`True\` condition i
 # Control Flow: for Loops
 
 A \`for\` loop is used for iterating over a sequence (like a list, tuple, or string).
+
+<interactive-code-cell description="Use a for loop and range() to print numbers from 0 to 2." expected="for i in range(3): print(i)" />
 
 ## Looping Through a List
 \`\`\`python
@@ -369,6 +379,8 @@ for i in range(5):
 # Control Flow: while Loops
 
 A \`while\` loop executes a set of statements as long as a condition is true.
+
+<interactive-code-cell description="Use a while loop to print numbers from 1 to 3." expected="i = 1; while i <= 3: print(i); i += 1" />
 
 \`\`\`python
 count = 0
@@ -416,6 +428,8 @@ if 10 > 5:
 
 List comprehensions provide a concise way to create lists.
 
+<interactive-code-cell description="Use a list comprehension to create a list of numbers from 0 to 4." expected="[x for x in range(5)]" />
+
 ## Basic Syntax
 A common use case is to make new lists where each element is the result of some operation applied to each member of another sequence.
 
@@ -454,6 +468,8 @@ print(even_squares)
 
 A list is a collection which is ordered and changeable. Allows duplicate members. In Python lists are written with square brackets.
 
+<interactive-code-cell description="Create a list containing the strings 'apple' and 'banana'." expected="['apple', 'banana']" />
+
 \`\`\`python
 my_list = ["apple", "banana", "cherry"]
 print(my_list)
@@ -479,6 +495,8 @@ print(my_list)
 
 A tuple is a collection which is ordered and **unchangeable**. In Python tuples are written with round brackets.
 
+<interactive-code-cell description="Create a tuple containing the numbers 1 and 2." expected="(1, 2)" />
+
 \`\`\`python
 my_tuple = ("apple", "banana", "cherry")
 print(my_tuple)
@@ -499,6 +517,8 @@ Tuples are useful for data that should not be modified, like days of the week or
 # Data Structures: Sets
 
 A set is a collection which is unordered and unindexed. No duplicate members. In Python sets are written with curly brackets.
+
+<interactive-code-cell description="Create a set containing the numbers 1, 2, and 2." expected="{1, 2}" />
 
 \`\`\`python
 my_set = {"apple", "banana", "cherry", "apple"}
@@ -521,6 +541,8 @@ Sets are highly optimized for checking if a specific element is contained in the
 # Data Structures: Dictionaries
 
 A dictionary is a collection which is ordered (as of Python 3.7), changeable and does not allow duplicate keys. Dictionaries are used to store data values in key:value pairs.
+
+<interactive-code-cell description="Create a dictionary with key 'name' and value 'Sasha'." expected="{'name': 'Sasha'}" />
 
 \`\`\`python
 my_dict = {
@@ -583,6 +605,8 @@ Nesting allows you to model complex, real-world data.
 
 A function is a block of code which only runs when it is called. You can pass data, known as parameters, into a function.
 
+<interactive-code-cell description="Define a function 'my_func' that prints 'Hi'." expected="def my_func(): print('Hi')" />
+
 \`\`\`python
 # Define a function
 def greet():
@@ -641,6 +665,8 @@ display_info(name="Sasha", course="Python")
 
 Functions can return a value to the caller using the \`return\` statement.
 
+<interactive-code-cell description="Define a function that returns the number 5." expected="def get_five(): return 5" />
+
 \`\`\`python
 def square(number):
   return number * number
@@ -667,6 +693,8 @@ If a function does not have a \`return\` statement, it implicitly returns \`None
 A lambda function is a small anonymous function. It can take any number of arguments, but can only have one expression.
 
 **Syntax**: \`lambda arguments : expression\`
+
+<interactive-code-cell description="Create a lambda function that takes 'x' and returns 'x + 1'." expected="lambda x: x + 1" />
 
 \`\`\`python
 # A lambda function that adds 10 to the number passed in
@@ -721,6 +749,8 @@ print(y) # Output: 200
 # Importing & Using Modules
 
 A module is a file containing Python code. We can import modules to use their functions, classes, and variables in our own code. Python has a vast standard library of modules.
+
+<interactive-code-cell description="Import the math module." expected="import math" />
 
 \`\`\`python
 # Import the 'math' module

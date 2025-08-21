@@ -2,7 +2,8 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Check, Lock, Play, Loader2, Sparkles, Pencil } from 'lucide-react';
-import { explainCode } from '@/lib/actions';
+import { explainCode, evaluatePythonCode } from '@/lib/actions';
+import type { EvaluatePythonCodeOutput } from '@/ai/flows/evaluate-python-code';
 import { getCourse, Chapter, Lesson } from '@/services/python-course-service';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -13,6 +14,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const course = getCourse();
 const chapters = course.chapters;
@@ -67,15 +70,14 @@ function CodeBlockExplainer({ code }: { code: string }) {
     try {
       const result = await explainCode({ codeToExplain: code });
       setExplanation(result.explanation);
-    } catch (error)
- {
+    } catch (error) {
       console.error('Failed to get explanation', error);
       setExplanation('Sorry, I was unable to generate an explanation.');
     } finally {
       setIsLoading(false);
     }
   };
-
+  
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -108,27 +110,107 @@ function CodeBlockExplainer({ code }: { code: string }) {
   );
 }
 
-function ArticleWithExplainers({ content }: { content: string }) {
-  const articleRef = useRef<HTMLDivElement>(null);
+function InteractiveCodeCell({ exerciseDescription, expectedOutput }: { exerciseDescription: string, expectedOutput: string }) {
+  const [code, setCode] = useState('');
+  const [isEvaluating, setIsEvaluating] = useState(false);
+  const [evaluation, setEvaluation] = useState<EvaluatePythonCodeOutput | null>(null);
 
-  useEffect(() => {
-    const preElements = articleRef.current?.querySelectorAll('pre');
-    preElements?.forEach(pre => {
-        // This logic is now handled by CodeBlockExplainer.
-        // The component is added manually to the content for simplicity.
-        // In a real app, this might be handled by parsing markdown to React components.
-    });
-  }, [content]);
+  const handleRunCode = async () => {
+    setIsEvaluating(true);
+    setEvaluation(null);
+    try {
+      const result = await evaluatePythonCode({
+        code,
+        exerciseDescription,
+        expectedOutput,
+      });
+      setEvaluation(result);
+    } catch (error) {
+      console.error("Failed to evaluate code", error);
+      setEvaluation({ correct: false, feedback: "An error occurred while evaluating your code." });
+    } finally {
+      setIsEvaluating(false);
+    }
+  };
 
-  // A more robust solution involves a Markdown-to-React library.
-  // For this prototype, we'll dangerously set HTML and acknowledge the limitations.
   return (
-    <article
-      ref={articleRef}
-      className="prose prose-lg dark:prose-invert max-w-4xl mx-auto p-8 md:p-12"
-      dangerouslySetInnerHTML={{ __html: content }}
-    />
+    <div className="my-6 p-4 border rounded-lg bg-card">
+      <p className="text-sm text-muted-foreground mb-2">{exerciseDescription}</p>
+      <div className="flex items-center gap-2">
+        <Input
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+          placeholder="Write your code here..."
+          className="font-code text-sm"
+          onKeyDown={(e) => e.key === 'Enter' && handleRunCode()}
+        />
+        <Button onClick={handleRunCode} disabled={isEvaluating || !code}>
+          {isEvaluating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
+          <span className="ml-2">Run</span>
+        </Button>
+      </div>
+      {evaluation && (
+        <div className="mt-4">
+           <Alert variant={evaluation.correct ? 'default' : 'destructive'} className={cn(evaluation.correct && 'border-green-500')}>
+            {evaluation.correct ? <Check className="h-4 w-4 text-green-500" /> : <Sparkles className="h-4 w-4" />}
+            <AlertTitle className={cn(evaluation.correct && 'text-green-600')}>{evaluation.correct ? "Correct!" : "AI Feedback"}</AlertTitle>
+            <AlertDescription>{evaluation.feedback}</AlertDescription>
+          </Alert>
+        </div>
+      )}
+    </div>
   );
+}
+
+
+function ArticleWithInteractiveContent({ content }: { content: string }) {
+  const parts = content.split(/<interactive-code-cell\s+description="([^"]+)"\s+expected="([^"]+)"\s*\/>/g);
+
+  return (
+    <article className="prose prose-lg dark:prose-invert max-w-4xl mx-auto p-8 md:p-12">
+      {parts.map((part, index) => {
+        if (index % 3 === 0) {
+          return <div key={index} dangerouslySetInnerHTML={{ __html: part }} />;
+        } else if (index % 3 === 1) {
+          const description = parts[index];
+          const expected = parts[index + 1];
+          return <InteractiveCodeCell key={index} exerciseDescription={description} expectedOutput={expected} />;
+        }
+        return null;
+      })}
+    </article>
+  );
+}
+
+function EndOfLessonQuiz({ onQuizComplete }: { onQuizComplete: () => void }) {
+    const [isOpen, setIsOpen] = useState(false);
+
+    const handleComplete = () => {
+        // Here you would normally run the AI quiz generation and evaluation
+        // For now, we'll just complete the lesson
+        onQuizComplete();
+        setIsOpen(false);
+    }
+
+    return (
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogTrigger asChild>
+                <Button>Mark as Complete</Button>
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>End of Lesson Quiz</DialogTitle>
+                </DialogHeader>
+                <div className="p-4 space-y-4">
+                    <p>Great job reaching the end of the lesson! Answer a few questions to solidify your knowledge.</p>
+                    <p className="text-center text-muted-foreground p-8">[AI-Generated Quiz Will Appear Here]</p>
+                    <Button onClick={handleComplete} className="w-full">
+                        Submit & Continue to Next Lesson
+                    </Button>
+                </div>
+            </DialogContent>
+        </Dialog>
+    );
 }
 
 export default function LearningPathPage() {
@@ -137,11 +219,6 @@ export default function LearningPathPage() {
   const [completedLessons, setCompletedLessons] = useState<string[]>([]);
   const [scrollProgress, setScrollProgress] = useState(0);
   const contentRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    // This effect can be used for any logic that needs to run when the article content changes.
-    // For now, the CodeBlockExplainer is not dynamically injected here.
-  }, [activeLesson]);
 
   const handleScroll = useCallback(() => {
     const contentEl = contentRef.current;
@@ -162,7 +239,6 @@ export default function LearningPathPage() {
       contentRef.current.scrollTop = 0;
     }
   }, [activeLesson]);
-
 
   useEffect(() => {
     const contentEl = contentRef.current;
@@ -193,10 +269,8 @@ export default function LearningPathPage() {
     const currentLessonIndex = activeChapter.lessons.findIndex(l => l.id === activeLesson.id);
 
     if (currentLessonIndex < activeChapter.lessons.length - 1) {
-      // Go to next lesson in the same chapter
       setActiveLesson(activeChapter.lessons[currentLessonIndex + 1]);
     } else if (currentChapterIndex < chapters.length - 1) {
-      // Go to the first lesson of the next chapter
       const nextChapter = chapters[currentChapterIndex + 1];
       setActiveChapter(nextChapter);
       setActiveLesson(nextChapter.lessons[0]);
@@ -286,7 +360,7 @@ export default function LearningPathPage() {
       </aside>
       <div className="flex flex-col relative overflow-hidden">
         <div className="flex-1 overflow-y-auto" ref={contentRef}>
-            <ArticleWithExplainers content={activeLesson.content} />
+            <ArticleWithInteractiveContent content={activeLesson.content} />
         </div>
         <footer className="p-4 border-t bg-background/80 backdrop-blur-sm sticky bottom-0">
           <div className="max-w-4xl mx-auto flex items-center justify-between">
@@ -294,15 +368,16 @@ export default function LearningPathPage() {
                <CircularProgress progress={scrollProgress} />
                <div>
                 <h3 className="font-semibold">{activeLesson?.title}</h3>
-                <p className="text-sm text-muted-foreground">Scroll to the end to complete the lesson.</p>
+                <p className="text-sm text-muted-foreground">Scroll to the end and complete the quiz to continue.</p>
                </div>
             </div>
-            <Button onClick={completeLesson} disabled={scrollProgress < 100}>
-                {isCurrentLessonComplete && !isFinalLesson && "Next Lesson"}
-                {isCurrentLessonComplete && isFinalLesson && "Path Complete!"}
-                {!isCurrentLessonComplete && "Mark as Complete"}
-                {!isFinalLesson && <Play className="w-4 h-4 ml-2" />}
-            </Button>
+            {isCurrentLessonComplete ? (
+              <Button onClick={completeLesson} disabled={isFinalLesson}>
+                Next Lesson <Play className="w-4 h-4 ml-2" />
+              </Button>
+            ) : (
+              <EndOfLessonQuiz onQuizComplete={completeLesson} />
+            )}
           </div>
         </footer>
       </div>

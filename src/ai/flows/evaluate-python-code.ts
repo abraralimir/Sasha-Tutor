@@ -33,7 +33,20 @@ const prompt = ai.definePrompt({
   name: 'evaluatePythonCodePrompt',
   input: {schema: EvaluatePythonCodeInputSchema},
   output: {schema: EvaluatePythonCodeOutputSchema},
-  prompt: `You are an expert coding tutor. You will evaluate the student's one-line Python code input and provide instant feedback.\n\nExercise Description: {{{exerciseDescription}}}\nStudent Code: {{{code}}}\nExpected Output: {{{expectedOutput}}}\n\nDetermine if the student code is correct. If not, provide specific feedback to help the student understand their mistakes and learn faster.\n\nConsider corner cases and provide hints.\n`,
+  prompt: `You are an expert and friendly coding tutor. You are evaluating a student's single line of Python code.
+
+Exercise Description: {{{exerciseDescription}}}
+Student's Code: \`\`\`python
+{{{code}}}
+\`\`\`
+Expected result (or concept to demonstrate): {{{expectedOutput}}}
+
+Your task is to determine if the student's code is correct.
+- If the code is correct and achieves the expected output, set 'correct' to true and provide encouraging feedback like "Great job!" or "Exactly right!".
+- If the code is incorrect or has syntax errors, set 'correct' to false. Provide a very gentle and helpful hint to guide the student. Do NOT give them the answer directly. For example, if they wrote \`print(Hello, World!)\` instead of \`print("Hello, World!")\`, you could say: "So close! Remember that text in Python, which we call strings, needs to be wrapped in quotes."
+
+Keep your feedback concise and positive.
+`,
 });
 
 const evaluatePythonCodeFlow = ai.defineFlow(
