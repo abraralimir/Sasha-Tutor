@@ -13,7 +13,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { PageHeader } from '@/components/page-header';
 
 const course = getCourse();
 const chapters = course.chapters;
@@ -109,6 +108,28 @@ function CodeBlockExplainer({ code }: { code: string }) {
   );
 }
 
+function ArticleWithExplainers({ content }: { content: string }) {
+  const articleRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const preElements = articleRef.current?.querySelectorAll('pre');
+    preElements?.forEach(pre => {
+        // This logic is now handled by CodeBlockExplainer.
+        // The component is added manually to the content for simplicity.
+        // In a real app, this might be handled by parsing markdown to React components.
+    });
+  }, [content]);
+
+  // A more robust solution involves a Markdown-to-React library.
+  // For this prototype, we'll dangerously set HTML and acknowledge the limitations.
+  return (
+    <article
+      ref={articleRef}
+      className="prose prose-lg dark:prose-invert max-w-4xl mx-auto p-8 md:p-12"
+      dangerouslySetInnerHTML={{ __html: content }}
+    />
+  );
+}
 
 export default function LearningPathPage() {
   const [activeChapter, setActiveChapter] = useState<Chapter>(chapters[0]);
@@ -117,30 +138,9 @@ export default function LearningPathPage() {
   const [scrollProgress, setScrollProgress] = useState(0);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  const getLessonContent = () => {
-    return { __html: activeLesson.content };
-  }
-
   useEffect(() => {
-    const renderCodeExplainers = () => {
-        // This is a workaround to add React components to dangerouslySetInnerHTML
-        // A more robust solution would involve parsing the markdown into a React tree
-        const preElements = contentRef.current?.querySelectorAll('pre');
-        preElements?.forEach(pre => {
-            if (pre.querySelector('button')) return; // Already added
-            pre.classList.add('relative');
-            const code = pre.querySelector('code')?.innerText || '';
-            const container = document.createElement('div');
-            pre.appendChild(container);
-
-            // Dynamically import and render the component.
-            // This is complex. A simpler way for this prototype is to just use a placeholder
-            // or accept that we can't inject interactive components this way.
-            // For the sake of this prototype, we will handle this via a different component.
-            // The logic is moved to a new component that wraps the article.
-        });
-    }
-    renderCodeExplainers();
+    // This effect can be used for any logic that needs to run when the article content changes.
+    // For now, the CodeBlockExplainer is not dynamically injected here.
   }, [activeLesson]);
 
   const handleScroll = useCallback(() => {
@@ -221,9 +221,7 @@ export default function LearningPathPage() {
 
   const isCurrentLessonComplete = completedLessons.includes(activeLesson.id);
   const isFinalLesson = chapters[chapters.length-1].lessons[chapters[chapters.length-1].lessons.length-1].id === activeLesson.id;
-
-  const isChapterComplete = activeChapter.lessons.every(l => completedLessons.includes(l.id));
-
+  
   return (
     <div className="grid md:grid-cols-[280px_1fr] h-[calc(100vh-3.5rem)]">
       <aside className="border-r flex flex-col">
@@ -237,57 +235,58 @@ export default function LearningPathPage() {
           </div>
         </div>
         <nav className="flex-1 overflow-auto p-4 space-y-1">
-          {chapters.map((chapter) => (
-            <div key={chapter.id}>
-                <h3 className="mb-2 mt-4 px-3 text-sm font-semibold text-muted-foreground">{chapter.title}</h3>
-                <div className="space-y-1">
-                {chapter.lessons.map(lesson => {
-                    const isUnlocked = isLessonUnlocked(lesson.id);
-                    const isCompleted = completedLessons.includes(lesson.id);
-                    const isActive = lesson.id === activeLesson.id;
+          {chapters.map((chapter) => {
+             const isChapterComplete = chapter.lessons.every(l => completedLessons.includes(l.id));
+             return (
+                <div key={chapter.id}>
+                    <h3 className="mb-2 mt-4 px-3 text-sm font-semibold text-muted-foreground">{chapter.title}</h3>
+                    <div className="space-y-1">
+                    {chapter.lessons.map(lesson => {
+                        const isUnlocked = isLessonUnlocked(lesson.id);
+                        const isCompleted = completedLessons.includes(lesson.id);
+                        const isActive = lesson.id === activeLesson.id;
 
-                    return (
-                    <button
-                        key={lesson.id}
-                        onClick={() => handleLessonChange(lesson.id)}
-                        disabled={!isUnlocked}
-                        className={cn(
-                        'w-full text-left px-3 py-2 rounded-md text-sm transition-colors flex items-center gap-3',
-                        isActive ? 'bg-primary text-primary-foreground' : 'hover:bg-muted',
-                        !isUnlocked && 'opacity-50 cursor-not-allowed'
-                        )}
-                    >
-                        <div className={cn("flex items-center justify-center w-5 h-5 rounded-full border-2 text-xs font-bold shrink-0",
-                        isCompleted ? 'border-green-500 bg-green-500 text-white' : 'border-muted-foreground',
-                        isActive && 'border-primary-foreground'
-                        )}
+                        return (
+                        <button
+                            key={lesson.id}
+                            onClick={() => handleLessonChange(lesson.id)}
+                            disabled={!isUnlocked}
+                            className={cn(
+                            'w-full text-left px-3 py-2 rounded-md text-sm transition-colors flex items-center gap-3',
+                            isActive ? 'bg-primary text-primary-foreground' : 'hover:bg-muted',
+                            !isUnlocked && 'opacity-50 cursor-not-allowed'
+                            )}
                         >
-                        {isCompleted ? <Check className="w-3 h-3" /> : !isUnlocked ? <Lock className="w-3 h-3"/> : <span className='text-xs'></span>}
-                        </div>
-                        <span>{lesson.title}</span>
-                    </button>
-                    )
-                })}
+                            <div className={cn("flex items-center justify-center w-5 h-5 rounded-full border-2 text-xs font-bold shrink-0",
+                            isCompleted ? 'border-green-500 bg-green-500 text-white' : 'border-muted-foreground',
+                            isActive && 'border-primary-foreground'
+                            )}
+                            >
+                            {isCompleted ? <Check className="w-3 h-3" /> : !isUnlocked ? <Lock className="w-3 h-3"/> : <span className='text-xs'></span>}
+                            </div>
+                            <span>{lesson.title}</span>
+                        </button>
+                        )
+                    })}
+                    </div>
+                    {isChapterComplete && (
+                       <div className="mt-2 px-3">
+                         <Link href={`/practice/${encodeURIComponent(chapter.title)}`}>
+                            <Button size="sm" className="w-full">
+                               <Pencil className="mr-2 h-4 w-4" />
+                               Practice Chapter
+                            </Button>
+                          </Link>
+                       </div>
+                    )}
                 </div>
-                {isChapterComplete && (
-                   <div className="mt-2 px-3">
-                     <Link href={`/practice/${encodeURIComponent(chapter.title)}`}>
-                        <Button size="sm" className="w-full">
-                           <Pencil className="mr-2 h-4 w-4" />
-                           Practice Chapter
-                        </Button>
-                      </Link>
-                   </div>
-                )}
-            </div>
-          ))}
+             )
+            })}
         </nav>
       </aside>
       <div className="flex flex-col relative overflow-hidden">
         <div className="flex-1 overflow-y-auto" ref={contentRef}>
-            <article className="prose prose-lg dark:prose-invert max-w-4xl mx-auto p-8 md:p-12">
-               <div dangerouslySetInnerHTML={getLessonContent()} />
-            </article>
+            <ArticleWithExplainers content={activeLesson.content} />
         </div>
         <footer className="p-4 border-t bg-background/80 backdrop-blur-sm sticky bottom-0">
           <div className="max-w-4xl mx-auto flex items-center justify-between">
