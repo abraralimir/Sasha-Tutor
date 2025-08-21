@@ -344,7 +344,8 @@ function EndOfLessonQuiz({ lessonTitle, onQuizComplete }: { lessonTitle: string,
 }
 
 export default function LearningPathPage({ params }: { params: { topic: string } }) {
-  const [course, setCourseState] = useState<Course | null>(getCourse(params.topic));
+  const topic = decodeURIComponent(params.topic);
+  const [course, setCourseState] = useState<Course | null>(getCourse(topic));
   const [activeChapter, setActiveChapter] = useState<Chapter | null>(course?.chapters[0] ?? null);
   const [activeLesson, setActiveLesson] = useState<Lesson | null>(course?.chapters[0]?.lessons[0] ?? null);
   const [completedLessons, setCompletedLessons] = useState<string[]>([]);
@@ -355,11 +356,11 @@ export default function LearningPathPage({ params }: { params: { topic: string }
   const chapters = course?.chapters ?? [];
 
   useEffect(() => {
-    const storedCourse = getCourse(params.topic);
+    const storedCourse = getCourse(topic);
     setCourseState(storedCourse);
     setActiveChapter(storedCourse?.chapters[0] ?? null);
     setActiveLesson(storedCourse?.chapters[0]?.lessons[0] ?? null);
-  }, [params.topic]);
+  }, [topic]);
 
   const handleLessonChange = useCallback(async (lessonId: string) => {
     if (!course) return;
@@ -487,7 +488,7 @@ export default function LearningPathPage({ params }: { params: { topic: string }
     <div className="grid md:grid-cols-[280px_1fr] h-[calc(100vh-3.5rem)]">
       <aside className="border-r flex flex-col bg-card">
         <div className="p-4 border-b">
-          <h2 className="text-lg font-semibold tracking-tight capitalize">{decodeURIComponent(params.topic)} Path</h2>
+          <h2 className="text-lg font-semibold tracking-tight capitalize">{topic} Path</h2>
           <div className="mt-2">
              <div className="w-full bg-muted rounded-full h-2.5">
                 <div className="bg-primary h-2.5 rounded-full" style={{width: `${pathProgress}%`}}></div>
@@ -586,3 +587,5 @@ export default function LearningPathPage({ params }: { params: { topic: string }
     </div>
   );
 }
+
+    
