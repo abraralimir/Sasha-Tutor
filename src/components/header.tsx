@@ -3,7 +3,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Bot, Code, MessageCircle, Search, Terminal } from 'lucide-react';
+import { Bot, Code, DraftingCompass, MessageCircle, Search, Terminal } from 'lucide-react';
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -60,8 +60,15 @@ export function Header() {
             <NavigationMenuList>
               <NavigationMenuItem>
                 <Link href="/python/learning-path" legacyBehavior passHref>
-                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                    Learning Path
+                  <NavigationMenuLink asChild>
+                     <Link href="/python/learning-path" className={navigationMenuTriggerStyle()}>Learning Path</Link>
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+               <NavigationMenuItem>
+                <Link href="/workbook" legacyBehavior passHref>
+                  <NavigationMenuLink asChild>
+                     <Link href="/workbook" className={navigationMenuTriggerStyle()}>Workbook</Link>
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>

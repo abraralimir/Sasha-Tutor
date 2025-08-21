@@ -1,22 +1,45 @@
 
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, BookOpen, Bot, Code, Table } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
+const featuredCourses = [
+  {
+    title: 'Python',
+    description: 'Master Python with interactive lessons, from basics to advanced topics.',
+    icon: Code,
+    href: '/python/learning-path',
+    color: 'text-blue-500',
+  },
+  {
+    title: 'Excel',
+    description: 'Learn spreadsheet magic, from formulas to data visualization.',
+    icon: Table,
+    href: '#', // Placeholder
+    color: 'text-green-500',
+  },
+  {
+    title: 'SAP FICO',
+    description: 'Understand financial accounting and reporting with SAP.',
+    icon: BookOpen,
+    href: '#', // Placeholder
+    color: 'text-orange-500',
+  },
+];
 
 export default function DashboardPage() {
   return (
     <div className="flex flex-col h-full">
-      <main className="flex-1 overflow-auto p-6 flex items-center justify-center">
-        <div className="max-w-3xl mx-auto text-center">
+      <main className="flex-1 overflow-auto p-6">
+        <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-5xl md:text-7xl font-bold tracking-tighter">
-            Your Personalized Learning Path
+            Your Personalized E-Learning Platform
           </h1>
           <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-            An interactive, AI-powered journey from the fundamentals to advanced
-            concepts. Start learning, practice with exercises, and get instant
-            feedback.
+            This is an interactive, AI-powered journey to master any subject. Just ask our AI in the search bar above to generate a custom course for you on any topic!
           </p>
-          <div className="mt-8">
+           <div className="mt-8 flex justify-center gap-4">
             <Link href="/python/learning-path">
               <Button size="lg">
                 Start Learning Python
@@ -25,6 +48,29 @@ export default function DashboardPage() {
             </Link>
           </div>
         </div>
+        
+        <div className="max-w-5xl mx-auto mt-20">
+            <h2 className="text-3xl font-bold text-center mb-8">Or explore our featured learning paths</h2>
+            <div className="grid md:grid-cols-3 gap-8">
+                {featuredCourses.map(course => (
+                     <Card key={course.title} className="hover:shadow-lg transition-shadow">
+                        <CardHeader className="flex flex-row items-center gap-4">
+                            <course.icon className={`w-10 h-10 ${course.color}`} />
+                            <CardTitle>{course.title}</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-muted-foreground">{course.description}</p>
+                             <Link href={course.href} className="mt-4 inline-block">
+                                <Button variant="outline" disabled={course.href === '#'}>
+                                    {course.href === '#' ? 'Coming Soon' : 'Start Learning'}
+                                </Button>
+                            </Link>
+                        </CardContent>
+                    </Card>
+                ))}
+            </div>
+        </div>
+
       </main>
     </div>
   );
