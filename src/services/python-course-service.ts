@@ -47,9 +47,7 @@ To get started, you need to install Python.
 3.  Run the installer. On Windows, make sure to check the box that says **"Add Python to PATH"**.
 
 To verify your installation, open a terminal or command prompt and type:
-\`\`\`bash
-python --version
-\`\`\`
+<code>python --version</code>
 You should see the installed Python version, like \`Python 3.12.3\`.
 `
                 },
@@ -69,10 +67,8 @@ Now you try! Type the "Hello, World!" program in the box below and run it.
 
 ## Indentation
 Python uses indentation (whitespace at the beginning of a line) to define scope, like loops, functions, and classes. Other languages often use curly brackets for this purpose.
-\`\`\`python
-if 5 > 2:
-  print("Five is greater than two!") # This line is indented
-\`\`\`
+<code>if 5 > 2:
+  print("Five is greater than two!") # This line is indented</code>
 The amount of indentation is up to you, but it must be consistent. The standard is four spaces.
 `
                 },
@@ -87,22 +83,18 @@ Comments can be used to explain Python code, make it more readable, and prevent 
 ## Single-line Comments
 Comments start with a \`#\`, and Python will ignore the rest of the line.
 
-<interactive-code-cell description="Add a comment above the print statement." expected="# This is a comment" />
+<interactive-code-cell description="Add a comment above the print statement that says 'This prints a message'." expected="# This prints a message" />
+<code># This is a comment
+print("Hello, World!")</code>
 
-\`\`\`python
-# This is a comment
-print("Hello, World!")
-\`\`\`
 ## Multi-line Comments
 Python does not have a specific syntax for multi-line comments. To add them, you can either use \`#\` for each line or use a multi-line string (triple quotes), which Python will ignore if it's not assigned to a variable.
-\`\`\`python
-"""
+<code>"""
 This is a multi-line comment
 or rather a multi-line string literal
 that can be used as one.
 """
-print("Comments are useful!")
-\`\`\`
+print("Comments are useful!")</code>
 `
                 },
                 {
@@ -125,10 +117,8 @@ Python has no command for declaring a variable. A variable is created the moment
 - **Boolean (\`bool\`)**: \`True\`, \`False\`
 
 You can get the data type of any object by using the \`type()\` function.
-\`\`\`python
-x = 5
-print(type(x)) # Output: <class 'int'>
-\`\`\`
+<code>x = 5
+print(type(x)) # Output: <class 'int'></code>
 `
                 },
                 {
@@ -142,9 +132,7 @@ Python has various types of numbers. We will mainly focus on integers (\`int\`) 
 You can perform all standard mathematical operations.
 
 <interactive-code-cell description="Add the numbers 10 and 5 together and print the result." expected="print(10 + 5)" />
-
-\`\`\`python
-x = 10
+<code>x = 10
 y = 3
 
 # Addition
@@ -166,8 +154,7 @@ print(x // y) # Output: 3
 print(x % y) # Output: 1
 
 # Exponentiation (x to the power of y)
-print(x ** y) # Output: 1000
-\`\`\`
+print(x ** y) # Output: 1000</code>
 `
                 },
                 {
@@ -178,11 +165,10 @@ print(x ** y) # Output: 1000
 
 Strings in python are surrounded by either single quotation marks, or double quotation marks.
 
-<interactive-code-cell description="Use an f-string to print 'Hello, Sasha'." expected="name = 'Sasha'; print(f'Hello, {name}')" />
+<interactive-code-cell description="Use an f-string to print 'Hello, Sasha'. You will need to create a name variable first." expected="name = 'Sasha'; print(f'Hello, {name}')" />
 
 ## Basic Operations
-\`\`\`python
-# Concatenation (joining strings)
+<code># Concatenation (joining strings)
 first_name = "Sasha"
 last_name = "Codes"
 full_name = first_name + " " + last_name
@@ -196,11 +182,10 @@ print(greeting) # Output: Hello, my name is Sasha.
 print(len(full_name)) # Output: 11
 
 # Accessing characters
-print(first_name[0]) # Output: S
-\`\`\`
+print(first_name[0]) # Output: S</code>
+
 ## Common String Methods
-\`\`\`python
-my_string = "  Hello Python!  "
+<code>my_string = "  Hello Python!  "
 
 # Remove whitespace from beginning or end
 print(my_string.strip()) # Output: "Hello Python!"
@@ -212,8 +197,7 @@ print(my_string.lower()) # Output: "  hello python!  "
 print(my_string.upper()) # Output: "  HELLO PYTHON!  "
 
 # Replace a substring
-print(my_string.strip().replace("Python", "World")) # Output: "Hello World!"
-\`\`\`
+print(my_string.strip().replace("Python", "World")) # Output: "Hello World!"</code>
 `
                 },
                 {
@@ -227,23 +211,20 @@ In programming you often need to know if an expression is **True** or **False**.
 <interactive-code-cell description="Check if 10 is greater than 5 and print the result." expected="print(10 > 5)" />
 
 ## Comparison Operators
-\`\`\`python
-x = 10
+<code>x = 10
 y = 5
 
 print(x > y)  # Output: True
 print(x < y)  # Output: False
 print(x == y) # Output: False (Note: == is for comparison, = is for assignment)
-print(x != y) # Output: True (Not equal)
-\`\`\`
+print(x != y) # Output: True (Not equal)</code>
 
 ## Logical Operators
 Logical operators are used to combine conditional statements:
 - **\`and\`**: Returns \`True\` if both statements are true.
 - **\`or\`**: Returns \`True\` if one of the statements is true.
 - **\`not\`**: Reverse the result, returns \`False\` if the result is true.
-\`\`\`python
-age = 22
+<code>age = 22
 is_student = True
 
 # and operator
@@ -251,8 +232,7 @@ if age > 18 and is_student:
   print("Eligible for student discount.")
 
 # not operator
-print(not (age > 18)) # Output: False
-\`\`\`
+print(not (age > 18)) # Output: False</code>
 `
                 },
                 {
@@ -266,8 +246,7 @@ Sometimes you need to convert values from one type to another. This is called ty
 <interactive-code-cell description="Convert the string '100' to an integer and print it." expected="print(int('100'))" />
 
 ## Type Conversion
-\`\`\`python
-x = 10 # int
+<code>x = 10 # int
 y = 3.14 # float
 z = "25" # str
 
@@ -279,20 +258,17 @@ print(int(y)) # Output: 3
 
 # Convert string to int
 age = int(z)
-print(age * 2) # Output: 50
-\`\`\`
+print(age * 2) # Output: 50</code>
 
 ## Getting User Input
 The \`input()\` function allows you to get input from the user. It always returns the input as a string.
-\`\`\`python
-name = input("Enter your name: ")
+<code>name = input("Enter your name: ")
 age_str = input("Enter your age: ")
 
 # Convert age to integer to perform math
 age_int = int(age_str)
 
-print(f"Hello, {name}! You will be {age_int + 1} next year.")
-\`\`\`
+print(f"Hello, {name}! You will be {age_int + 1} next year.")</code>
 `
                 },
                 {
@@ -305,15 +281,14 @@ When an error occurs in your program, it will normally stop and generate an erro
 
 The \`try\` block lets you test a block of code for errors.
 The \`except\` block lets you handle the error.
+<interactive-code-cell description="This code will cause an error. Fix it using a try/except block to print 'Cannot divide by zero'." expected="try: print(5/0) except: print('Cannot divide by zero')" />
 
-\`\`\`python
-try:
+<code>try:
   age_str = input("Enter your age: ")
   age_int = int(age_str)
   print(f"Your age is {age_int}.")
 except ValueError:
-  print("Invalid input. Please enter a number.")
-\`\`\`
+  print("Invalid input. Please enter a number.")</code>
 If you run this code and enter text instead of a number, the program won't crash. Instead, it will execute the \`except\` block and print a user-friendly message.
 `
                 }
@@ -331,18 +306,16 @@ If you run this code and enter text instead of a number, the program won't crash
 
 Conditional statements allow your program to make decisions and execute different code blocks based on certain conditions.
 
-<interactive-code-cell description="Write an if statement to print 'Positive' if the variable 'x' is greater than 0." expected="x = 5; print('Positive' if x > 0 else 'Not Positive')" />
+<interactive-code-cell description="Write an if statement to print 'Positive' if the variable 'x' is greater than 0." expected="x = 5; print('Positive') if x > 0 else print('Not Positive')" />
 
-\`\`\`python
-temperature = 25
+<code>temperature = 25
 
 if temperature > 30:
   print("It's a hot day!")
 elif temperature > 20: # You can have zero or more elif parts
   print("It's a pleasant day.")
 else: # The else part is optional
-  print("It's a cold day.")
-\`\`\`
+  print("It's a cold day.")</code>
 The code checks conditions from top to bottom. As soon as a \`True\` condition is found, its block is executed, and the rest of the \`if/elif/else\` structure is skipped.
 `
                 },
@@ -357,19 +330,15 @@ A \`for\` loop is used for iterating over a sequence (like a list, tuple, or str
 <interactive-code-cell description="Use a for loop and range() to print numbers from 0 to 2." expected="for i in range(3): print(i)" />
 
 ## Looping Through a List
-\`\`\`python
-fruits = ["apple", "banana", "cherry"]
+<code>fruits = ["apple", "banana", "cherry"]
 for fruit in fruits:
-  print(f"I like {fruit}s.")
-\`\`\`
+  print(f"I like {fruit}s.")</code>
 
 ## The range() Function
 To loop through a set of code a specified number of times, we can use the \`range()\` function.
-\`\`\`python
-# Prints numbers from 0 to 4
+<code># Prints numbers from 0 to 4
 for i in range(5):
-  print(i)
-\`\`\`
+  print(i)</code>
 `
                 },
                 {
@@ -381,15 +350,12 @@ for i in range(5):
 A \`while\` loop executes a set of statements as long as a condition is true.
 
 <interactive-code-cell description="Use a while loop to print numbers from 1 to 3." expected="i = 1; while i <= 3: print(i); i += 1" />
-
-\`\`\`python
-count = 0
+<code>count = 0
 while count < 5:
   print(f"Count is {count}")
   count = count + 1 # It is crucial to increment count, otherwise the loop will continue forever.
 
-print("Loop finished.")
-\`\`\`
+print("Loop finished.")</code>
 This loop will print the count from 0 to 4. When \`count\` becomes 5, the condition \`count < 5\` is no longer true, and the loop terminates.
 `
                 },
@@ -404,9 +370,11 @@ You can change the execution of a loop from its normal sequence.
 - **\`break\`**: Terminates the loop entirely.
 - **\`continue\`**: Skips the rest of the current iteration and proceeds to the next one.
 - **\`pass\`**: A null statement, a placeholder for when a statement is required syntactically but no code needs to be executed.
-
-\`\`\`python
-# Example of break and continue
+<interactive-code-cell description="Write a loop that prints 0, 1, and 2, then stops using 'break'." expected="for i in range(5):
+    if i == 3:
+        break
+    print(i)" />
+<code># Example of break and continue
 for i in range(10):
   if i == 3:
     continue # Skip printing 3
@@ -416,8 +384,7 @@ for i in range(10):
 
 # Example of pass
 if 10 > 5:
-    pass # We need something here, but don't want to do anything
-\`\`\`
+    pass # We need something here, but don't want to do anything</code>
 `
                 },
                 {
@@ -433,8 +400,7 @@ List comprehensions provide a concise way to create lists.
 ## Basic Syntax
 A common use case is to make new lists where each element is the result of some operation applied to each member of another sequence.
 
-\`\`\`python
-# A traditional for loop to create a list of squares
+<code># A traditional for loop to create a list of squares
 squares = []
 for x in range(10):
   squares.append(x**2)
@@ -442,16 +408,13 @@ print(squares)
 
 # The same result using a list comprehension
 squares_comp = [x**2 for x in range(10)]
-print(squares_comp)
-\`\`\`
+print(squares_comp)</code>
 
 ## With a Condition
 You can also add a condition to filter the elements.
-\`\`\`python
-# Get squares of even numbers only
+<code># Get squares of even numbers only
 even_squares = [x**2 for x in range(10) if x % 2 == 0]
-print(even_squares)
-\`\`\`
+print(even_squares)</code>
 `
                 }
             ]
@@ -469,9 +432,7 @@ print(even_squares)
 A list is a collection which is ordered and changeable. Allows duplicate members. In Python lists are written with square brackets.
 
 <interactive-code-cell description="Create a list containing the strings 'apple' and 'banana'." expected="['apple', 'banana']" />
-
-\`\`\`python
-my_list = ["apple", "banana", "cherry"]
+<code>my_list = ["apple", "banana", "cherry"]
 print(my_list)
 
 # Access items by index
@@ -483,8 +444,7 @@ print(my_list) # Output: ['orange', 'banana', 'cherry']
 
 # Add an item
 my_list.append("mango")
-print(my_list)
-\`\`\`
+print(my_list)</code>
 `
                 },
                 {
@@ -496,17 +456,14 @@ print(my_list)
 A tuple is a collection which is ordered and **unchangeable**. In Python tuples are written with round brackets.
 
 <interactive-code-cell description="Create a tuple containing the numbers 1 and 2." expected="(1, 2)" />
-
-\`\`\`python
-my_tuple = ("apple", "banana", "cherry")
+<code>my_tuple = ("apple", "banana", "cherry")
 print(my_tuple)
 
 # Access items by index
 print(my_tuple[0]) # Output: apple
 
 # You cannot change items in a tuple
-# my_tuple[0] = "orange" # This will raise a TypeError
-\`\`\`
+# my_tuple[0] = "orange" # This will raise a TypeError</code>
 Tuples are useful for data that should not be modified, like days of the week or coordinates.
 `
                 },
@@ -518,10 +475,8 @@ Tuples are useful for data that should not be modified, like days of the week or
 
 A set is a collection which is unordered and unindexed. No duplicate members. In Python sets are written with curly brackets.
 
-<interactive-code-cell description="Create a set containing the numbers 1, 2, and 2." expected="{1, 2}" />
-
-\`\`\`python
-my_set = {"apple", "banana", "cherry", "apple"}
+<interactive-code-cell description="Create a set containing the numbers 1, 2, and 2. What do you expect the output to be?" expected="{1, 2}" />
+<code>my_set = {"apple", "banana", "cherry", "apple"}
 print(my_set) # Output: {'cherry', 'apple', 'banana'} (order may vary, 'apple' appears once)
 
 # Add an item
@@ -529,8 +484,7 @@ my_set.add("orange")
 print(my_set)
 
 # Check if an item exists
-print("banana" in my_set) # Output: True
-\`\`\`
+print("banana" in my_set) # Output: True</code>
 Sets are highly optimized for checking if a specific element is contained in the set.
 `
                 },
@@ -543,9 +497,7 @@ Sets are highly optimized for checking if a specific element is contained in the
 A dictionary is a collection which is ordered (as of Python 3.7), changeable and does not allow duplicate keys. Dictionaries are used to store data values in key:value pairs.
 
 <interactive-code-cell description="Create a dictionary with key 'name' and value 'Sasha'." expected="{'name': 'Sasha'}" />
-
-\`\`\`python
-my_dict = {
+<code>my_dict = {
   "brand": "Ford",
   "model": "Mustang",
   "year": 1964
@@ -561,8 +513,7 @@ print(my_dict)
 
 # Add a new item
 my_dict["color"] = "red"
-print(my_dict)
-\`\`\`
+print(my_dict)</code>
 `
                 },
                 {
@@ -572,9 +523,8 @@ print(my_dict)
 # Nested Data Structures
 
 You can have data structures inside other data structures. For example, a list of dictionaries.
-
-\`\`\`python
-# A list of students, where each student is a dictionary
+<interactive-code-cell description="Create a list with one dictionary inside. The dictionary should have a key 'city' with the value 'New York'." expected="[{'city': 'New York'}]" />
+<code># A list of students, where each student is a dictionary
 students = [
     {"name": "Alice", "grade": 85},
     {"name": "Bob", "grade": 92},
@@ -586,8 +536,7 @@ print(students[0]["name"]) # Output: Alice
 
 # Looping through nested data
 for student in students:
-    print(f"{student['name']} scored {student['grade']}.")
-\`\`\`
+    print(f"{student['name']} scored {student['grade']}.")</code>
 Nesting allows you to model complex, real-world data.
 `
                 }
@@ -606,9 +555,7 @@ Nesting allows you to model complex, real-world data.
 A function is a block of code which only runs when it is called. You can pass data, known as parameters, into a function.
 
 <interactive-code-cell description="Define a function 'my_func' that prints 'Hi'." expected="def my_func(): print('Hi')" />
-
-\`\`\`python
-# Define a function
+<code># Define a function
 def greet():
   print("Hello from a function!")
 
@@ -620,8 +567,7 @@ def greet_name(name):
   print(f"Hello, {name}!")
 
 greet_name("Alice")
-greet_name("Bob")
-\`\`\`
+greet_name("Bob")</code>
 Functions help break our program into smaller and modular chunks.
 `
                 },
@@ -635,26 +581,22 @@ Sometimes, you might need to pass a variable number of arguments to a function.
 
 ## *args (Non-Keyword Arguments)
 \`*args\` allows you to pass a variable number of positional arguments. They are received as a tuple.
-\`\`\`python
-def sum_all(*args):
+<code>def sum_all(*args):
   total = 0
   for num in args:
     total += num
   return total
 
 print(sum_all(1, 2, 3)) # Output: 6
-print(sum_all(10, 20))    # Output: 30
-\`\`\`
+print(sum_all(10, 20))    # Output: 30</code>
 
 ## **kwargs (Keyword Arguments)
 \`**kwargs\` allows you to pass a variable number of keyword arguments. They are received as a dictionary.
-\`\`\`python
-def display_info(**kwargs):
+<code>def display_info(**kwargs):
   for key, value in kwargs.items():
     print(f"{key}: {value}")
 
-display_info(name="Sasha", course="Python")
-\`\`\`
+display_info(name="Sasha", course="Python")</code>
 `
                 },
                 {
@@ -666,9 +608,7 @@ display_info(name="Sasha", course="Python")
 Functions can return a value to the caller using the \`return\` statement.
 
 <interactive-code-cell description="Define a function that returns the number 5." expected="def get_five(): return 5" />
-
-\`\`\`python
-def square(number):
+<code>def square(number):
   return number * number
 
 result = square(5)
@@ -679,8 +619,7 @@ def get_name():
     return "Sasha", "Codes"
 
 first, last = get_name()
-print(f"First: {first}, Last: {last}")
-\`\`\`
+print(f"First: {first}, Last: {last}")</code>
 If a function does not have a \`return\` statement, it implicitly returns \`None\`.
 `
                 },
@@ -695,16 +634,13 @@ A lambda function is a small anonymous function. It can take any number of argum
 **Syntax**: \`lambda arguments : expression\`
 
 <interactive-code-cell description="Create a lambda function that takes 'x' and returns 'x + 1'." expected="lambda x: x + 1" />
-
-\`\`\`python
-# A lambda function that adds 10 to the number passed in
+<code># A lambda function that adds 10 to the number passed in
 x = lambda a : a + 10
 print(x(5)) # Output: 15
 
 # A lambda function that multiplies two arguments
 multiply = lambda a, b : a * b
-print(multiply(5, 6)) # Output: 30
-\`\`\`
+print(multiply(5, 6)) # Output: 30</code>
 Lambda functions are often used as anonymous functions inside other functions.
 `
                 },
@@ -718,28 +654,24 @@ A variable is only available from inside the region it is created. This is calle
 
 ## Local Scope
 A variable created inside a function is available only inside that function.
-\`\`\`python
-def my_func():
+<code>def my_func():
   x = 300 # Local variable
   print(x)
 
 my_func()
-# print(x) # This would cause an error
-\`\`\`
+# print(x) # This would cause an error</code>
 
 ## Global Scope
 A variable created in the main body of the Python code is a global variable and belongs to the global scope.
 To change a global variable inside a function, use the \`global\` keyword.
-\`\`\`python
-y = 150 # Global variable
+<code>y = 150 # Global variable
 
 def my_other_func():
   global y
   y = 200 # Change the global variable
 
 my_other_func()
-print(y) # Output: 200
-\`\`\`
+print(y) # Output: 200</code>
 `
                 },
                 {
@@ -750,10 +682,8 @@ print(y) # Output: 200
 
 A module is a file containing Python code. We can import modules to use their functions, classes, and variables in our own code. Python has a vast standard library of modules.
 
-<interactive-code-cell description="Import the math module." expected="import math" />
-
-\`\`\`python
-# Import the 'math' module
+<interactive-code-cell description="Import the math module and print the value of pi." expected="import math; print(math.pi)" />
+<code># Import the 'math' module
 import math
 
 # Use a function from the math module
@@ -763,8 +693,7 @@ print(math.sqrt(16)) # Output: 4.0
 from datetime import datetime
 
 # Use the imported function directly
-print(datetime.now())
-\`\`\`
+print(datetime.now())</code>
 Modules help in organizing code and reusing it across different programs.
 `
                 },
@@ -778,25 +707,21 @@ Any Python file can be a module. To create a module, just save the code you want
 
 ## Example
 1.  Create a file named \`mymodule.py\`:
-\`\`\`python
-# mymodule.py
+<code># mymodule.py
 def greeting(name):
   print(f"Hello, {name}")
 
 person = {
     "name": "John",
     "age": 36
-}
-\`\`\`
+}</code>
 
 2. Create another file, \`main.py\`, in the same directory and import \`mymodule\`:
-\`\`\`python
-# main.py
+<code># main.py
 import mymodule
 
 mymodule.greeting("Sasha")
-print(mymodule.person["age"])
-\`\`\`
+print(mymodule.person["age"])</code>
 When you run \`main.py\`, it will execute the code using the functions and variables defined in \`mymodule.py\`.
 `
                 }
@@ -819,8 +744,7 @@ Modes for reading:
 - \`"r"\` - Read - Default value. Opens a file for reading, error if the file does not exist.
 
 It's good practice to use the \`with\` statement because it automatically closes the file for you.
-\`\`\`python
-# Assume you have a file "myfile.txt" with some text in it.
+<code># Assume you have a file "myfile.txt" with some text in it.
 
 with open("myfile.txt", "r") as file:
   content = file.read() # Reads the entire file
@@ -829,8 +753,7 @@ with open("myfile.txt", "r") as file:
 # To read line by line
 with open("myfile.txt", "r") as file:
   for line in file:
-    print(line.strip()) # strip() removes leading/trailing whitespace
-\`\`\`
+    print(line.strip()) # strip() removes leading/trailing whitespace</code>
 `
                 },
                 {
@@ -845,16 +768,14 @@ Modes for writing:
 - \`"w"\` - Write - Opens a file for writing, creates the file if it does not exist. **Warning: This will overwrite any existing content.**
 - \`"a"\` - Append - Opens a file for appending, creates the file if it does not exist. New content is added to the end.
 
-\`\`\`python
-# Write to a file (overwrites)
+<code># Write to a file (overwrites)
 with open("newfile.txt", "w") as file:
   file.write("Hello, World!\\n")
   file.write("This is a new file.")
 
 # Append to a file
 with open("newfile.txt", "a") as file:
-  file.write("\\nThis line is appended.")
-\`\`\`
+  file.write("\\nThis line is appended.")</code>
 `
                 },
                 {
@@ -866,8 +787,7 @@ with open("newfile.txt", "a") as file:
 CSV (Comma Separated Values) is a popular format for storing tabular data. Python's built-in \`csv\` module makes it easy to work with these files.
 
 ## Reading a CSV
-\`\`\`python
-import csv
+<code>import csv
 
 # Assume data.csv contains:
 # name,age
@@ -882,18 +802,15 @@ with open('data.csv', mode='r') as file:
 # Output:
 # ['name', 'age']
 # ['Alice', '30']
-# ['Bob', '25']
-\`\`\`
+# ['Bob', '25']</code>
 
 ## Writing to a CSV
-\`\`\`python
-import csv
+<code>import csv
 
 with open('output.csv', mode='w', newline='') as file:
     csv_writer = csv.writer(file)
     csv_writer.writerow(['name', 'department'])
-    csv_writer.writerow(['Charlie', 'Engineering'])
-\`\`\`
+    csv_writer.writerow(['Charlie', 'Engineering'])</code>
 `
                 },
                 {
@@ -905,20 +822,17 @@ with open('output.csv', mode='w', newline='') as file:
 JSON is a syntax for storing and exchanging data, based on JavaScript object notation. Python's built-in \`json\` module can be used to work with JSON data.
 
 ## Reading a JSON file (loading)
-\`\`\`python
-import json
+<code>import json
 
 # Assume data.json contains: {"name": "Sasha", "course": "Python"}
 
 with open('data.json', 'r') as file:
     data = json.load(file)
     print(data) # Output: {'name': 'Sasha', 'course': 'Python'}
-    print(data['name']) # Output: Sasha
-\`\`\`
+    print(data['name']) # Output: Sasha</code>
 
 ## Writing to a JSON file (dumping)
-\`\`\`python
-import json
+<code>import json
 
 student_data = {
     'id': 101,
@@ -927,8 +841,7 @@ student_data = {
 }
 
 with open('output.json', 'w') as file:
-    json.dump(student_data, file, indent=4)
-\`\`\`
+    json.dump(student_data, file, indent=4)</code>
 `
                 }
             ]
@@ -965,14 +878,12 @@ This structure allows you to handle exceptions gracefully.
 - **\`except\`**: Catches and handles specific exceptions.
 - **\`finally\`**: Contains code that will execute no matter what, whether an exception occurred or not.
 
-\`\`\`python
-try:
+<code>try:
     x = 10 / 0
 except ZeroDivisionError:
     print("Cannot divide by zero!")
 finally:
-    print("This will always execute.")
-\`\`\`
+    print("This will always execute.")</code>
 `
                 },
                 {
@@ -983,8 +894,7 @@ finally:
 
 You can choose to throw an exception if a condition occurs, using the \`raise\` keyword.
 
-\`\`\`python
-def set_age(age):
+<code>def set_age(age):
     if age < 0:
         raise ValueError("Age cannot be negative.")
     print(f"Age is set to {age}")
@@ -992,8 +902,7 @@ def set_age(age):
 try:
     set_age(-5)
 except ValueError as e:
-    print(f"Error: {e}")
-\`\`\`
+    print(f"Error: {e}")</code>
 This is useful for enforcing rules in your code.
 `
                 },
@@ -1005,8 +914,7 @@ This is useful for enforcing rules in your code.
 
 You can create your own exception classes by inheriting from the base \`Exception\` class. This can make your error handling more specific and readable.
 
-\`\`\`python
-class MyCustomError(Exception):
+<code>class MyCustomError(Exception):
     """A custom exception for my application."""
     pass
 
@@ -1017,8 +925,7 @@ def check_value(value):
 try:
     check_value(200)
 except MyCustomError as e:
-    print(f"Caught a custom error: {e}")
-\`\`\`
+    print(f"Caught a custom error: {e}")</code>
 `
                 }
             ]
@@ -1038,8 +945,7 @@ Object-Oriented Programming (OOP) is a method of structuring a program by bundli
 - **Class**: A blueprint for creating objects.
 - **Object**: An instance of a class.
 
-\`\`\`python
-# Create a class
+<code># Create a class
 class Dog:
   species = "Canis familiaris" # Class variable
 
@@ -1053,8 +959,7 @@ dog1 = Dog("Buddy", 3)
 dog2 = Dog("Lucy", 5)
 
 print(f"{dog1.name} is {dog1.age} years old.")
-print(f"{dog2.name} is a {dog2.species}.")
-\`\`\`
+print(f"{dog2.name} is a {dog2.species}.")</code>
 `
                 },
                 {
@@ -1065,8 +970,7 @@ print(f"{dog2.name} is a {dog2.species}.")
 
 Functions defined inside a class are called **methods**. The first parameter of a method is always \`self\`, which refers to the instance of the class.
 
-\`\`\`python
-class Dog:
+<code>class Dog:
   def __init__(self, name, age):
     self.name = name
     self.age = age
@@ -1076,8 +980,7 @@ class Dog:
     print(f"{self.name} says Woof!")
 
 my_dog = Dog("Rex", 4)
-my_dog.bark() # Output: Rex says Woof!
-\`\`\`
+my_dog.bark() # Output: Rex says Woof!</code>
 `
                 },
                 {
@@ -1091,8 +994,7 @@ Inheritance allows us to define a class that inherits all the methods and proper
 - **Parent class** (or base class): The class being inherited from.
 - **Child class** (or derived class): The class that inherits.
 
-\`\`\`python
-# Parent class
+<code># Parent class
 class Animal:
     def __init__(self, name):
         self.name = name
@@ -1112,8 +1014,7 @@ class Cat(Animal):
 d = Dog("Buddy")
 c = Cat("Whiskers")
 print(d.speak())
-print(c.speak())
-\`\`\`
+print(c.speak())</code>
 `
                 },
                 {
@@ -1128,8 +1029,7 @@ Special methods (also called "magic" or "dunder" methods) have double underscore
 - **\`__str__\`**: Defines the string representation of an object.
 - **\`__len__\`**: Defines what happens when \`len()\` is called on an object.
 
-\`\`\`python
-class Book:
+<code>class Book:
     def __init__(self, title, author, pages):
         self.title = title
         self.author = author
@@ -1144,8 +1044,7 @@ class Book:
 my_book = Book("The Hitchhiker's Guide", "Douglas Adams", 193)
 
 print(my_book)      # Calls __str__
-print(len(my_book)) # Calls __len__
-\`\`\`
+print(len(my_book)) # Calls __len__</code>
 `
                 }
             ]
@@ -1166,16 +1065,14 @@ An iterator is an object that contains a countable number of values. It's an obj
 ## Generators
 Generators are a simple way to create iterators. They are written like regular functions but use the \`yield\` keyword to return data. When a generator function is called, it returns a generator object, which can be used to generate values on the fly.
 
-\`\`\`python
-# A generator function for squares
+<code># A generator function for squares
 def square_generator(n):
     for i in range(n):
         yield i ** 2
 
 # Using the generator
 for square in square_generator(5):
-    print(square)
-\`\`\`
+    print(square)</code>
 Generators are memory-efficient as they produce items one at a time and only when required.
 `
                 },
@@ -1187,8 +1084,7 @@ Generators are memory-efficient as they produce items one at a time and only whe
 
 Decorators allow you to add new functionality to an existing object (like a function) without modifying its structure. Decorators are usually called before the definition of a function you want to decorate.
 
-\`\`\`python
-def my_decorator(func):
+<code>def my_decorator(func):
     def wrapper():
         print("Something is happening before the function is called.")
         func()
@@ -1199,8 +1095,7 @@ def my_decorator(func):
 def say_hello():
     print("Hello!")
 
-say_hello()
-\`\`\`
+say_hello()</code>
 `
                 },
                 {
@@ -1211,8 +1106,7 @@ say_hello()
 
 A Regular Expression, or RegEx, is a sequence of characters that forms a search pattern. Python's \`re\` module provides support for regular expressions.
 
-\`\`\`python
-import re
+<code>import re
 
 text = "The rain in Spain"
 
@@ -1223,8 +1117,7 @@ print(x) # Output: ['ai', 'ai']
 # Search the string to see if it starts with "The"
 y = re.search("^The", text)
 if y:
-  print("Yes, the string starts with 'The'")
-\`\`\`
+  print("Yes, the string starts with 'The'")</code>
 `
                 }
             ]
@@ -1243,29 +1136,19 @@ if y:
 \`pip\` is the package installer for Python. You can use it to install packages from the Python Package Index (PyPI).
 
 To install a package:
-\`\`\`bash
-pip install requests
-\`\`\`
+<code>pip install requests</code>
 To uninstall a package:
-\`\`\`bash
-pip uninstall requests
-\`\`\`
+<code>pip uninstall requests</code>
 
 ## Virtual Environments (venv)
 It is a best practice to use a virtual environment for each project. This creates an isolated environment for your Python packages, preventing conflicts between projects.
 
 To create a virtual environment:
-\`\`\`bash
-python -m venv my-project-env
-\`\`\`
+<code>python -m venv my-project-env</code>
 To activate it (on macOS/Linux):
-\`\`\`bash
-source my-project-env/bin/activate
-\`\`\`
+<code>source my-project-env/bin/activate</code>
 To activate it (on Windows):
-\`\`\`bash
-.\\my-project-env\\Scripts\\activate
-\`\`\`
+<code>.\\my-project-env\\Scripts\\activate</code>
 `
                 },
                 {
@@ -1278,8 +1161,7 @@ The \`requests\` library is the standard for making HTTP requests in Python.
 
 First, install it: \`pip install requests\`
 
-\`\`\`python
-import requests
+<code>import requests
 
 # Make a GET request to an API
 response = requests.get('https://api.github.com')
@@ -1290,8 +1172,7 @@ if response.status_code == 200:
     # Print the response content (as JSON)
     print(response.json())
 else:
-    print('An error occurred.')
-\`\`\`
+    print('An error occurred.')</code>
 `
                 },
                 {
@@ -1305,8 +1186,7 @@ else:
 
 First, install them: \`pip install pandas matplotlib\`
 
-\`\`\`python
-import pandas as pd
+<code>import pandas as pd
 import matplotlib.pyplot as plt
 
 # Create a simple DataFrame
@@ -1320,8 +1200,7 @@ print(df)
 df.plot(x='Year', y='Sales', kind='line')
 plt.title('Annual Sales')
 plt.ylabel('Sales in USD')
-plt.show() # This will display the plot
-\`\`\`
+plt.show() # This will display the plot</code>
 `
                 }
             ]

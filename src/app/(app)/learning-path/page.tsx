@@ -1,9 +1,10 @@
 'use client';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { Check, Lock, Play, Loader2, Sparkles, Pencil } from 'lucide-react';
-import { explainCode, evaluatePythonCode } from '@/lib/actions';
+import { Check, Lock, Play, Loader2, Sparkles, Pencil, ChevronRight, AlertCircle, CheckCircle } from 'lucide-react';
+import { explainCode, evaluatePythonCode, generatePracticeSession } from '@/lib/actions';
 import type { EvaluatePythonCodeOutput } from '@/ai/flows/evaluate-python-code';
+import type { GeneratePracticeSessionOutput } from '@/ai/flows/generate-practice-session';
 import { getCourse, Chapter, Lesson } from '@/services/python-course-service';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -13,9 +14,12 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 
 const course = getCourse();
 const chapters = course.chapters;
@@ -134,7 +138,10 @@ function InteractiveCodeCell({ exerciseDescription, expectedOutput }: { exercise
   };
 
   return (
-    <div className="my-6 p-4 border rounded-lg bg-card">
+    <div className="my-6 p-4 border rounded-lg bg-card relative group/code-cell">
+       <div className="absolute top-2 right-2 opacity-0 group-hover/code-cell:opacity-100 transition-opacity">
+         <CodeBlockExplainer code={expectedOutput} />
+       </div>
       <p className="text-sm text-muted-foreground mb-2">{exerciseDescription}</p>
       <div className="flex items-center gap-2">
         <Input
@@ -170,8 +177,12 @@ function ArticleWithInteractiveContent({ content }: { content: string }) {
     <article className="prose prose-lg dark:prose-invert max-w-4xl mx-auto p-8 md:p-12">
       {parts.map((part, index) => {
         if (index % 3 === 0) {
-          return <div key={index} dangerouslySetInnerHTML={{ __html: part }} />;
+          // This is a regular content part
+          // To render code blocks with syntax highlighting, we can wrap them.
+          // For now, we'll just render the HTML.
+          return <div key={index} dangerouslySetInnerHTML={{ __html: part.replace(/<code>(.*?)<\/code>/gs, '<code class="font-code bg-muted px-1 rounded-sm">$1</code>') }} />;
         } else if (index % 3 === 1) {
+          // This is an interactive cell
           const description = parts[index];
           const expected = parts[index + 1];
           return <InteractiveCodeCell key={index} exerciseDescription={description} expectedOutput={expected} />;
@@ -182,32 +193,139 @@ function ArticleWithInteractiveContent({ content }: { content: string }) {
   );
 }
 
-function EndOfLessonQuiz({ onQuizComplete }: { onQuizComplete: () => void }) {
-    const [isOpen, setIsOpen] = useState(false);
+type QuizAttempt = {
+  selected: string;
+  isCorrect: boolean;
+};
 
-    const handleComplete = () => {
-        // Here you would normally run the AI quiz generation and evaluation
-        // For now, we'll just complete the lesson
-        onQuizComplete();
-        setIsOpen(false);
-    }
+function EndOfLessonQuiz({ lessonTitle, onQuizComplete }: { lessonTitle: string, onQuizComplete: () => void }) {
+    const [isOpen, setIsOpen] = useState(false);
+    const [quizSession, setQuizSession] = useState<GeneratePracticeSessionOutput | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [activeQuestion, setActiveQuestion] = useState(0);
+    const [quizAttempts, setQuizAttempts] = useState<Record<number, QuizAttempt>>({});
+
+    const handleGenerateQuiz = async () => {
+        if (quizSession) return;
+        setIsLoading(true);
+        setError(null);
+        try {
+            const result = await generatePracticeSession({
+                topic: lessonTitle,
+                studentLevel: 'beginner',
+            });
+            setQuizSession(result);
+        } catch (err) {
+            setError('Failed to generate quiz. Please try again.');
+            console.error(err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    
+    const handleOpenChange = (open: boolean) => {
+        setIsOpen(open);
+        if (open) {
+            handleGenerateQuiz();
+        } else {
+            // Reset state when closing
+            setQuizSession(null);
+            setActiveQuestion(0);
+            setQuizAttempts({});
+        }
+    };
+
+    const handleAnswer = (selectedOption: string) => {
+        if (!quizSession || quizAttempts[activeQuestion]) return;
+
+        const isCorrect = quizSession.quiz[activeQuestion].correctAnswer === selectedOption;
+        setQuizAttempts(prev => ({
+            ...prev,
+            [activeQuestion]: { selected: selectedOption, isCorrect },
+        }));
+    };
+
+    const isQuizComplete = quizSession && Object.values(quizAttempts).filter(a => a.isCorrect).length === quizSession.quiz.length;
+    const currentQuestion = quizSession?.quiz[activeQuestion];
+    const currentAttempt = quizAttempts[activeQuestion];
 
     return (
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <Dialog open={isOpen} onOpenChange={handleOpenChange}>
             <DialogTrigger asChild>
                 <Button>Mark as Complete</Button>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>End of Lesson Quiz</DialogTitle>
+                    <DialogTitle>Lesson Quiz: {lessonTitle}</DialogTitle>
                 </DialogHeader>
-                <div className="p-4 space-y-4">
-                    <p>Great job reaching the end of the lesson! Answer a few questions to solidify your knowledge.</p>
-                    <p className="text-center text-muted-foreground p-8">[AI-Generated Quiz Will Appear Here]</p>
-                    <Button onClick={handleComplete} className="w-full">
-                        Submit & Continue to Next Lesson
-                    </Button>
+                <div className="p-4 space-y-4 min-h-[300px]">
+                    {isLoading && (
+                        <div className="flex items-center justify-center h-full">
+                            <Loader2 className="w-8 h-8 animate-spin" />
+                            <p className="ml-2">Generating your quiz...</p>
+                        </div>
+                    )}
+                    {error && <Alert variant="destructive"><AlertCircle className="h-4 w-4" /><AlertTitle>Error</AlertTitle><AlertDescription>{error}</AlertDescription></Alert>}
+                    
+                    {quizSession && currentQuestion && (
+                        <div>
+                            <p className="font-semibold text-lg mb-4">{activeQuestion + 1}. {currentQuestion.question}</p>
+                            <RadioGroup
+                                value={currentAttempt?.selected}
+                                onValueChange={handleAnswer}
+                                disabled={!!currentAttempt}
+                                className="space-y-3"
+                            >
+                                {currentQuestion.options.map((option, i) => {
+                                    const isSelected = currentAttempt?.selected === option;
+                                    const isCorrectAnswer = currentQuestion.correctAnswer === option;
+                                    return (
+                                        <Label key={i} className={cn(
+                                            'flex items-center gap-3 rounded-md border p-4 cursor-pointer transition-colors',
+                                            currentAttempt && isSelected && !currentAttempt.isCorrect && 'border-destructive bg-destructive/10',
+                                            currentAttempt && isCorrectAnswer && 'border-green-500 bg-green-500/10',
+                                            !currentAttempt && 'hover:bg-muted'
+                                        )}>
+                                            <RadioGroupItem value={option} />
+                                            <span>{option}</span>
+                                        </Label>
+                                    );
+                                })}
+                            </RadioGroup>
+                            {currentAttempt && (
+                                <Alert className="mt-4" variant={currentAttempt.isCorrect ? 'default' : 'destructive'}>
+                                    {currentAttempt.isCorrect ? <CheckCircle className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
+                                    <AlertTitle>{currentAttempt.isCorrect ? 'Correct!' : 'Not quite'}</AlertTitle>
+                                    {!currentAttempt.isCorrect && <AlertDescription>The correct answer is: {currentQuestion.correctAnswer}</AlertDescription>}
+                                </Alert>
+                            )}
+                        </div>
+                    )}
+
+                    {isQuizComplete && (
+                        <div className='text-center py-8'>
+                             <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
+                            <h3 className="text-xl font-bold">Great job!</h3>
+                            <p className="text-muted-foreground">You've passed the quiz and completed the lesson.</p>
+                        </div>
+                    )}
                 </div>
+                <DialogFooter>
+                    {isQuizComplete ? (
+                        <Button onClick={() => { onQuizComplete(); setIsOpen(false); }} className="w-full">
+                            Continue to Next Lesson
+                        </Button>
+                    ) : (
+                        <Button
+                            onClick={() => setActiveQuestion(p => p + 1)}
+                            disabled={!currentAttempt || !quizSession || activeQuestion >= quizSession.quiz.length - 1}
+                            className="w-full"
+                        >
+                            Next Question <ChevronRight className="w-4 h-4 ml-2" />
+                        </Button>
+                    )}
+                </DialogFooter>
             </DialogContent>
         </Dialog>
     );
@@ -278,6 +396,9 @@ export default function LearningPathPage() {
   };
 
   const isLessonUnlocked = (lessonId: string) => {
+    // The very first lesson is always unlocked
+    if (chapters[0].lessons[0].id === lessonId) return true;
+
     let prevLessonId: string | null = null;
     for (const chapter of chapters) {
         for (const lesson of chapter.lessons) {
@@ -298,7 +419,7 @@ export default function LearningPathPage() {
   
   return (
     <div className="grid md:grid-cols-[280px_1fr] h-[calc(100vh-3.5rem)]">
-      <aside className="border-r flex flex-col">
+      <aside className="border-r flex flex-col bg-card">
         <div className="p-4 border-b">
           <h2 className="text-lg font-semibold tracking-tight">Python Path</h2>
           <div className="mt-2">
@@ -376,7 +497,7 @@ export default function LearningPathPage() {
                 Next Lesson <Play className="w-4 h-4 ml-2" />
               </Button>
             ) : (
-              <EndOfLessonQuiz onQuizComplete={completeLesson} />
+              <EndOfLessonQuiz lessonTitle={activeLesson.title} onQuizComplete={completeLesson} />
             )}
           </div>
         </footer>
