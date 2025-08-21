@@ -1,25 +1,89 @@
 
-import { PageHeader } from "@/components/page-header";
-import { Bot, DraftingCompass, Pencil } from "lucide-react";
+'use client';
+
+import { useState } from 'react';
+import { Bot, Loader2, Sparkles } from 'lucide-react';
+import { explainCode } from '@/lib/actions';
+import { PageHeader } from '@/components/page-header';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function WorkbookPage() {
-    return (
-        <div className="flex flex-col h-full">
-            <PageHeader
-                title="AI Workbook"
-                description="Your personal canvas for learning and creativity."
+  const [code, setCode] = useState('');
+  const [explanation, setExplanation] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleExplain = async () => {
+    if (!code) return;
+    setIsLoading(true);
+    setExplanation('');
+    try {
+      const result = await explainCode({ codeToExplain: code });
+      setExplanation(result.explanation);
+    } catch (error) {
+      console.error('Failed to get explanation', error);
+      setExplanation(
+        'Sorry, an error occurred while trying to explain the code. Please try again.'
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-col h-full">
+      <PageHeader
+        title="AI Workbook"
+        description="Your personal canvas for learning. Paste any Python code snippet below and get a detailed explanation from your AI tutor."
+      />
+      <main className="flex-1 overflow-auto p-6">
+        <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
+          <div className="flex flex-col gap-4">
+            <h2 className="text-xl font-semibold">Your Code</h2>
+            <Textarea
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              placeholder="Paste your Python code here..."
+              className="h-80 resize-none font-code text-sm"
+              autoComplete="off"
             />
-            <main className="flex-1 overflow-auto p-6 flex items-center justify-center">
-                <div className="text-center">
-                     <div className="inline-flex p-4 bg-muted rounded-full">
-                        <DraftingCompass className="h-12 w-12 text-muted-foreground" />
+            <Button onClick={handleExplain} disabled={isLoading || !code}>
+              {isLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Sparkles className="mr-2 h-4 w-4" />
+              )}
+              {isLoading ? 'Analyzing...' : 'Explain with AI'}
+            </Button>
+          </div>
+
+          <div className="flex flex-col">
+            <h2 className="text-xl font-semibold mb-4">AI Explanation</h2>
+             <Card className="flex-1">
+              <CardContent className="p-6">
+                {isLoading && (
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    <span>Generating explanation...</span>
+                  </div>
+                )}
+                {!isLoading && !explanation && (
+                    <div className="text-center text-muted-foreground pt-16">
+                        <Bot className="mx-auto h-12 w-12" />
+                        <p className="mt-2">The explanation will appear here.</p>
                     </div>
-                    <h2 className="mt-6 text-2xl font-bold">The Workbook is Coming Soon</h2>
-                    <p className="mt-2 text-muted-foreground max-w-md mx-auto">
-                        This will be your interactive space with draggable tools, a live IDE, and AI assistance to tackle any learning challenge.
-                    </p>
-                </div>
-            </main>
+                )}
+                {explanation && (
+                    <div className="prose prose-sm max-w-none dark:prose-invert whitespace-pre-wrap">
+                        {explanation}
+                    </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </div>
-    );
+      </main>
+    </div>
+  );
 }
