@@ -25,233 +25,426 @@ const pythonCourse: Course = {
     chapters: [
         {
             id: 'chapter-1',
-            title: 'Introduction to Python',
+            title: 'Level 1: Beginner (Foundations)',
             lessons: [
                 {
                     id: 'lesson-1-1',
-                    title: 'What is Python?',
+                    title: 'Introduction to Python & Setup',
                     content: `
-# What is Python?
+# Introduction to Python & Setup
 
-Welcome to your first step into the world of programming! You've chosen to start with Python, which is an excellent choice.
+Welcome to the world of Python! Python is a versatile, high-level programming language known for its readability and simplicity.
 
-## A High-Level Language
+## Why Python?
+- **Easy to Learn**: Clean syntax makes it great for beginners.
+- **Versatile**: Used in web development, data science, AI, automation, and more.
+- **Large Community**: Extensive libraries and a supportive community.
 
-Python is a **high-level, interpreted, interactive and object-oriented scripting language**. Don't worry if these terms sound complicated. Let's break them down:
+## Setup
+To get started, you need to install Python.
+1.  Go to the official [python.org](https://python.org) website.
+2.  Download the latest version for your operating system.
+3.  Run the installer. On Windows, make sure to check the box that says **"Add Python to PATH"**.
 
-- **High-level:** This means Python is closer to human language than it is to machine language (like binary code). It's designed to be easy to read and write. You write code that looks a bit like English, and the computer figures out the rest.
-
-- **Interpreted:** Python code is processed at runtime by an interpreter. You don't need to compile your program before executing it. This is different from languages like C++ or Java. It makes the development process faster and more flexible.
-
-- **Interactive:** You can actually "talk" to the Python interpreter directly to write your programs. This is great for testing small snippets of code and experimenting.
-
-- **Object-Oriented:** Python supports a way of programming that lets you structure your code around "objects," which can contain both data and functions. This helps in creating complex applications in a clear and organized way.
-
-## Why is Python so popular?
-
-Python is one of the most popular programming languages in the world for several reasons:
-
-1.  **Easy to Learn:** Its simple, clean syntax makes it an ideal language for beginners.
-2.  **Versatile:** You can use Python for almost anything!
-    *   Web development (like Django and Flask)
-    *   Data science and machine learning (with libraries like Pandas, NumPy, and TensorFlow)
-    *   Automation and scripting
-    *   Software testing
-    *   And much more!
-3.  **Huge Community:** There's a massive global community of Python developers. This means you can find a lot of tutorials, libraries, and support online.
-
-## Your First Python Code
-
-Traditionally, the first program you write in a new language is one that prints "Hello, World!" to the screen. In Python, this is incredibly simple.
-
-\`\`\`python
-print("Hello, World!")
+To verify your installation, open a terminal or command prompt and type:
+\`\`\`bash
+python --version
 \`\`\`
-
-That's it! Just one line. We'll dive into what this line does in the next lesson. Get ready to start coding!
+You should see the installed Python version, like \`Python 3.12.3\`.
 `
                 },
                 {
                     id: 'lesson-1-2',
-                    title: 'Setting Up Your Environment',
+                    title: 'Python Syntax & First Program',
                     content: `
-# Setting Up Your Environment
+# Python Syntax & First Program (Hello, World!)
 
-Before you can run Python code on your computer, you need to have the Python interpreter installed. Think of the interpreter as the program that understands and executes your Python code.
+Python was designed for readability. It has a simple syntax similar to the English language.
 
-## Installing Python
-
-Most non-Windows operating systems, like macOS and Linux, come with Python pre-installed. However, it might be an older version. It's always a good idea to install the latest version.
-
-You can download the latest version of Python from the official website: [python.org](https://python.org).
-
-The website provides installers for Windows, macOS, and source code for Linux users. The installation is straightforward, just like any other software.
-
-**Important:** During installation on Windows, make sure to check the box that says **"Add Python to PATH"**. This will make it much easier to run Python from the command line.
-
-## Verifying the Installation
-
-Once installed, you can check if everything is working correctly. Open your command line or terminal:
-
--   On **Windows**, search for "Command Prompt" or "PowerShell".
--   On **macOS**, open the "Terminal" app.
--   On **Linux**, you likely already know how to open a terminal.
-
-Type the following command and press Enter:
-
-\`\`\`bash
-python --version
+## Your First Program
+The traditional first program is "Hello, World!". In Python, it's just one line:
+\`\`\`python
+print("Hello, World!")
 \`\`\`
-Or, depending on your system, you might need to use:
-\`\`\`bash
-python3 --version
+- \`print()\`: A built-in function that outputs text to the console.
+- \`"Hello, World!"\`: A string of text. Strings are enclosed in quotes.
+
+## Indentation
+Python uses indentation (whitespace at the beginning of a line) to define scope, like loops, functions, and classes. Other languages often use curly brackets for this purpose.
+\`\`\`python
+if 5 > 2:
+  print("Five is greater than two!") # This line is indented
+\`\`\`
+The amount of indentation is up to you, but it must be consistent. The standard is four spaces.
+`
+                },
+                {
+                    id: 'lesson-1-3',
+                    title: 'Comments & Code Structure',
+                    content: `
+# Comments & Code Structure
+
+Comments can be used to explain Python code, make it more readable, and prevent execution when testing.
+
+## Single-line Comments
+Comments start with a \`#\`, and Python will ignore the rest of the line.
+\`\`\`python
+# This is a comment
+print("Hello, World!") # This is also a comment
 \`\`\`
 
-If Python is installed correctly, you should see something like \`Python 3.12.3\`, indicating the version number.
+## Multi-line Comments
+Python does not have a specific syntax for multi-line comments. To add them, you can either use \`#\` for each line or use a multi-line string (triple quotes), which Python will ignore if it's not assigned to a variable.
+\`\`\`python
+"""
+This is a multi-line comment
+or rather a multi-line string literal
+that can be used as one.
+"""
+print("Comments are useful!")
+\`\`\`
+`
+                },
+                {
+                    id: 'lesson-1-4',
+                    title: 'Variables & Data Types',
+                    content: `
+# Variables & Data Types
 
-## The Python Interactive Shell
+A variable is a container for storing a value.
 
-One of the best ways to learn Python is by using its interactive shell. This is a command-line session where you can type Python code and see the results immediately.
+## Creating Variables
+Python has no command for declaring a variable. A variable is created the moment you first assign a value to it.
+\`\`\`python
+name = "Sasha"  # A string variable
+age = 20        # An integer variable
+is_learning = True # A boolean variable
+\`\`\`
 
-To start the interactive shell, just type \`python\` or \`python3\` in your terminal and press Enter.
+## Common Data Types
+- **String (\`str\`)**: \`"Hello"\`
+- **Integer (\`int\`)**: \`10\`, \`-5\`
+- **Float (\`float\`)**: \`3.14\`, \`2.5\`
+- **Boolean (\`bool\`)**: \`True\`, \`False\`
 
-You'll see a prompt that looks like this: \`>>>\`.
+You can get the data type of any object by using the \`type()\` function.
+\`\`\`python
+x = 5
+print(type(x)) # Output: <class 'int'>
+\`\`\`
+`
+                },
+                {
+                    id: 'lesson-1-5',
+                    title: 'Numbers & Math Operations',
+                    content: `
+# Numbers & Math Operations
 
-Now you can type Python code directly. Try it out!
+Python has various types of numbers. We will mainly focus on integers (\`int\`) and floating-point numbers (\`float\`).
+
+You can perform all standard mathematical operations.
+\`\`\`python
+x = 10
+y = 3
+
+# Addition
+print(x + y) # Output: 13
+
+# Subtraction
+print(x - y) # Output: 7
+
+# Multiplication
+print(x * y) # Output: 30
+
+# Division
+print(x / y) # Output: 3.333...
+
+# Floor Division (discards the fractional part)
+print(x // y) # Output: 3
+
+# Modulus (returns the remainder)
+print(x % y) # Output: 1
+
+# Exponentiation (x to the power of y)
+print(x ** y) # Output: 1000
+\`\`\`
+`
+                },
+                {
+                    id: 'lesson-1-6',
+                    title: 'Strings & String Operations',
+                    content: `
+# Strings & String Operations
+
+Strings in python are surrounded by either single quotation marks, or double quotation marks.
+
+## Basic Operations
+\`\`\`python
+# Concatenation (joining strings)
+first_name = "Sasha"
+last_name = "Codes"
+full_name = first_name + " " + last_name
+print(full_name) # Output: Sasha Codes
+
+# String formatting (f-strings)
+greeting = f"Hello, my name is {first_name}."
+print(greeting) # Output: Hello, my name is Sasha.
+
+# String length
+print(len(full_name)) # Output: 11
+
+# Accessing characters
+print(first_name[0]) # Output: S
+\`\`\`
+## Common String Methods
+\`\`\`python
+my_string = "  Hello Python!  "
+
+# Remove whitespace from beginning or end
+print(my_string.strip()) # Output: "Hello Python!"
+
+# Convert to lowercase
+print(my_string.lower()) # Output: "  hello python!  "
+
+# Convert to uppercase
+print(my_string.upper()) # Output: "  HELLO PYTHON!  "
+
+# Replace a substring
+print(my_string.strip().replace("Python", "World")) # Output: "Hello World!"
+\`\`\`
+`
+                },
+                {
+                    id: 'lesson-1-7',
+                    title: 'Booleans & Logical Operators',
+                    content: `
+# Booleans & Logical Operators
+
+In programming you often need to know if an expression is **True** or **False**. These are the two boolean values.
+
+## Comparison Operators
+\`\`\`python
+x = 10
+y = 5
+
+print(x > y)  # Output: True
+print(x < y)  # Output: False
+print(x == y) # Output: False (Note: == is for comparison, = is for assignment)
+print(x != y) # Output: True (Not equal)
+\`\`\`
+
+## Logical Operators
+Logical operators are used to combine conditional statements:
+- **\`and\`**: Returns \`True\` if both statements are true.
+- **\`or\`**: Returns \`True\` if one of the statements is true.
+- **\`not\`**: Reverse the result, returns \`False\` if the result is true.
+\`\`\`python
+age = 22
+is_student = True
+
+# and operator
+if age > 18 and is_student:
+  print("Eligible for student discount.")
+
+# not operator
+print(not (age > 18)) # Output: False
+\`\`\`
+`
+                },
+                {
+                    id: 'lesson-1-8',
+                    title: 'Type Conversion & Input/Output',
+                    content: `
+# Type Conversion & Input/Output
+
+Sometimes you need to convert values from one type to another. This is called type casting.
+
+## Type Conversion
+\`\`\`python
+x = 10 # int
+y = 3.14 # float
+z = "25" # str
+
+# Convert int to float
+print(float(x)) # Output: 10.0
+
+# Convert float to int (truncates)
+print(int(y)) # Output: 3
+
+# Convert string to int
+age = int(z)
+print(age * 2) # Output: 50
+\`\`\`
+
+## Getting User Input
+The \`input()\` function allows you to get input from the user. It always returns the input as a string.
+\`\`\`python
+name = input("Enter your name: ")
+age_str = input("Enter your age: ")
+
+# Convert age to integer to perform math
+age_int = int(age_str)
+
+print(f"Hello, {name}! You will be {age_int + 1} next year.")
+\`\`\`
+`
+                },
+                {
+                    id: 'lesson-1-9',
+                    title: 'Basic Error Handling (try/except)',
+                    content: `
+# Basic Error Handling (try/except)
+
+When an error occurs in your program, it will normally stop and generate an error message. These errors can be handled using \`try...except\` blocks.
+
+The \`try\` block lets you test a block of code for errors.
+The \`except\` block lets you handle the error.
 
 \`\`\`python
-2 + 2
+try:
+  age_str = input("Enter your age: ")
+  age_int = int(age_str)
+  print(f"Your age is {age_int}.")
+except ValueError:
+  print("Invalid input. Please enter a number.")
 \`\`\`
-
-Press Enter, and the shell will respond with:
-
-\`\`\`
-4
-\`\`\`
-
-Congratulations! You've just run your first piece of Python code. To exit the interactive shell, you can type \`exit()\` and press Enter, or press \`Ctrl+D\`.
+If you run this code and enter text instead of a number, the program won't crash. Instead, it will execute the \`except\` block and print a user-friendly message.
 `
                 }
             ]
         },
         {
             id: 'chapter-2',
-            title: 'Python Basics',
+            title: 'Level 2: Control Flow',
             lessons: [
                 {
                     id: 'lesson-2-1',
-                    title: 'Hello, World!',
+                    title: 'if, elif, else Statements',
                     content: `
-# Your First Program: Hello, World!
+# Control Flow: if, elif, else Statements
 
-It's a tradition in the programming world to start with a program that displays "Hello, World!" on the screen. This simple task confirms that your setup is working and you understand the basic syntax for output.
-
-## The \`print()\` function
-
-In Python, displaying output is done with the built-in \`print()\` function. A **function** is a reusable block of code that performs a specific action. The \`print()\` function's action is to display things on the screen.
-
-Here is the code:
+Conditional statements allow your program to make decisions and execute different code blocks based on certain conditions.
 
 \`\`\`python
-print("Hello, World!")
+temperature = 25
+
+if temperature > 30:
+  print("It's a hot day!")
+elif temperature > 20: # You can have zero or more elif parts
+  print("It's a pleasant day.")
+else: # The else part is optional
+  print("It's a cold day.")
 \`\`\`
-
-Let's break it down:
-- \`print\`: This is the name of the function.
-- \`(...)\`: The parentheses are used to pass information to the function. The information inside is called an **argument**.
-- \`"Hello, World!"\`: This is the argument we are passing to the \`print()\` function. It's a piece of text, which in programming is called a **string**. Strings are always enclosed in quotes (either single \`'\` or double \`"\`).
-
-When this line of code is executed, the \`print()\` function takes the string "Hello, World!" and displays it in the console.
-
-## How to run this code
-
-1.  **In the interactive shell:** You can type \`print("Hello, World!")\` directly into the Python interactive shell (\`>>>\`) and press Enter.
-2.  **From a file:**
-    *   Open a plain text editor (like Notepad, VS Code, or Sublime Text).
-    *   Type the line \`print("Hello, World!")\`.
-    *   Save the file with a \`.py\` extension, for example, \`hello.py\`.
-    *   Open your terminal, navigate to the directory where you saved the file, and run the command: \`python hello.py\` (or \`python3 hello.py\`).
-
-You should see \`Hello, World!\` printed to your terminal.
-
-## Experiment!
-
-Try changing the string inside the \`print()\` function.
-
-\`\`\`python
-print("My name is Sasha!")
-print("Python is fun.")
-\`\`\`
-
-Each \`print()\` statement will output its content on a new line. This is the fundamental way to see the results of your code and provide information to the user.
+The code checks conditions from top to bottom. As soon as a \`True\` condition is found, its block is executed, and the rest of the \`if/elif/else\` structure is skipped.
 `
                 },
                 {
                     id: 'lesson-2-2',
-                    title: 'Variables & Data Types',
+                    title: 'for Loops',
                     content: `
-# Variables and Data Types
+# Control Flow: for Loops
 
-In programming, we need to store information. A **variable** is like a container or a labeled box where you can store a value.
+A \`for\` loop is used for iterating over a sequence (like a list, tuple, or string).
 
-## Creating Variables
-
-Creating a variable in Python is simple. You just need to choose a name and use the assignment operator (\`=\`) to give it a value.
-
+## Looping Through a List
 \`\`\`python
-# A variable named 'name' that stores a string
-name = "Sasha"
-
-# A variable named 'age' that stores an integer
-age = 25
-
-# A variable named 'pi' that stores a floating-point number
-pi = 3.14
+fruits = ["apple", "banana", "cherry"]
+for fruit in fruits:
+  print(f"I like {fruit}s.")
 \`\`\`
 
-You can then use the variable's name to access its value.
+## The range() Function
+To loop through a set of code a specified number of times, we can use the \`range()\` function.
+\`\`\`python
+# Prints numbers from 0 to 4
+for i in range(5):
+  print(i)
+\`\`\`
+`
+                },
+                {
+                    id: 'lesson-2-3',
+                    title: 'while Loops',
+                    content: `
+# Control Flow: while Loops
+
+A \`while\` loop executes a set of statements as long as a condition is true.
 
 \`\`\`python
-print(name)
-print(age)
+count = 0
+while count < 5:
+  print(f"Count is {count}")
+  count = count + 1 # It is crucial to increment count, otherwise the loop will continue forever.
+
+print("Loop finished.")
+\`\`\`
+This loop will print the count from 0 to 4. When \`count\` becomes 5, the condition \`count < 5\` is no longer true, and the loop terminates.
+`
+                },
+                {
+                    id: 'lesson-2-4',
+                    title: 'Loop Control (break, continue, pass)',
+                    content: `
+# Loop Control Statements
+
+You can change the execution of a loop from its normal sequence.
+
+- **\`break\`**: Terminates the loop entirely.
+- **\`continue\`**: Skips the rest of the current iteration and proceeds to the next one.
+- **\`pass\`**: A null statement, a placeholder for when a statement is required syntactically but no code needs to be executed.
+
+\`\`\`python
+# Example of break and continue
+for i in range(10):
+  if i == 3:
+    continue # Skip printing 3
+  if i == 7:
+    break # Stop the loop when i is 7
+  print(i)
+
+# Example of pass
+if 10 > 5:
+    pass # We need something here, but don't want to do anything
+\`\`\`
+`
+                },
+                {
+                    id: 'lesson-2-5',
+                    title: 'List Comprehensions',
+                    content: `
+# List Comprehensions
+
+List comprehensions provide a concise way to create lists.
+
+## Basic Syntax
+A common use case is to make new lists where each element is the result of some operation applied to each member of another sequence.
+
+\`\`\`python
+# A traditional for loop to create a list of squares
+squares = []
+for x in range(10):
+  squares.append(x**2)
+print(squares)
+
+# The same result using a list comprehension
+squares_comp = [x**2 for x in range(10)]
+print(squares_comp)
 \`\`\`
 
-## Naming Rules
-
-Variable names must follow a few rules:
-- They can only contain letters (a-z, A-Z), numbers (0-9), and the underscore character (\_).
-- They cannot start with a number.
-- They are case-sensitive (\`age\` is different from \`Age\`).
-
-It's a convention in Python to use \`snake_case\` for variable names (all lowercase with underscores between words). For example: \`user_first_name\`.
-
-## Common Data Types
-
-Every value in Python has a type. Here are some of the most common ones:
-
-- **String (\`str\`)**: Text, enclosed in quotes. Example: \`"Hello, Python"\`.
-- **Integer (\`int\`)**: Whole numbers, without a fractional part. Example: \`10\`, \`-5\`.
-- **Float (\`float\`)**: Numbers with a decimal point. Example: \`3.14\`, \`-0.001\`.
-- **Boolean (\`bool\`)**: Represents truth values. Can only be \`True\` or \`False\`.
-
-You can find out the type of a variable using the \`type()\` function.
-
+## With a Condition
+You can also add a condition to filter the elements.
 \`\`\`python
-greeting = "Hi there"
-year = 2024
-is_learning = True
-
-print(type(greeting))
-print(type(year))
-print(type(is_learning))
+# Get squares of even numbers only
+even_squares = [x**2 for x in range(10) if x % 2 == 0]
+print(even_squares)
 \`\`\`
 `
                 }
             ]
         },
-        {
+		{
             id: 'chapter-3',
-            title: 'Data Structures',
+            title: 'Level 3: Data Structures',
             lessons: [
                 {
                     id: 'lesson-3-1',
@@ -259,232 +452,870 @@ print(type(is_learning))
                     content: `
 # Data Structures: Lists
 
-Often, you'll want to store a collection of items, not just a single value. A **list** is a fundamental data structure in Python that allows you to store an ordered sequence of items.
-
-## Creating a List
-
-You create a list by placing items inside square brackets \`[]\`, separated by commas.
+A list is a collection which is ordered and changeable. Allows duplicate members. In Python lists are written with square brackets.
 
 \`\`\`python
-# A list of numbers
-numbers = [1, 2, 3, 4, 5]
+my_list = ["apple", "banana", "cherry"]
+print(my_list)
 
-# A list of strings
-fruits = ["apple", "banana", "cherry"]
-
-# A list with mixed data types
-mixed_list = ["hello", 100, True, 3.14]
-
-# An empty list
-empty_list = []
-\`\`\`
-
-## Accessing Elements
-
-List items are indexed, and the first item has index \`[0]\`. You can access an item by referring to its index number.
-
-\`\`\`python
-fruits = ["apple", "banana", "cherry"]
-
-# Get the first item
-print(fruits[0])  # Output: apple
-
-# Get the third item
-print(fruits[2])  # Output: cherry
-\`\`\`
-
-You can also use negative indexing to start from the end. \`-1\` refers to the last item.
-
-\`\`\`python
-# Get the last item
-print(fruits[-1]) # Output: cherry
-\`\`\`
-
-## Modifying Lists
-
-Lists are **mutable**, which means you can change their content.
-
-\`\`\`python
-fruits = ["apple", "banana", "cherry"]
+# Access items by index
+print(my_list[1]) # Output: banana
 
 # Change an item
-fruits[1] = "blackberry"
-print(fruits) # Output: ['apple', 'blackberry', 'cherry']
+my_list[0] = "orange"
+print(my_list) # Output: ['orange', 'banana', 'cherry']
 
-# Add an item to the end
-fruits.append("orange")
-print(fruits) # Output: ['apple', 'blackberry', 'cherry', 'orange']
-
-# Remove an item
-fruits.remove("apple")
-print(fruits) # Output: ['blackberry', 'cherry', 'orange']
+# Add an item
+my_list.append("mango")
+print(my_list)
 \`\`\`
 `
                 },
                 {
                     id: 'lesson-3-2',
+                    title: 'Tuples',
+                    content: `
+# Data Structures: Tuples
+
+A tuple is a collection which is ordered and **unchangeable**. In Python tuples are written with round brackets.
+
+\`\`\`python
+my_tuple = ("apple", "banana", "cherry")
+print(my_tuple)
+
+# Access items by index
+print(my_tuple[0]) # Output: apple
+
+# You cannot change items in a tuple
+# my_tuple[0] = "orange" # This will raise a TypeError
+\`\`\`
+Tuples are useful for data that should not be modified, like days of the week or coordinates.
+`
+                },
+                {
+                    id: 'lesson-3-3',
+                    title: 'Sets',
+                    content: `
+# Data Structures: Sets
+
+A set is a collection which is unordered and unindexed. No duplicate members. In Python sets are written with curly brackets.
+
+\`\`\`python
+my_set = {"apple", "banana", "cherry", "apple"}
+print(my_set) # Output: {'cherry', 'apple', 'banana'} (order may vary, 'apple' appears once)
+
+# Add an item
+my_set.add("orange")
+print(my_set)
+
+# Check if an item exists
+print("banana" in my_set) # Output: True
+\`\`\`
+Sets are highly optimized for checking if a specific element is contained in the set.
+`
+                },
+                {
+                    id: 'lesson-3-4',
                     title: 'Dictionaries',
                     content: `
 # Data Structures: Dictionaries
 
-A **dictionary** is a collection which is unordered, changeable and indexed. In Python dictionaries are written with curly brackets \`{}\`, and they have keys and values.
-
-It's a powerful way to store data in a \`key: value\` pair format. Think of it like a real-world dictionary where you look up a word (the key) to find its definition (the value).
-
-## Creating a Dictionary
+A dictionary is a collection which is ordered (as of Python 3.7), changeable and does not allow duplicate keys. Dictionaries are used to store data values in key:value pairs.
 
 \`\`\`python
-# A simple dictionary
-student = {
-  "name": "Sasha",
-  "course": "Python Path",
-  "year": 2024
+my_dict = {
+  "brand": "Ford",
+  "model": "Mustang",
+  "year": 1964
 }
+print(my_dict)
 
-print(student)
+# Access items by key
+print(my_dict["model"]) # Output: Mustang
+
+# Change a value
+my_dict["year"] = 2024
+print(my_dict)
+
+# Add a new item
+my_dict["color"] = "red"
+print(my_dict)
 \`\`\`
+`
+                },
+                {
+                    id: 'lesson-3-5',
+                    title: 'Nested Data Structures',
+                    content: `
+# Nested Data Structures
 
-## Accessing Items
-
-You can access the items of a dictionary by referring to its key name, inside square brackets.
+You can have data structures inside other data structures. For example, a list of dictionaries.
 
 \`\`\`python
-# Get the value of the "name" key
-x = student["name"]
-print(x) # Output: Sasha
+# A list of students, where each student is a dictionary
+students = [
+    {"name": "Alice", "grade": 85},
+    {"name": "Bob", "grade": 92},
+    {"name": "Charlie", "grade": 78}
+]
+
+# Accessing nested data
+print(students[0]["name"]) # Output: Alice
+
+# Looping through nested data
+for student in students:
+    print(f"{student['name']} scored {student['grade']}.")
 \`\`\`
-
-There is also a method called \`get()\` that will give you the same result.
-
-\`\`\`python
-x = student.get("course")
-print(x) # Output: Python Path
-\`\`\`
-
-## Modifying Dictionaries
-
-You can change the value of a specific item by referring to its key name.
-
-\`\`\`python
-student = {
-  "name": "Sasha",
-  "course": "Python Path",
-  "year": 2024
-}
-
-# Change the year
-student["year"] = 2025
-print(student)
-
-# Add a new key-value pair
-student["is_enrolled"] = True
-print(student)
-
-# Remove a key-value pair
-student.pop("course")
-print(student)
-\`\`\`
+Nesting allows you to model complex, real-world data.
 `
                 }
             ]
         },
         {
             id: 'chapter-4',
-            title: 'Control Flow',
+            title: 'Level 4: Functions & Modules',
             lessons: [
-                {
+                 {
                     id: 'lesson-4-1',
-                    title: 'Conditional Statements',
+                    title: 'Defining & Calling Functions',
                     content: `
-# Control Flow: Conditional Statements
+# Functions & Modules: Defining & Calling Functions
 
-So far, our code has executed line by line, from top to bottom. But what if we want to run certain code only if a specific condition is met? This is where conditional statements come in.
-
-The most common conditional statements are \`if\`, \`elif\` (else if), and \`else\`.
-
-## The \`if\` Statement
-
-The \`if\` statement is used to execute a block of code only when its condition is \`True\`.
+A function is a block of code which only runs when it is called. You can pass data, known as parameters, into a function.
 
 \`\`\`python
-age = 20
+# Define a function
+def greet():
+  print("Hello from a function!")
 
-if age >= 18:
-  print("You are an adult.")
+# Call the function
+greet()
+
+# A function with a parameter
+def greet_name(name):
+  print(f"Hello, {name}!")
+
+greet_name("Alice")
+greet_name("Bob")
 \`\`\`
-
-Notice the colon \`:\` at the end of the \`if\` line and the **indentation** of the \`print\` statement. Indentation is very important in Python; it's how Python knows which code belongs to the \`if\` block.
-
-## The \`else\` Statement
-
-The \`else\` keyword catches anything which isn't caught by the preceding conditions. It executes a block of code when the \`if\` condition is \`False\`.
-
-\`\`\`python
-age = 15
-
-if age >= 18:
-  print("You are an adult.")
-else:
-  print("You are a minor.")
-\`\`\`
-
-## The \`elif\` Statement
-
-The \`elif\` keyword is Python's way of saying "if the previous conditions were not true, then try this condition". It allows you to check for multiple conditions.
-
-\`\`\`python
-score = 85
-
-if score >= 90:
-  print("Grade: A")
-elif score >= 80:
-  print("Grade: B")
-elif score >= 70:
-  print("Grade: C")
-else:
-  print("Grade: F")
-\`\`\`
-In this example, since \`score\` is 85, the first condition (\`>= 90\`) is false. The program then checks the first \`elif\` condition (\`>= 80\`), which is true, so it prints "Grade: B" and stops.
+Functions help break our program into smaller and modular chunks.
 `
                 },
                 {
                     id: 'lesson-4-2',
-                    title: 'Loops',
+                    title: 'Function Arguments (*args, **kwargs)',
                     content: `
-# Control Flow: Loops
+# Function Arguments: *args and **kwargs
 
-Loops are a fundamental concept in programming that allow you to execute a block of code repeatedly. Python has two primary loop types: \`for\` loops and \`while\` loops.
+Sometimes, you might need to pass a variable number of arguments to a function.
 
-## The \`for\` Loop
-
-A \`for\` loop is used for iterating over a sequence (that is either a list, a tuple, a dictionary, a set, or a string). This is less like the \`for\` keyword in other programming languages, and works more like an iterator method as found in other object-orientated programming languages.
-
+## *args (Non-Keyword Arguments)
+\`*args\` allows you to pass a variable number of positional arguments. They are received as a tuple.
 \`\`\`python
-fruits = ["apple", "banana", "cherry"]
+def sum_all(*args):
+  total = 0
+  for num in args:
+    total += num
+  return total
 
-for fruit in fruits:
-  print(fruit)
-\`\`\`
-This loop will go through the \`fruits\` list one item at a time. In each iteration, the current item is assigned to the variable \`fruit\`, and the code inside the loop (\`print(fruit)\`) is executed.
-
-You can also loop through a string:
-\`\`\`python
-for letter in "Python":
-  print(letter)
+print(sum_all(1, 2, 3)) # Output: 6
+print(sum_all(10, 20))    # Output: 30
 \`\`\`
 
-## The \`while\` Loop
+## **kwargs (Keyword Arguments)
+\`**kwargs\` allows you to pass a variable number of keyword arguments. They are received as a dictionary.
+\`\`\`python
+def display_info(**kwargs):
+  for key, value in kwargs.items():
+    print(f"{key}: {value}")
 
-With the \`while\` loop we can execute a set of statements as long as a condition is true.
+display_info(name="Sasha", course="Python")
+\`\`\`
+`
+                },
+                {
+                    id: 'lesson-4-3',
+                    title: 'Return Values',
+                    content: `
+# Return Values
+
+Functions can return a value to the caller using the \`return\` statement.
 
 \`\`\`python
-# A loop that counts from 1 to 5
-count = 1
-while count <= 5:
-  print(count)
-  count = count + 1 # Increment the counter
+def square(number):
+  return number * number
+
+result = square(5)
+print(f"The square is {result}") # Output: The square is 25
+
+# A function can return multiple values
+def get_name():
+    return "Sasha", "Codes"
+
+first, last = get_name()
+print(f"First: {first}, Last: {last}")
 \`\`\`
-It's crucial to have a line that eventually makes the condition \`False\` (like \`count = count + 1\`), otherwise the loop will run forever! This is called an **infinite loop**.
+If a function does not have a \`return\` statement, it implicitly returns \`None\`.
+`
+                },
+                {
+                    id: 'lesson-4-4',
+                    title: 'Lambda Functions',
+                    content: `
+# Lambda Functions
+
+A lambda function is a small anonymous function. It can take any number of arguments, but can only have one expression.
+
+**Syntax**: \`lambda arguments : expression\`
+
+\`\`\`python
+# A lambda function that adds 10 to the number passed in
+x = lambda a : a + 10
+print(x(5)) # Output: 15
+
+# A lambda function that multiplies two arguments
+multiply = lambda a, b : a * b
+print(multiply(5, 6)) # Output: 30
+\`\`\`
+Lambda functions are often used as anonymous functions inside other functions.
+`
+                },
+                {
+                    id: 'lesson-4-5',
+                    title: 'Scope & Global Variables',
+                    content: `
+# Scope & Global Variables
+
+A variable is only available from inside the region it is created. This is called scope.
+
+## Local Scope
+A variable created inside a function is available only inside that function.
+\`\`\`python
+def my_func():
+  x = 300 # Local variable
+  print(x)
+
+my_func()
+# print(x) # This would cause an error
+\`\`\`
+
+## Global Scope
+A variable created in the main body of the Python code is a global variable and belongs to the global scope.
+To change a global variable inside a function, use the \`global\` keyword.
+\`\`\`python
+y = 150 # Global variable
+
+def my_other_func():
+  global y
+  y = 200 # Change the global variable
+
+my_other_func()
+print(y) # Output: 200
+\`\`\`
+`
+                },
+                {
+                    id: 'lesson-4-6',
+                    title: 'Importing & Using Modules',
+                    content: `
+# Importing & Using Modules
+
+A module is a file containing Python code. We can import modules to use their functions, classes, and variables in our own code. Python has a vast standard library of modules.
+
+\`\`\`python
+# Import the 'math' module
+import math
+
+# Use a function from the math module
+print(math.sqrt(16)) # Output: 4.0
+
+# Import a specific function from a module
+from datetime import datetime
+
+# Use the imported function directly
+print(datetime.now())
+\`\`\`
+Modules help in organizing code and reusing it across different programs.
+`
+                },
+                {
+                    id: 'lesson-4-7',
+                    title: 'Creating Your Own Modules',
+                    content: `
+# Creating Your Own Modules
+
+Any Python file can be a module. To create a module, just save the code you want in a file with a \`.py\` extension.
+
+## Example
+1.  Create a file named \`mymodule.py\`:
+\`\`\`python
+# mymodule.py
+def greeting(name):
+  print(f"Hello, {name}")
+
+person = {
+    "name": "John",
+    "age": 36
+}
+\`\`\`
+
+2. Create another file, \`main.py\`, in the same directory and import \`mymodule\`:
+\`\`\`python
+# main.py
+import mymodule
+
+mymodule.greeting("Sasha")
+print(mymodule.person["age"])
+\`\`\`
+When you run \`main.py\`, it will execute the code using the functions and variables defined in \`mymodule.py\`.
+`
+                }
+            ]
+        },
+        {
+            id: 'chapter-5',
+            title: 'Level 5: File Handling',
+            lessons: [
+                {
+                    id: 'lesson-5-1',
+                    title: 'Reading Files',
+                    content: `
+# File Handling: Reading Files
+
+Python has functions for creating, reading, updating, and deleting files. The key function for working with files is \`open()\`.
+
+The \`open()\` function takes two parameters; filename, and mode.
+Modes for reading:
+- \`"r"\` - Read - Default value. Opens a file for reading, error if the file does not exist.
+
+It's good practice to use the \`with\` statement because it automatically closes the file for you.
+\`\`\`python
+# Assume you have a file "myfile.txt" with some text in it.
+
+with open("myfile.txt", "r") as file:
+  content = file.read() # Reads the entire file
+  print(content)
+
+# To read line by line
+with open("myfile.txt", "r") as file:
+  for line in file:
+    print(line.strip()) # strip() removes leading/trailing whitespace
+\`\`\`
+`
+                },
+                {
+                    id: 'lesson-5-2',
+                    title: 'Writing Files',
+                    content: `
+# File Handling: Writing Files
+
+To write to a file, you must open it in one of the write modes.
+
+Modes for writing:
+- \`"w"\` - Write - Opens a file for writing, creates the file if it does not exist. **Warning: This will overwrite any existing content.**
+- \`"a"\` - Append - Opens a file for appending, creates the file if it does not exist. New content is added to the end.
+
+\`\`\`python
+# Write to a file (overwrites)
+with open("newfile.txt", "w") as file:
+  file.write("Hello, World!\\n")
+  file.write("This is a new file.")
+
+# Append to a file
+with open("newfile.txt", "a") as file:
+  file.write("\\nThis line is appended.")
+\`\`\`
+`
+                },
+                {
+                    id: 'lesson-5-3',
+                    title: 'Working with CSV Files',
+                    content: `
+# Working with CSV Files
+
+CSV (Comma Separated Values) is a popular format for storing tabular data. Python's built-in \`csv\` module makes it easy to work with these files.
+
+## Reading a CSV
+\`\`\`python
+import csv
+
+# Assume data.csv contains:
+# name,age
+# Alice,30
+# Bob,25
+
+with open('data.csv', mode='r') as file:
+    csv_reader = csv.reader(file)
+    for row in csv_reader:
+        print(row)
+
+# Output:
+# ['name', 'age']
+# ['Alice', '30']
+# ['Bob', '25']
+\`\`\`
+
+## Writing to a CSV
+\`\`\`python
+import csv
+
+with open('output.csv', mode='w', newline='') as file:
+    csv_writer = csv.writer(file)
+    csv_writer.writerow(['name', 'department'])
+    csv_writer.writerow(['Charlie', 'Engineering'])
+\`\`\`
+`
+                },
+                {
+                    id: 'lesson-5-4',
+                    title: 'Working with JSON Files',
+                    content: `
+# Working with JSON Files
+
+JSON is a syntax for storing and exchanging data, based on JavaScript object notation. Python's built-in \`json\` module can be used to work with JSON data.
+
+## Reading a JSON file (loading)
+\`\`\`python
+import json
+
+# Assume data.json contains: {"name": "Sasha", "course": "Python"}
+
+with open('data.json', 'r') as file:
+    data = json.load(file)
+    print(data) # Output: {'name': 'Sasha', 'course': 'Python'}
+    print(data['name']) # Output: Sasha
+\`\`\`
+
+## Writing to a JSON file (dumping)
+\`\`\`python
+import json
+
+student_data = {
+    'id': 101,
+    'name': 'David',
+    'is_active': True
+}
+
+with open('output.json', 'w') as file:
+    json.dump(student_data, file, indent=4)
+\`\`\`
+`
+                }
+            ]
+        },
+        {
+            id: 'chapter-6',
+            title: 'Level 6: Error & Exception Handling',
+            lessons: [
+                 {
+                    id: 'lesson-6-1',
+                    title: 'Common Python Errors',
+                    content: `
+# Common Python Errors
+
+Understanding common errors is the first step to handling them.
+- **\`SyntaxError\`**: The code is not valid Python. E.g., a missing colon.
+- **\`IndentationError\`**: Incorrect indentation.
+- **\`NameError\`**: Using a variable that has not been defined.
+- **\`TypeError\`**: Performing an operation on an inappropriate type. E.g., \`'hello' + 5\`.
+- **\`ValueError\`**: A function receives an argument of the correct type but an inappropriate value. E.g., \`int('abc')\`.
+- **\`IndexError\`**: Trying to access an index that is out of range in a sequence.
+- **\`KeyError\`**: Trying to access a key that does not exist in a dictionary.
+`
+                },
+                {
+                    id: 'lesson-6-2',
+                    title: 'try, except, finally',
+                    content: `
+# try, except, finally
+
+This structure allows you to handle exceptions gracefully.
+
+- **\`try\`**: Contains code that might raise an exception.
+- **\`except\`**: Catches and handles specific exceptions.
+- **\`finally\`**: Contains code that will execute no matter what, whether an exception occurred or not.
+
+\`\`\`python
+try:
+    x = 10 / 0
+except ZeroDivisionError:
+    print("Cannot divide by zero!")
+finally:
+    print("This will always execute.")
+\`\`\`
+`
+                },
+                {
+                    id: 'lesson-6-3',
+                    title: 'Raising Exceptions (raise)',
+                    content: `
+# Raising Exceptions (raise)
+
+You can choose to throw an exception if a condition occurs, using the \`raise\` keyword.
+
+\`\`\`python
+def set_age(age):
+    if age < 0:
+        raise ValueError("Age cannot be negative.")
+    print(f"Age is set to {age}")
+
+try:
+    set_age(-5)
+except ValueError as e:
+    print(f"Error: {e}")
+\`\`\`
+This is useful for enforcing rules in your code.
+`
+                },
+                {
+                    id: 'lesson-6-4',
+                    title: 'Custom Exceptions',
+                    content: `
+# Custom Exceptions
+
+You can create your own exception classes by inheriting from the base \`Exception\` class. This can make your error handling more specific and readable.
+
+\`\`\`python
+class MyCustomError(Exception):
+    """A custom exception for my application."""
+    pass
+
+def check_value(value):
+    if value > 100:
+        raise MyCustomError("The value is too high!")
+
+try:
+    check_value(200)
+except MyCustomError as e:
+    print(f"Caught a custom error: {e}")
+\`\`\`
+`
+                }
+            ]
+        },
+        {
+            id: 'chapter-7',
+            title: 'Level 7: Object-Oriented Programming (OOP)',
+            lessons: [
+                {
+                    id: 'lesson-7-1',
+                    title: 'Classes & Objects',
+                    content: `
+# OOP: Classes & Objects
+
+Object-Oriented Programming (OOP) is a method of structuring a program by bundling related properties and behaviors into individual **objects**.
+
+- **Class**: A blueprint for creating objects.
+- **Object**: An instance of a class.
+
+\`\`\`python
+# Create a class
+class Dog:
+  species = "Canis familiaris" # Class variable
+
+  # Initializer / Instance Attributes
+  def __init__(self, name, age):
+    self.name = name # Instance variable
+    self.age = age
+
+# Create objects (instances) of the Dog class
+dog1 = Dog("Buddy", 3)
+dog2 = Dog("Lucy", 5)
+
+print(f"{dog1.name} is {dog1.age} years old.")
+print(f"{dog2.name} is a {dog2.species}.")
+\`\`\`
+`
+                },
+                {
+                    id: 'lesson-7-2',
+                    title: 'Methods (self)',
+                    content: `
+# OOP: Methods (self)
+
+Functions defined inside a class are called **methods**. The first parameter of a method is always \`self\`, which refers to the instance of the class.
+
+\`\`\`python
+class Dog:
+  def __init__(self, name, age):
+    self.name = name
+    self.age = age
+
+  # Instance method
+  def bark(self):
+    print(f"{self.name} says Woof!")
+
+my_dog = Dog("Rex", 4)
+my_dog.bark() # Output: Rex says Woof!
+\`\`\`
+`
+                },
+                {
+                    id: 'lesson-7-3',
+                    title: 'Inheritance',
+                    content: `
+# OOP: Inheritance
+
+Inheritance allows us to define a class that inherits all the methods and properties from another class.
+
+- **Parent class** (or base class): The class being inherited from.
+- **Child class** (or derived class): The class that inherits.
+
+\`\`\`python
+# Parent class
+class Animal:
+    def __init__(self, name):
+        self.name = name
+
+    def speak(self):
+        raise NotImplementedError("Subclass must implement abstract method")
+
+# Child class
+class Dog(Animal):
+    def speak(self):
+        return f"{self.name} says Woof!"
+
+class Cat(Animal):
+    def speak(self):
+        return f"{self.name} says Meow!"
+
+d = Dog("Buddy")
+c = Cat("Whiskers")
+print(d.speak())
+print(c.speak())
+\`\`\`
+`
+                },
+                {
+                    id: 'lesson-7-4',
+                    title: 'Special Methods (__str__, __len__)',
+                    content: `
+# OOP: Special Methods
+
+Special methods (also called "magic" or "dunder" methods) have double underscores at the beginning and end of their names. They let you emulate the behavior of built-in types.
+
+- **\`__init__\`**: The constructor for a class.
+- **\`__str__\`**: Defines the string representation of an object.
+- **\`__len__\`**: Defines what happens when \`len()\` is called on an object.
+
+\`\`\`python
+class Book:
+    def __init__(self, title, author, pages):
+        self.title = title
+        self.author = author
+        self.pages = pages
+
+    def __str__(self):
+        return f'"{self.title}" by {self.author}'
+
+    def __len__(self):
+        return self.pages
+
+my_book = Book("The Hitchhiker's Guide", "Douglas Adams", 193)
+
+print(my_book)      # Calls __str__
+print(len(my_book)) # Calls __len__
+\`\`\`
+`
+                }
+            ]
+        },
+        {
+            id: 'chapter-8',
+            title: 'Level 8: Advanced Python',
+            lessons: [
+                {
+                    id: 'lesson-8-1',
+                    title: 'Iterators & Generators',
+                    content: `
+# Advanced: Iterators & Generators
+
+## Iterators
+An iterator is an object that contains a countable number of values. It's an object that can be iterated upon, meaning that you can traverse through all the values.
+
+## Generators
+Generators are a simple way to create iterators. They are written like regular functions but use the \`yield\` keyword to return data. When a generator function is called, it returns a generator object, which can be used to generate values on the fly.
+
+\`\`\`python
+# A generator function for squares
+def square_generator(n):
+    for i in range(n):
+        yield i ** 2
+
+# Using the generator
+for square in square_generator(5):
+    print(square)
+\`\`\`
+Generators are memory-efficient as they produce items one at a time and only when required.
+`
+                },
+                {
+                    id: 'lesson-8-2',
+                    title: 'Decorators',
+                    content: `
+# Advanced: Decorators
+
+Decorators allow you to add new functionality to an existing object (like a function) without modifying its structure. Decorators are usually called before the definition of a function you want to decorate.
+
+\`\`\`python
+def my_decorator(func):
+    def wrapper():
+        print("Something is happening before the function is called.")
+        func()
+        print("Something is happening after the function is called.")
+    return wrapper
+
+@my_decorator
+def say_hello():
+    print("Hello!")
+
+say_hello()
+\`\`\`
+`
+                },
+                {
+                    id: 'lesson-8-3',
+                    title: 'Regular Expressions (re)',
+                    content: `
+# Advanced: Regular Expressions (re)
+
+A Regular Expression, or RegEx, is a sequence of characters that forms a search pattern. Python's \`re\` module provides support for regular expressions.
+
+\`\`\`python
+import re
+
+text = "The rain in Spain"
+
+# Find all occurrences of "ai"
+x = re.findall("ai", text)
+print(x) # Output: ['ai', 'ai']
+
+# Search the string to see if it starts with "The"
+y = re.search("^The", text)
+if y:
+  print("Yes, the string starts with 'The'")
+\`\`\`
+`
+                }
+            ]
+        },
+        {
+            id: 'chapter-9',
+            title: 'Level 9: Python for Data & Automation',
+            lessons: [
+                {
+                    id: 'lesson-9-1',
+                    title: 'Using pip & Installing Packages',
+                    content: `
+# Using pip & Virtual Environments
+
+## pip
+\`pip\` is the package installer for Python. You can use it to install packages from the Python Package Index (PyPI).
+
+To install a package:
+\`\`\`bash
+pip install requests
+\`\`\`
+To uninstall a package:
+\`\`\`bash
+pip uninstall requests
+\`\`\`
+
+## Virtual Environments (venv)
+It is a best practice to use a virtual environment for each project. This creates an isolated environment for your Python packages, preventing conflicts between projects.
+
+To create a virtual environment:
+\`\`\`bash
+python -m venv my-project-env
+\`\`\`
+To activate it (on macOS/Linux):
+\`\`\`bash
+source my-project-env/bin/activate
+\`\`\`
+To activate it (on Windows):
+\`\`\`bash
+.\\my-project-env\\Scripts\\activate
+\`\`\`
+`
+                },
+                {
+                    id: 'lesson-9-2',
+                    title: 'Working with requests (HTTP)',
+                    content: `
+# Working with requests (HTTP)
+
+The \`requests\` library is the standard for making HTTP requests in Python.
+
+First, install it: \`pip install requests\`
+
+\`\`\`python
+import requests
+
+# Make a GET request to an API
+response = requests.get('https://api.github.com')
+
+# Check the status code
+if response.status_code == 200:
+    print('Success!')
+    # Print the response content (as JSON)
+    print(response.json())
+else:
+    print('An error occurred.')
+\`\`\`
+`
+                },
+                {
+                    id: 'lesson-9-3',
+                    title: 'Intro to Pandas & Matplotlib',
+                    content: `
+# Intro to Pandas & Matplotlib
+
+**Pandas** is a powerful library for data manipulation and analysis.
+**Matplotlib** is a comprehensive library for creating static, animated, and interactive visualizations.
+
+First, install them: \`pip install pandas matplotlib\`
+
+\`\`\`python
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Create a simple DataFrame
+data = {'Year': [2010, 2011, 2012, 2013],
+        'Sales': [100, 120, 150, 130]}
+df = pd.DataFrame(data)
+
+print(df)
+
+# Create a simple plot
+df.plot(x='Year', y='Sales', kind='line')
+plt.title('Annual Sales')
+plt.ylabel('Sales in USD')
+plt.show() # This will display the plot
+\`\`\`
+`
+                }
+            ]
+        },
+        {
+            id: 'chapter-10',
+            title: 'Level 10: Final Stage – Projects & Practice',
+            lessons: [
+                {
+                    id: 'lesson-10-1',
+                    title: 'Projects & Practice',
+                    content: `
+# Projects & Practice
+
+The best way to learn is by doing! Now it's time to apply what you've learned to build small projects.
+
+Here are some ideas:
+- **Build a Calculator**: A simple command-line calculator that can perform basic arithmetic.
+- **To-Do List App**: A console application that lets users add, view, and delete tasks.
+- **Web Scraper**: Use \`requests\` and \`BeautifulSoup\` to scrape data from a website.
+- **Data Analysis Mini Project**: Use \`pandas\` to analyze a small dataset (e.g., from a CSV file).
+- **Automation Script**: Write a script to rename files in a folder or organize your downloads.
+
+Congratulations on completing the learning path! Keep practicing, building, and exploring the vast world of Python.
 `
                 }
             ]
