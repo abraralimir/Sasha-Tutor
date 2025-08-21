@@ -3,8 +3,8 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
-  title: "Sasha's Python Path",
-  description: 'Your AI-powered journey to mastering Python.',
+  title: "Sasha's Path - Your AI-Powered Learning Platform",
+  description: 'Generate a custom course on any topic with AI. Interactive lessons, quizzes, and exercises to master new skills.',
 };
 
 export default function RootLayout({
