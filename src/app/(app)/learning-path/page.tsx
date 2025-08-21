@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
@@ -206,8 +207,23 @@ function EndOfLessonQuiz({ lessonTitle, onQuizComplete }: { lessonTitle: string,
     const [activeQuestion, setActiveQuestion] = useState(0);
     const [quizAttempts, setQuizAttempts] = useState<Record<number, QuizAttempt>>({});
 
+    const resetQuizState = () => {
+        setQuizSession(null);
+        setActiveQuestion(0);
+        setQuizAttempts({});
+        setError(null);
+        setIsLoading(false);
+    };
+
+    useEffect(() => {
+        // Reset state if the lesson title changes while the dialog is closed.
+        if (!isOpen) {
+            resetQuizState();
+        }
+    }, [lessonTitle, isOpen]);
+
     const handleGenerateQuiz = async () => {
-        if (quizSession) return;
+        if (isLoading || quizSession) return;
         setIsLoading(true);
         setError(null);
         try {
@@ -229,10 +245,8 @@ function EndOfLessonQuiz({ lessonTitle, onQuizComplete }: { lessonTitle: string,
         if (open) {
             handleGenerateQuiz();
         } else {
-            // Reset state when closing
-            setQuizSession(null);
-            setActiveQuestion(0);
-            setQuizAttempts({});
+            // Reset state fully when closing
+            resetQuizState();
         }
     };
 
@@ -246,7 +260,7 @@ function EndOfLessonQuiz({ lessonTitle, onQuizComplete }: { lessonTitle: string,
         }));
     };
 
-    const isQuizComplete = quizSession && Object.values(quizAttempts).filter(a => a.isCorrect).length === quizSession.quiz.length;
+    const isQuizComplete = quizSession && Object.values(quizAttempts).filter(a => a).length === quizSession.quiz.length;
     const currentQuestion = quizSession?.quiz[activeQuestion];
     const currentAttempt = quizAttempts[activeQuestion];
 
