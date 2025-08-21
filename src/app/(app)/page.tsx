@@ -1,5 +1,5 @@
 
-import { ArrowRight, BookOpen, Bot, Code, Table } from 'lucide-react';
+import { ArrowRight, BookOpen, Bot, Code, Table, Cloud, BarChart } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,6 +25,20 @@ const featuredCourses = [
     icon: BookOpen,
     href: '#', // Placeholder
     color: 'text-orange-500',
+  },
+  {
+    title: 'Cloud Learning',
+    description: 'Explore cloud platforms like AWS, Azure, and Google Cloud.',
+    icon: Cloud,
+    href: '#',
+    color: 'text-sky-500',
+  },
+  {
+    title: 'Data Analytics',
+    description: 'Turn data into insights with SQL, Python, and visualization tools.',
+    icon: BarChart,
+    href: '#',
+    color: 'text-purple-500',
   },
 ];
 
