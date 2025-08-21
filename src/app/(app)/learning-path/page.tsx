@@ -1,4 +1,5 @@
 
+
 'use client';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
@@ -207,25 +208,27 @@ function EndOfLessonQuiz({ lessonTitle, onQuizComplete }: { lessonTitle: string,
     const [activeQuestion, setActiveQuestion] = useState(0);
     const [quizAttempts, setQuizAttempts] = useState<Record<number, QuizAttempt>>({});
 
-    const resetQuizState = () => {
+    const resetQuizState = useCallback(() => {
         setQuizSession(null);
         setActiveQuestion(0);
         setQuizAttempts({});
         setError(null);
         setIsLoading(false);
-    };
+    }, []);
 
     useEffect(() => {
-        // Reset state if the lesson title changes while the dialog is closed.
-        if (!isOpen) {
+        // Reset state if the lesson title changes.
+        if (isOpen) {
+            handleGenerateQuiz();
+        } else {
             resetQuizState();
         }
-    }, [lessonTitle, isOpen]);
+    }, [lessonTitle, isOpen, resetQuizState]);
 
-    const handleGenerateQuiz = async () => {
-        if (isLoading || quizSession) return;
+    const handleGenerateQuiz = useCallback(async () => {
+        if (isLoading) return;
+        resetQuizState();
         setIsLoading(true);
-        setError(null);
         try {
             const result = await generatePracticeSession({
                 topic: lessonTitle,
@@ -238,14 +241,13 @@ function EndOfLessonQuiz({ lessonTitle, onQuizComplete }: { lessonTitle: string,
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [lessonTitle, isLoading, resetQuizState]);
     
     const handleOpenChange = (open: boolean) => {
         setIsOpen(open);
-        if (open) {
+        if (open && !quizSession) {
             handleGenerateQuiz();
-        } else {
-            // Reset state fully when closing
+        } else if (!open) {
             resetQuizState();
         }
     };
