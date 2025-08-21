@@ -1,0 +1,119 @@
+'use client';
+
+import Link from 'next/link';
+import { Bot, Code, MessageCircle, Notebook, Terminal } from 'lucide-react';
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from '@/components/ui/navigation-menu';
+import { cn } from '@/lib/utils';
+import React from 'react';
+
+const tools = [
+  {
+    title: 'AI Exercises',
+    href: '/exercises',
+    icon: Code,
+    description:
+      'Generate coding exercises and get instant AI feedback to improve faster.',
+  },
+  {
+    title: 'AI IDE Teacher',
+    href: '/ide-teacher',
+    icon: Terminal,
+    description:
+      'Learn any Python topic with a personalized lesson from your AI tutor.',
+  },
+  {
+    title: 'AI Chatbot',
+    href: '/chatbot',
+    icon: MessageCircle,
+    description:
+      'Our AI assistant is here to answer any Python questions you have.',
+  },
+    {
+    title: 'Jupyter Path',
+    href: '/jupyter-path',
+    icon: Notebook,
+    description:
+      'Experience interactive, cell-by-cell Python exercises.',
+  },
+];
+
+export function Header() {
+  return (
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-14 max-w-screen-2xl items-center justify-between">
+        <Link href="/" className="flex items-center gap-2 font-bold">
+          <Bot className="h-6 w-6" />
+          <span className="text-lg">Sasha's Path</span>
+        </Link>
+        <NavigationMenu>
+          <NavigationMenuList>
+            <NavigationMenuItem>
+              <Link href="/learning-path" legacyBehavior passHref>
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  Learning Path
+                </NavigationMenuLink>
+              </Link>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuTrigger>AI Tools</NavigationMenuTrigger>
+              <NavigationMenuContent>
+                <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
+                  {tools.map((tool) => (
+                    <ListItem
+                      key={tool.title}
+                      title={tool.title}
+                      href={tool.href}
+                      icon={tool.icon}
+                    >
+                      {tool.description}
+                    </ListItem>
+                  ))}
+                </ul>
+              </NavigationMenuContent>
+            </NavigationMenuItem>
+          </NavigationMenuList>
+        </NavigationMenu>
+      </div>
+    </header>
+  );
+}
+
+const ListItem = React.forwardRef<
+  React.ElementRef<'a'>,
+  React.ComponentPropsWithoutRef<'a'> & {
+    title: string;
+    icon: React.ElementType;
+  }
+>(({ className, title, children, icon: Icon, ...props }, ref) => {
+  return (
+    <li>
+      <NavigationMenuLink asChild>
+        <a
+          ref={ref}
+          className={cn(
+            'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
+            className
+          )}
+          {...props}
+        >
+          <div className="flex items-center gap-2">
+            <Icon className="h-5 w-5 text-primary" />
+            <div className="text-sm font-medium leading-none">{title}</div>
+          </div>
+          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+            {children}
+          </p>
+        </a>
+      </NavigationMenuLink>
+    </li>
+  );
+});
+ListItem.displayName = 'ListItem';
