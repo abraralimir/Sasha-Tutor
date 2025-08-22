@@ -304,7 +304,7 @@ for fruit in fruits:
                     content: `
 <h1>Conditional Looping: The 'while' Loop</h1>
 <p>While a <code>for</code> loop runs for each item in a sequence, a <code>while</code> loop runs as long as a certain condition is true.</p>
-<h2>Structure of a \`while\` Loop</h2>
+<h2>Structure of a \\\`while\\\` Loop</h2>
 <p>A <code>while</code> loop continuously executes a block of code as long as its condition evaluates to <code>True</code>.</p>
 <code>count = 0
 while count < 5:
@@ -312,10 +312,10 @@ while count < 5:
     count = count + 1 # Or more concisely: count += 1
 </code>
 <p>This code will print the numbers 0, 1, 2, 3, and 4. The line <code>count = count + 1</code> is crucial. It's the <strong>update step</strong>. Without it, <code>count</code> would always be 0, the condition <code>count < 5</code> would always be true, and the loop would run forever! This is called an <strong>infinite loop</strong>.</p>
-<h2>When to use \`while\` vs \`for\`</h2>
+<h2>When to use \\\`while\\\` vs \\\`for\\\`</h2>
 <ul>
-    <li>Use a <strong>\`for\` loop</strong> when you know how many times you want to loop (e.g., for every item in a list, for 10 repetitions).</li>
-    <li>Use a <strong>\`while\` loop</strong> when you want to loop until a certain condition changes (e.g., until the user enters 'quit', until a health bar reaches 0).</li>
+    <li>Use a <strong>\\\`for\\\` loop</strong> when you know how many times you want to loop (e.g., for every item in a list, for 10 repetitions).</li>
+    <li>Use a <strong>\\\`while\\\` loop</strong> when you want to loop until a certain condition changes (e.g., until the user enters 'quit', until a health bar reaches 0).</li>
 </ul>
 <interactive-code-cell description="Initialize a variable 'n' to 3. Write a while loop that prints 'Go!' as long as 'n' is greater than 0, and decrements n by 1 each time." expected="n = 3; while n > 0: print('Go!'); n -= 1" />
 `,
@@ -563,7 +563,7 @@ print(f"The winner is {winner}!")
 <p>Sometimes module names can be long. You can give them a shorter alias using the <code>as</code> keyword. This is very common with libraries like Pandas.</p>
 <code>import pandas as pd
 </code>
-<interactive-code-cell description="Import the \`randint\` function from the \`random\` module." expected="from random import randint" />
+<interactive-code-cell description="Import the \\\`randint\\\` function from the \\\`random\\\` module." expected="from random import randint" />
 `,
                     quiz: [
                         {
@@ -666,7 +666,7 @@ my_cat.speak() # Output: Some generic animal sound
 my_cat.purr()  # Output: Purrrr...
 </code>
 <p>We can also <strong>override</strong> parent methods by defining a method with the same name in the child class.</p>
-<interactive-code-cell description="Define a \`Fish\` class that inherits from the \`Animal\` class (assuming Animal is defined)." expected="class Fish(Animal): pass" />
+<interactive-code-cell description="Define a \\\`Fish\\\` class that inherits from the \\\`Animal\\\` class (assuming Animal is defined)." expected="class Fish(Animal): pass" />
 `,
                     quiz: [
                         {
@@ -768,7 +768,7 @@ except FileNotFoundError:
 except:
     # Handle any other error
 </code>
-<interactive-code-cell description="Write a simple try block that attempts to print a variable `x` (which is not defined)." expected="try: print(x)" />
+<interactive-code-cell description="Write a simple try block that attempts to print a variable \\\`x\\\` (which is not defined)." expected="try: print(x)" />
 `,
                     quiz: [
                         {
@@ -820,7 +820,7 @@ numbers = [1, 2, 3, 4, 5, 6]
 even_squares = [n * n for n in numbers if n % 2 == 0]
 # even_squares is now [4, 16, 36]
 </code>
-<interactive-code-cell description="Use a list comprehension to create a list of the numbers 0, 1, 2 from `range(3)`." expected="[i for i in range(3)]" />
+<interactive-code-cell description="Use a list comprehension to create a list of the numbers 0, 1, 2 from \\\`range(3)\\\`." expected="[i for i in range(3)]" />
 `,
                     quiz: [
                         {
@@ -858,7 +858,7 @@ points = [(1, 5), (3, 2), (5, 8)]
 sorted_points = sorted(points, key=lambda point: point[1])
 # sorted_points is now [(3, 2), (1, 5), (5, 8)]
 </code>
-<interactive-code-cell description="Write a lambda function that takes two arguments, \`a\` and \`b\`, and returns their product." expected="lambda a, b: a * b" />
+<interactive-code-cell description="Write a lambda function that takes two arguments, \\\`a\\\` and \\\`b\\\`, and returns their product." expected="lambda a, b: a * b" />
 `,
                     quiz: [
                         {
@@ -887,11 +887,11 @@ sorted_points = sorted(points, key=lambda point: point[1])
 <p>While Python's standard library is extensive, the true power of the Python ecosystem comes from the millions of third-party packages available.</p>
 <h2>PyPI: The Python Package Index</h2>
 <p>The Python Package Index (PyPI) is a vast repository of software for the Python programming language. Think of it as an app store for Python libraries.</p>
-<h2>\`pip\`: The Package Installer</h2>
+<h2>\\\`pip\\\`: The Package Installer</h2>
 <p><code>pip</code> is the standard package-management system used to install and manage software packages written in Python. It's included with modern versions of Python.</p>
 <p>To install a package, you use the command line (like Terminal or Command Prompt) and type:</p>
 <code>pip install package-name</code>
-<p>For example, to install the popular \`requests\` library for making HTTP requests, you would run:</p>
+<p>For example, to install the popular \\\`requests\\\` library for making HTTP requests, you would run:</p>
 <code>pip install requests</code>
 <h2>Using an Installed Package</h2>
 <p>Once a package is installed, you can use it in your code just like any other module by importing it.</p>
@@ -1067,7 +1067,7 @@ const excelCourse: Course = {
     <li><strong>value_if_false:</strong> What to display if the condition is false.</li>
 </ul>
 <p>For example, if cell A1 contains a student's score, you could write: <code>=IF(A1>=60, "Pass", "Fail")</code></p>
-<interactive-code-cell description="Write an IF function that checks if cell B2 is equal to 'Yes' and returns 100 if true, and 0 if false." expected="=IF(B2=\"Yes\", 100, 0)" />
+<interactive-code-cell description="Write an IF function that checks if cell B2 is equal to 'Yes' and returns 100 if true, and 0 if false." expected="=IF(B2=\\"Yes\\", 100, 0)" />
                     `,
                     quiz: [
                         {
