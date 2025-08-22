@@ -35,9 +35,9 @@ const pythonCourse: Course = {
             id: 'chapter-1',
             title: 'Level 1: Beginner (Foundations)',
             lessons: [
-                { 
-                    id: 'lesson-1-1', 
-                    title: 'Introduction to Python & Setup', 
+                {
+                    id: 'lesson-1-1',
+                    title: 'Introduction to Python & Setup',
                     content: `
 <h1>Welcome to Python!</h1>
 <p>Python is a powerful, versatile, and beginner-friendly programming language. It's used everywhere, from web development (like Instagram and YouTube) to data science, artificial intelligence, and more.</p>
@@ -68,104 +68,166 @@ const pythonCourse: Course = {
                         }
                     ]
                 },
-                { id: 'lesson-1-2', title: 'Python Syntax & First Program', content: '' },
-                { id: 'lesson-1-3', title: 'Comments & Code Structure', content: '' },
-                { id: 'lesson-1-4', title: 'Variables & Data Types', content: '' },
-                { id: 'lesson-1-5', title: 'Numbers & Math Operations', content: '' },
-                { id: 'lesson-1-6', title: 'Strings & String Operations', content: '' },
-                { id: 'lesson-1-7', title: 'Booleans & Logical Operators', content: '' },
-                { id: 'lesson-1-8', title: 'Type Conversion & Input/Output', content: '' },
-                { id: 'lesson-1-9', title: 'Basic Error Handling (try/except)', content: '' }
+                {
+                    id: 'lesson-1-2',
+                    title: 'Variables & Data Types',
+                    content: `
+<h1>Storing Information: Variables</h1>
+<p>Imagine you have a piece of information you want to use later, like a name or a number. In programming, you store this information in a <strong>variable</strong>. Think of a variable as a labeled box where you can put data.</p>
+<h2>Creating a Variable</h2>
+<p>Creating a variable in Python is simple. You just choose a name, use the equals sign (<code>=</code>), and give it a value.</p>
+<code>name = "Sasha"</code><br/>
+<code>age = 10</code>
+<p>Here, we've created two variables. <code>name</code> holds the text "Sasha", and <code>age</code> holds the number 10.</p>
+<h2>Common Data Types</h2>
+<p>Data comes in different types. Python is smart and usually figures out the type on its own.</p>
+<ul>
+    <li><strong>String (str):</strong> Plain text, always wrapped in quotes. E.g., <code>"Hello, Python!"</code></li>
+    <li><strong>Integer (int):</strong> Whole numbers. E.g., <code>42</code>, <code>-100</code></li>
+    <li><strong>Float (float):</strong> Numbers with decimal points. E.g., <code>3.14</code>, <code>-0.5</code></li>
+    <li><strong>Boolean (bool):</strong> Represents truth values, either <code>True</code> or <code>False</code>.</li>
+</ul>
+<p>You can see a variable's type using the <code>type()</code> function.</p>
+<interactive-code-cell description="Create a variable named 'score' and assign it the integer value 100." expected="score = 100" />
+                    `,
+                    quiz: [
+                        {
+                            question: "What is the correct way to assign the text 'Python' to a variable named 'language'?",
+                            options: ["language = Python", "language = \"Python\"", "let language = \"Python\"", "string language = \"Python\""],
+                            correctAnswer: "language = \"Python\""
+                        },
+                        {
+                            question: "Which data type would you use to store a person's age as a whole number?",
+                            options: ["Float", "String", "Boolean", "Integer"],
+                            correctAnswer: "Integer"
+                        }
+                    ]
+                },
+                {
+                    id: 'lesson-1-3',
+                    title: 'Numbers & Math Operations',
+                    content: `
+<h1>Working with Numbers</h1>
+<p>Python is also a powerful calculator. You can perform all the standard mathematical operations directly in your code.</p>
+<h2>Basic Arithmetic</h2>
+<p>The symbols for basic math are straightforward:</p>
+<ul>
+    <li><code>+</code> for Addition</li>
+    <li><code>-</code> for Subtraction</li>
+    <li><code>*</code> for Multiplication</li>
+    <li><code>/</code> for Division</li>
+</ul>
+<p>For example, to calculate <code>5 + 7</code> and store it in a result, you would write:</p>
+<code>result = 5 + 7</code>
+<p>The variable <code>result</code> would now hold the value <code>12</code>.</p>
+<h2>Order of Operations</h2>
+<p>Python follows the standard order of operations (PEMDAS/BODMAS). Parentheses <code>()</code> are evaluated first, then Exponents, then Multiplication/Division, and finally Addition/Subtraction.</p>
+<code>calculation = (5 + 3) * 2  # This equals 16, not 11</code>
+<h2>More Operations</h2>
+<ul>
+    <li><code>**</code> for Exponent (e.g., <code>2 ** 3</code> is 2 to the power of 3, which is 8)</li>
+    <li><code>%</code> for Modulo (returns the remainder of a division, e.g., <code>10 % 3</code> is 1)</li>
+</ul>
+<interactive-code-cell description="Write code to calculate 20 divided by 4 and store it in a variable named 'answer'." expected="answer = 20 / 4" />
+                    `,
+                    quiz: [
+                        {
+                            question: "What is the result of the expression `2 * 3` in Python?",
+                            options: ["8", "6", "5", "9"],
+                            correctAnswer: "8"
+                        },
+                        {
+                            question: "What does the modulo operator (`%`) do?",
+                            options: ["Calculates the percentage", "Finds the remainder of a division", "Performs multiplication", "Rounds a number"],
+                            correctAnswer: "Finds the remainder of a division"
+                        }
+                    ]
+                }
             ]
         },
         {
             id: 'chapter-2',
             title: 'Level 2: Control Flow',
             lessons: [
-                { id: 'lesson-2-1', title: 'if, elif, else Statements', content: '' },
-                { id: 'lesson-2-2', title: 'for Loops', content: '' },
-                { id: 'lesson-2-3', title: 'while Loops', content: '' },
-                { id: 'lesson-2-4', title: 'Loop Control (break, continue, pass)', content: '' },
-                { id: 'lesson-2-5', title: 'List Comprehensions', content: '' }
-            ]
-        },
-		{
-            id: 'chapter-3',
-            title: 'Level 3: Data Structures',
-            lessons: [
-                { id: 'lesson-3-1', title: 'Lists', content: '' },
-                { id: 'lesson-3-2', title: 'Tuples', content: '' },
-                { id: 'lesson-3-3', title: 'Sets', content: '' },
-                { id: 'lesson-3-4', title: 'Dictionaries', content: '' },
-                { id: 'lesson-3-5', title: 'Nested Data Structures', content: '' }
-            ]
-        },
-        {
-            id: 'chapter-4',
-            title: 'Level 4: Functions & Modules',
-            lessons: [
-                 { id: 'lesson-4-1', title: 'Defining & Calling Functions', content: '' },
-                 { id: 'lesson-4-2', title: 'Function Arguments (*args, **kwargs)', content: '' },
-                 { id: 'lesson-4-3', title: 'Return Values', content: '' },
-                 { id: 'lesson-4-4', title: 'Lambda Functions', content: '' },
-                 { id: 'lesson-4-5', title: 'Scope & Global Variables', content: '' },
-                 { id: 'lesson-4-6', title: 'Importing & Using Modules', content: '' },
-                 { id: 'lesson-4-7', title: 'Creating Your Own Modules', content: '' }
-            ]
-        },
-        {
-            id: 'chapter-5',
-            title: 'Level 5: File Handling',
-            lessons: [
-                { id: 'lesson-5-1', title: 'Reading Files', content: '' },
-                { id: 'lesson-5-2', title: 'Writing Files', content: '' },
-                { id: 'lesson-5-3', title: 'Working with CSV Files', content: '' },
-                { id: 'lesson-5-4', title: 'Working with JSON Files', content: '' }
-            ]
-        },
-        {
-            id: 'chapter-6',
-            title: 'Level 6: Error & Exception Handling',
-            lessons: [
-                 { id: 'lesson-6-1', title: 'Common Python Errors', content: '' },
-                 { id: 'lesson-6-2', title: 'try, except, finally', content: '' },
-                 { id: 'lesson-6-3', title: 'Raising Exceptions (raise)', content: '' },
-                 { id: 'lesson-6-4', title: 'Custom Exceptions', content: '' }
-            ]
-        },
-        {
-            id: 'chapter-7',
-            title: 'Level 7: Object-Oriented Programming (OOP)',
-            lessons: [
-                { id: 'lesson-7-1', title: 'Classes & Objects', content: '' },
-                { id: 'lesson-7-2', title: 'Methods (self)', content: '' },
-                { id: 'lesson-7-3', title: 'Inheritance', content: '' },
-                { id: 'lesson-7-4', title: 'Special Methods (__str__, __len__)', content: '' }
-            ]
-        },
-        {
-            id: 'chapter-8',
-            title: 'Level 8: Advanced Python',
-            lessons: [
-                { id: 'lesson-8-1', title: 'Iterators & Generators', content: '' },
-                { id: 'lesson-8-2', title: 'Decorators', content: '' },
-                { id: 'lesson-8-3', title: 'Regular Expressions (re)', content: '' }
-            ]
-        },
-        {
-            id: 'chapter-9',
-            title: 'Level 9: Python for Data & Automation',
-            lessons: [
-                { id: 'lesson-9-1', title: 'Using pip & Installing Packages', content: '' },
-                { id: 'lesson-9-2', title: 'Working with requests (HTTP)', content: '' },
-                { id: 'lesson-9-3', title: 'Intro to Pandas & Matplotlib', content: '' }
-            ]
-        },
-        {
-            id: 'chapter-10',
-            title: 'Level 10: Final Stage – Projects & Practice',
-            lessons: [
-                { id: 'lesson-10-1', title: 'Projects & Practice', content: '' }
+                {
+                    id: 'lesson-2-1',
+                    title: 'if, elif, else Statements',
+                    content: `
+<h1>Making Decisions in Code</h1>
+<p>So far, our code has run from top to bottom. But what if we want to run certain code only if a condition is true? We use <strong>conditional statements</strong>.</p>
+<h2>The <code>if</code> Statement</h2>
+<p>The <code>if</code> statement is the most basic decision-making tool. It checks if a condition is true, and if it is, it executes a block of code.</p>
+<code>temperature = 30
+if temperature > 25:
+    print("It's a hot day!")
+</code>
+<p>Notice the colon <code>:</code> and the indentation. The indented code only runs if the condition <code>temperature > 25</code> is <code>True</code>.</p>
+<h2>The <code>else</code> Statement</h2>
+<p>What if the condition is false? You can use an <code>else</code> statement to provide an alternative block of code to run.</p>
+<code>if temperature > 25:
+    print("It's a hot day!")
+else:
+    print("It's not a hot day.")
+</code>
+<h2>The <code>elif</code> Statement</h2>
+<p>If you have more than two possibilities, you can use <code>elif</code> (short for "else if") to check for other conditions.</p>
+<code>score = 85
+if score >= 90:
+    print("Grade: A")
+elif score >= 80:
+    print("Grade: B")
+else:
+    print("Grade: C or below")
+</code>
+<interactive-code-cell description="Write an if statement to print 'Positive' if the variable 'num' is greater than 0." expected="if num > 0: print('Positive')" />
+                    `,
+                    quiz: [
+                        {
+                            question: "Which keyword is used to handle the case where the `if` condition is false?",
+                            options: ["otherwise", "maybe", "elif", "else"],
+                            correctAnswer: "else"
+                        },
+                        {
+                            question: "What is required after the condition in an `if` statement and at the start of the code block that follows?",
+                            options: ["A semicolon and curly braces", "A colon and indentation", "A period and tabs", "Parentheses and quotes"],
+                            correctAnswer: "A colon and indentation"
+                        }
+                    ]
+                },
+                {
+                    id: 'lesson-2-2',
+                    title: 'for Loops',
+                    content: `
+<h1>Repeating Actions: The 'for' Loop</h1>
+<p>A loop is a way to repeat a block of code multiple times. The <code>for</code> loop in Python is used to iterate over a sequence (like a list, a tuple, a dictionary, a set, or a string).</p>
+<h2>Looping Through a List</h2>
+<p>This is the most common use of a <code>for</code> loop. You can perform an action for each item in the list.</p>
+<code>fruits = ["apple", "banana", "cherry"]
+for fruit in fruits:
+    print(fruit)
+</code>
+<p>This code will print "apple", then "banana", then "cherry", each on a new line.</p>
+<h2>The <code>range()</code> Function</h2>
+<p>If you want to run a loop a specific number of times, you can use the <code>range()</code> function.</p>
+<code>for i in range(5):
+    print("Hello!")
+</code>
+<p>This will print "Hello!" five times. The variable <code>i</code> will take on the values 0, 1, 2, 3, and 4 in each iteration.</p>
+<interactive-code-cell description="Write a for loop to print the numbers from 0 to 2 using range()." expected="for i in range(3): print(i)" />
+                    `,
+                    quiz: [
+                        {
+                            question: "What does the `range(3)` function generate?",
+                            options: ["The numbers 1, 2, 3", "The numbers 0, 1, 2", "The number 3", "The numbers 0, 1, 2, 3"],
+                            correctAnswer: "The numbers 0, 1, 2"
+                        },
+                        {
+                            question: "What is a `for` loop typically used for?",
+                            options: ["Making a single decision", "Storing a single value", "Iterating over a sequence of items", "Ending the program"],
+                            correctAnswer: "Iterating over a sequence of items"
+                        }
+                    ]
+                }
             ]
         }
     ]
@@ -179,9 +241,9 @@ const excelCourse: Course = {
             id: 'excel-chapter-1',
             title: 'Level 1: Excel Basics',
             lessons: [
-                { 
-                    id: 'excel-1-1', 
-                    title: 'Understanding the Excel Interface', 
+                {
+                    id: 'excel-1-1',
+                    title: 'Understanding the Excel Interface',
                     content: `
 <h1>Welcome to Microsoft Excel!</h1>
 <p>Excel is the world's most popular spreadsheet program, used by millions for everything from simple budgeting to complex data analysis. Mastering it is a valuable skill in almost any profession.</p>
@@ -213,32 +275,75 @@ const excelCourse: Course = {
                         }
                     ]
                 },
-                { id: 'excel-1-2', title: 'Entering and Formatting Data' },
-                { id: 'excel-1-3', title: 'Basic Formulas (SUM, AVERAGE, COUNT)' },
-                { id: 'excel-1-4', title: 'Working with Rows, Columns, and Sheets' },
-                { id: 'excel-1-5', title: 'Introduction to Charts' }
+                {
+                    id: 'excel-1-2',
+                    title: 'Entering and Formatting Data',
+                    content: `
+<h1>Data Entry and Formatting</h1>
+<p>Entering data in Excel is as simple as clicking on a cell and typing. But making that data look good and easy to read is a key skill.</p>
+<h2>Entering Different Data Types</h2>
+<ul>
+    <li><strong>Text:</strong> Simply type text into a cell. By default, it aligns to the left.</li>
+    <li><strong>Numbers:</strong> Type numbers into a cell. By default, they align to the right.</li>
+    <li><strong>Dates:</strong> Excel is very smart about dates. You can type "10/15/2024" or "15-Oct-24" and Excel will recognize it as a date.</li>
+</ul>
+<h2>Formatting Cells</h2>
+<p>The 'Home' tab on the Ribbon contains most of the formatting tools you'll need. You can change:</p>
+<ul>
+    <li><strong>Font:</strong> Change the font type, size, color, and make it bold, italic, or underlined.</li>
+    <li><strong>Alignment:</strong> Change how data is aligned within a cell (left, right, center, top, bottom).</li>
+    <li><strong>Number Formatting:</strong> This is very powerful. You can format numbers as currency ($), percentages (%), dates, and more.</li>
+</ul>
+<interactive-code-cell description="To format a cell as US currency, you would select the cell and click which symbol on the Home tab?" expected="The dollar sign ($)" />
+                    `,
+                    quiz: [
+                        {
+                            question: "By default, how does Excel align text data in a cell?",
+                            options: ["Center", "Right", "Left", "Justify"],
+                            correctAnswer: "Left"
+                        },
+                        {
+                            question: "Which tab on the Ribbon holds the main tools for changing font color and cell alignment?",
+                            options: ["Insert", "Data", "View", "Home"],
+                            correctAnswer: "Home"
+                        }
+                    ]
+                }
             ]
         },
         {
             id: 'excel-chapter-2',
             title: 'Level 2: Intermediate Formulas',
             lessons: [
-                { id: 'excel-2-1', title: 'Logical Functions (IF, AND, OR)' },
-                { id: 'excel-2-2', title: 'Lookup Functions (VLOOKUP, HLOOKUP)' },
-                { id: 'excel-2-3', title: 'Text Functions (CONCATENATE, LEFT, RIGHT)' },
-                { id: 'excel-2-4', title: 'Date and Time Functions' },
-                { id: 'excel-2-5', title: 'Advanced Formulas (INDEX, MATCH)' }
-            ]
-        },
-        {
-            id: 'excel-chapter-3',
-            title: 'Level 3: Data Analysis Tools',
-            lessons: [
-                { id: 'excel-3-1', title: 'Sorting and Filtering Data' },
-                { id: 'excel-3-2', title: 'Conditional Formatting' },
-                { id: 'excel-3-3', title: 'Creating and Using Tables' },
-                { id: 'excel-3-4', title: 'Introduction to PivotTables' },
-                { id: 'excel-3-5', title: 'Data Validation' }
+                {
+                    id: 'excel-2-1',
+                    title: 'Logical Functions (IF, AND, OR)',
+                    content: `
+<h1>Making Decisions with IF</h1>
+<p>The <code>IF</code> function is one of the most powerful and widely used functions in Excel. It allows you to perform a logical comparison between a value and what you expect, and returns one value if the result is true, and another if it's false.</p>
+<h2>Structure of the IF Function</h2>
+<p>The syntax is: <code>=IF(logical_test, value_if_true, value_if_false)</code></p>
+<ul>
+    <li><strong>logical_test:</strong> The condition you want to check. For example, <code>A1 > 10</code>.</li>
+    <li><strong>value_if_true:</strong> What to display if the condition is true.</li>
+    <li><strong>value_if_false:</strong> What to display if the condition is false.</li>
+</ul>
+<p>For example, if cell A1 contains a student's score, you could write: <code>=IF(A1>=60, "Pass", "Fail")</code></p>
+<interactive-code-cell description="Write an IF function that checks if cell B2 is equal to 'Yes' and returns 100 if true, and 0 if false." expected="=IF(B2=\"Yes\", 100, 0)" />
+                    `,
+                    quiz: [
+                        {
+                            question: "How many arguments does the IF function take?",
+                            options: ["1", "2", "3", "4"],
+                            correctAnswer: "3"
+                        },
+                        {
+                            question: "In the formula `=IF(C1<10, 'Under', 'Over')`, what is the result if cell C1 contains the value 5?",
+                            options: ["Over", "Under", "Error", "10"],
+                            correctAnswer: "Under"
+                        }
+                    ]
+                }
             ]
         }
     ]
@@ -252,8 +357,8 @@ const sapFicoCourse: Course = {
             id: 'sap-fico-chapter-1',
             title: 'Level 1: Introduction to SAP & ERP',
             lessons: [
-                { 
-                    id: 'sap-fico-1-1', 
+                {
+                    id: 'sap-fico-1-1',
                     title: 'What is SAP and ERP?',
                     content: `
 <h1>Understanding SAP and ERP</h1>
@@ -270,6 +375,7 @@ const sapFicoCourse: Course = {
     <li><strong>CO - Controlling:</strong> This is the "internal" accounting module. It's used for internal management purposes, such as tracking costs, managing budgets, and analyzing profitability. It helps managers make informed decisions.</li>
 </ul>
 <p>Together, FI and CO are tightly integrated to provide a complete picture of a company's financial health.</p>
+<interactive-code-cell description="The SAP module for external financial reporting is called what?" expected="FI (Financial Accounting)" />
                     `,
                     quiz: [
                         {
@@ -284,29 +390,35 @@ const sapFicoCourse: Course = {
                         }
                     ]
                 },
-                { id: 'sap-fico-1-2', title: 'Overview of SAP Modules' },
-                { id: 'sap-fico-1-3', title: 'Introduction to SAP FICO' },
-                { id: 'sap-fico-1-4', title: 'Navigating the SAP System' }
-            ]
-        },
-        {
-            id: 'sap-fico-chapter-2',
-            title: 'Level 2: Core FICO Modules',
-            lessons: [
-                { id: 'sap-fico-2-1', title: 'General Ledger (G/L) Accounting' },
-                { id: 'sap-fico-2-2', title: 'Accounts Payable (AP)' },
-                { id: 'sap-fico-2-3', title: 'Accounts Receivable (AR)' },
-                { id: 'sap-fico-2-4', title: 'Asset Accounting (AA)' }
-            ]
-        },
-        {
-            id: 'sap-fico-chapter-3',
-            title: 'Level 3: Key Processes & Reporting',
-            lessons: [
-                { id: 'sap-fico-3-1', title: 'The Procure-to-Pay Process' },
-                { id: 'sap-fico-3-2', title: 'The Order-to-Cash Process' },
-                { id: 'sap-fico-3-3', title: 'Financial Closing and Reporting' },
-                { id: 'sap-fico-3-4', title: 'Introduction to Controlling (CO)' }
+                {
+                    id: 'sap-fico-1-2',
+                    title: 'Overview of SAP Modules',
+                    content: `
+<h1>A World of Modules</h1>
+<p>SAP is vast. It's designed to run entire businesses, so it's broken down into functional <strong>modules</strong>. While FICO is our focus, it's important to know about the other key modules it integrates with.</p>
+<h2>Core SAP Modules</h2>
+<ul>
+    <li><strong>SD (Sales and Distribution):</strong> Manages the entire sales process, from orders and pricing to shipping and billing. When a sale is made in SD, it automatically creates a posting in FI.</li>
+    <li><strong>MM (Materials Management):</strong> Handles procurement and inventory. When a company buys raw materials using MM, it triggers a financial posting in FI (Accounts Payable).</li>
+    <li><strong>PP (Production Planning):</strong> Manages the manufacturing process. The costs of production are tracked and settled in CO.</li>
+    <li><strong>HCM (Human Capital Management):</strong> The HR module. Manages payroll, hiring, etc. Payroll runs in HCM post directly to FI.</li>
+</ul>
+<p>This integration is the magic of SAP. An action in one part of the business has an immediate and automatic impact on the financial records, ensuring everything is always in sync.</p>
+<interactive-code-cell description="Which module handles the purchasing of materials and inventory?" expected="MM (Materials Management)" />
+                    `,
+                    quiz: [
+                        {
+                            question: "Which two modules are most tightly integrated with FI for sales and procurement processes?",
+                            options: ["PP and HCM", "SD and MM", "HCM and SD", "MM and PP"],
+                            correctAnswer: "SD and MM"
+                        },
+                        {
+                            question: "What is the key benefit of SAP's integrated module system?",
+                            options: ["Each department is separate", "It makes the software more complex", "Actions in one module automatically update others, like FI", "It's only for the HR department"],
+                            correctAnswer: "Actions in one module automatically update others, like FI"
+                        }
+                    ]
+                }
             ]
         }
     ]
@@ -320,8 +432,8 @@ const cloudCourse: Course = {
             id: 'cloud-chapter-1',
             title: 'Level 1: Cloud Fundamentals',
             lessons: [
-                { 
-                    id: 'cloud-1-1', 
+                {
+                    id: 'cloud-1-1',
                     title: 'What is Cloud Computing?',
                     content: `
 <h1>What is Cloud Computing?</h1>
@@ -335,7 +447,7 @@ const cloudCourse: Course = {
     <li><strong>Cost Savings:</strong> Trade capital expense (buying hardware) for variable expense (paying for what you use).</li>
     <li><strong>Global Reach:</strong> Deploy your applications in multiple regions around the world with just a few clicks, providing lower latency and better experiences for your customers.</li>
 </ul>
-<p>In short, cloud computing gives you access to powerful, enterprise-grade technology without the upfront cost and complexity of managing it yourself.</p>
+<interactive-code-cell description="What is the term for the cloud benefit that lets you scale resources up and down as needed?" expected="Elasticity" />
                     `,
                     quiz: [
                         {
@@ -350,29 +462,36 @@ const cloudCourse: Course = {
                         }
                     ]
                 },
-                { id: 'cloud-1-2', title: 'Cloud Service Models (IaaS, PaaS, SaaS)' },
-                { id: 'cloud-1-3', title: 'Cloud Deployment Models (Public, Private, Hybrid)' },
-                { id: 'cloud-1-4', title: 'Key Cloud Providers (AWS, Azure, GCP)' }
-            ]
-        },
-        {
-            id: 'cloud-chapter-2',
-            title: 'Level 2: Core Cloud Services',
-            lessons: [
-                { id: 'cloud-2-1', title: 'Compute Services (Virtual Machines)' },
-                { id: 'cloud-2-2', title: 'Storage Services (Object & Block Storage)' },
-                { id: 'cloud-2-3', title: 'Networking in the Cloud' },
-                { id: 'cloud-2-4', title: 'Databases in the Cloud' }
-            ]
-        },
-        {
-            id: 'cloud-chapter-3',
-            title: 'Level 3: Modern Cloud Concepts',
-            lessons: [
-                { id: 'cloud-3-1', title: 'Introduction to Serverless Computing' },
-                { id: 'cloud-3-2', title: 'Containers and Orchestration (Docker & Kubernetes)' },
-                { id: 'cloud-3-3', title: 'Cloud Security Fundamentals' },
-                { id: 'cloud-3-4', title: 'Infrastructure as Code (IaC)' }
+                {
+                    id: 'cloud-1-2',
+                    title: 'Cloud Service Models (IaaS, PaaS, SaaS)',
+                    content: `
+<h1>The 'As-A-Service' Models</h1>
+<p>Cloud computing services are often categorized into three main models. They represent different levels of management and control over your IT resources.</p>
+<h2>IaaS: Infrastructure as a Service</h2>
+<p>This is the most basic category. You are essentially renting IT infrastructure—servers, virtual machines, storage, networks—from a cloud provider. You have the most control but also the most responsibility to manage the operating system and applications.</p>
+<p><strong>Analogy:</strong> Renting a plot of land. You get the land, but you have to build the house yourself.</p>
+<h2>PaaS: Platform as a Service</h2>
+<p>This model provides an on-demand environment for developing, testing, delivering, and managing software applications. PaaS makes it easier for developers to quickly create web or mobile apps, without worrying about setting up or managing the underlying infrastructure.</p>
+<p><strong>Analogy:</strong> Renting a house. The foundation, walls, and utilities are ready, but you furnish it.</p>
+<h2>SaaS: Software as a Service</h2>
+<p>This is a method for delivering software applications over the Internet, on demand and typically on a subscription basis. You don't manage the software or the infrastructure; you just use it. Examples include Gmail, Salesforce, and Dropbox.</p>
+<p><strong>Analogy:</strong> Renting a fully furnished apartment. You just move in and use it.</p>
+<interactive-code-cell description="Which service model gives you the most control over the infrastructure?" expected="IaaS" />
+                    `,
+                    quiz: [
+                        {
+                            question: "Which cloud service model does Gmail or Microsoft 365 represent?",
+                            options: ["IaaS", "PaaS", "SaaS", "On-premise"],
+                            correctAnswer: "SaaS"
+                        },
+                        {
+                            question: "If you want to build and deploy a web application without managing the underlying servers, which model is the best fit?",
+                            options: ["PaaS", "IaaS", "SaaS", "Bare Metal"],
+                            correctAnswer: "PaaS"
+                        }
+                    ]
+                }
             ]
         }
     ]
@@ -386,8 +505,8 @@ const dataAnalyticsCourse: Course = {
             id: 'da-chapter-1',
             title: 'Level 1: Foundations of Data Analytics',
             lessons: [
-                { 
-                    id: 'da-1-1', 
+                {
+                    id: 'da-1-1',
                     title: 'Introduction to Data Analytics',
                     content: `
 <h1>Welcome to Data Analytics!</h1>
@@ -410,8 +529,7 @@ const dataAnalyticsCourse: Course = {
     <li><strong>Share:</strong> Communicate your findings through reports and visualizations.</li>
     <li><strong>Act:</strong> Use the insights to make better decisions.</li>
 </ol>
-<h2>Tools of the Trade</h2>
-<p>Data analysts use a variety of tools, including spreadsheets (like Excel), databases (using SQL), and programming languages. In this course, we'll focus on <strong>Python</strong>, which has become the industry standard for data analytics due to powerful libraries like Pandas, NumPy, and Matplotlib.</p>
+<interactive-code-cell description="Which step of the data analytics process involves cleaning and formatting the data?" expected="Prepare" />
                     `,
                     quiz: [
                         {
@@ -425,40 +543,41 @@ const dataAnalyticsCourse: Course = {
                             correctAnswer: "Prepare"
                         }
                     ]
-                 },
-                { id: 'da-1-2', title: 'Working with Jupyter Notebooks' },
-                { id: 'da-1-3', title: 'Introduction to NumPy for Numerical Data' },
-                { id: 'da-1-4', title: 'Data Cleaning and Preparation' }
-            ]
-        },
-        {
-            id: 'da-chapter-2',
-            title: 'Level 2: Data Manipulation with Pandas',
-            lessons: [
-                { id: 'da-2-1', title: 'Introduction to Pandas DataFrames' },
-                { id: 'da-2-2', title: 'Importing Data (CSV, Excel)' },
-                { id: 'da-2-3', title: 'Selecting and Filtering Data' },
-                { id: 'da-2-4', title: 'Grouping and Aggregating Data' },
-                { id: 'da-2-5', title: 'Merging and Joining DataFrames' }
-            ]
-        },
-        {
-            id: 'da-chapter-3',
-            title: 'Level 3: Data Visualization',
-            lessons: [
-                { id: 'da-3-1', title: 'Introduction to Matplotlib' },
-                { id: 'da-3-2', title: 'Creating Bar Charts and Histograms' },
-                { id: 'da-3-3', title: 'Creating Line Plots and Scatter Plots' },
-                { id: 'da-3-4', title: 'Advanced Visualization with Seaborn' }
-            ]
-        },
-        {
-            id: 'da-chapter-4',
-            title: 'Level 4: Real-World Applications',
-            lessons: [
-                { id: 'da-4-1', title: 'Fetching Data from Public APIs' },
-                { id: 'da-4-2', title: 'Case Study: Analyzing Weather Data' },
-                { id: 'da-4-3', title: 'Case Study: Exploring Movie Datasets' }
+                },
+                {
+                    id: 'da-1-2',
+                    title: 'Introduction to Pandas',
+                    content: `
+<h1>Pandas: Your Data Superhero</h1>
+<p>Pandas is the most popular Python library for data manipulation and analysis. It provides data structures and functions needed to work with structured data seamlessly.</p>
+<h2>The DataFrame</h2>
+<p>The core of Pandas is the <strong>DataFrame</strong>, a two-dimensional table of data with rows and columns, similar to a spreadsheet. You can create a DataFrame from many sources, like dictionaries, lists, or by reading a file.</p>
+<h2>Reading Data</h2>
+<p>A common task is to read data from a CSV (Comma-Separated Values) file into a DataFrame. Pandas makes this incredibly easy with the <code>read_csv()</code> function.</p>
+<code>import pandas as pd
+df = pd.read_csv('my_data.csv')
+</code>
+<h2>Inspecting Your Data</h2>
+<p>Once you have a DataFrame, you'll want to inspect it. Here are two essential commands:</p>
+<ul>
+    <li><code>df.head()</code>: Shows the first 5 rows of your data.</li>
+    <li><code>df.info()</code>: Provides a summary of the DataFrame, including data types and non-null values.</li>
+</ul>
+<interactive-code-cell description="Write the pandas command to view the first 5 rows of a DataFrame named 'sales_df'." expected="sales_df.head()" />
+                    `,
+                    quiz: [
+                        {
+                            question: "What is the primary data structure used in the Pandas library?",
+                            options: ["List", "Array", "Dictionary", "DataFrame"],
+                            correctAnswer: "DataFrame"
+                        },
+                        {
+                            question: "Which Pandas function is used to read data from a CSV file?",
+                            options: ["open_csv()", "load_csv()", "read_csv()", "import_csv()"],
+                            correctAnswer: "read_csv()"
+                        }
+                    ]
+                }
             ]
         }
     ]
