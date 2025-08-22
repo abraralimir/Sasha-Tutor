@@ -22,6 +22,21 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
+import type { Metadata } from 'next';
+
+
+export async function generateMetadata({ params }: { params: { topic: string } }): Promise<Metadata> {
+  const topic = decodeURIComponent(params.topic);
+  const formattedTopic = topic
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+
+  return {
+    title: `Master ${formattedTopic} | Sasha's Path`,
+    description: `An AI-generated course to help you master ${formattedTopic}, from beginner to advanced topics, with interactive lessons and quizzes.`,
+  };
+}
 
 
 function CircularProgress({ progress }: { progress: number }) {
@@ -341,7 +356,7 @@ function EndOfLessonQuiz({ lessonTitle, onQuizComplete }: { lessonTitle: string,
 }
 
 export default function LearningPathPage({ params }: { params: { topic: string } }) {
-  const [topic, setTopic] = useState('');
+  const topic = decodeURIComponent(params.topic);
   const [course, setCourseState] = useState<Course | null>(null);
   const [activeChapter, setActiveChapter] = useState<Chapter | null>(null);
   const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
@@ -351,9 +366,7 @@ export default function LearningPathPage({ params }: { params: { topic: string }
   const contentRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
-    const decodedTopic = decodeURIComponent(params.topic);
-    setTopic(decodedTopic);
-    const storedCourse = getCourse(decodedTopic);
+    const storedCourse = getCourse(topic);
     if (storedCourse) {
       setCourseState(storedCourse);
       const firstChapter = storedCourse.chapters[0] ?? null;
@@ -361,7 +374,7 @@ export default function LearningPathPage({ params }: { params: { topic: string }
       setActiveChapter(firstChapter);
       setActiveLesson(firstLesson);
     }
-  }, [params.topic]);
+  }, [topic]);
 
   const chapters = course?.chapters ?? [];
 
@@ -491,7 +504,7 @@ export default function LearningPathPage({ params }: { params: { topic: string }
     <div className="grid md:grid-cols-[280px_1fr] h-[calc(100vh-3.5rem)]">
       <aside className="border-r flex flex-col bg-card">
         <div className="p-4 border-b">
-          <h2 className="text-lg font-semibold tracking-tight capitalize">{topic} Path</h2>
+          <h2 className="text-lg font-semibold tracking-tight capitalize">{topic.replace(/-/g, ' ')} Path</h2>
           <div className="mt-2">
              <div className="w-full bg-muted rounded-full h-2.5">
                 <div className="bg-primary h-2.5 rounded-full" style={{width: `${pathProgress}%`}}></div>
