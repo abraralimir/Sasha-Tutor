@@ -35,8 +35,10 @@ export function AISearch() {
       const result = await generateCourse({ topic: query });
       const formattedCourse = formatGeneratedCourse(result);
       setCourse(formattedCourse); // Store the generated course
-      const courseId = formattedCourse.id.toLowerCase().replace(/\s+/g, '-');
-      router.push(`/${courseId}/learning-path`);
+      
+      // Navigate to the newly created course path
+      router.push(`/${formattedCourse.id}/learning-path`);
+
       setIsOpen(false);
       setQuery('');
     } catch (err) {

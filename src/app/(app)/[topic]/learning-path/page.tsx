@@ -250,16 +250,6 @@ function EndOfLessonQuiz({ lessonTitle, onQuizComplete }: { lessonTitle: string,
     };
 
     useEffect(() => {
-        if (!isOpen) return;
-
-        const wasOpen = quizSession !== null || isLoading || error !== null;
-        if (!wasOpen) {
-            handleGenerateQuiz();
-        }
-    }, [isOpen, quizSession, isLoading, error, handleGenerateQuiz]);
-
-    // Reset state when the lesson changes, but only if the dialog is open
-    useEffect(() => {
         if (isOpen) {
             handleGenerateQuiz();
         }

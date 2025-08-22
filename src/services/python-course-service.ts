@@ -1239,17 +1239,19 @@ const courseCache = new Map<string, Course>();
 courseCache.set('python', pythonCourse);
 
 export function getCourse(topic: string): Course | null {
-    return courseCache.get(topic) || null;
+    const courseId = topic.toLowerCase().replace(/\s+/g, '-');
+    return courseCache.get(courseId) || null;
 }
 
 export function setCourse(course: Course): void {
-    // In a real app, you'd also save this to localStorage or a DB
     courseCache.set(course.id, course);
 }
 
 export function formatGeneratedCourse(generated: GenerateCourseOutput): Course {
+    const courseId = generated.id.toLowerCase().replace(/\s+/g, '-');
     return {
         ...generated,
+        id: courseId,
         chapters: generated.chapters.map(chapter => ({
             ...chapter,
             lessons: chapter.lessons.map(lesson => ({
