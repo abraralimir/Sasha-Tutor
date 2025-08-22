@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { setCourse, formatGeneratedCourse } from '@/services/course-service';
+import { getCourse, setCourse, formatGeneratedCourse } from '@/services/course-service';
 
 export function AISearch() {
   const [isOpen, setIsOpen] = useState(false);
@@ -32,12 +32,19 @@ export function AISearch() {
     setError(null);
 
     try {
-      const result = await generateCourse({ topic: query });
-      const formattedCourse = formatGeneratedCourse(result);
-      setCourse(formattedCourse); // Store the generated course
-      
-      // Navigate to the newly created course path
-      router.push(`/${formattedCourse.id}/learning-path`);
+      // First, check if a pre-generated course exists
+      const existingCourse = getCourse(query);
+      if (existingCourse) {
+        router.push(`/${existingCourse.id}/learning-path`);
+      } else {
+        // If not, generate a new one
+        const result = await generateCourse({ topic: query });
+        const formattedCourse = formatGeneratedCourse(result);
+        setCourse(formattedCourse); // Store the generated course
+        
+        // Navigate to the newly created course path
+        router.push(`/${formattedCourse.id}/learning-path`);
+      }
 
       setIsOpen(false);
       setQuery('');
@@ -94,7 +101,7 @@ export function AISearch() {
             <div className="flex flex-col items-center justify-center pt-8">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
               <p className="mt-2 text-muted-foreground">
-                Generating your custom learning path...
+                Checking for courses or generating a new one...
               </p>
             </div>
           )}
