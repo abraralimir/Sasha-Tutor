@@ -33,22 +33,16 @@ const pythonCourse: Course = {
     chapters: [
         {
             id: 'chapter-1',
-            title: 'Level 1: Beginner (Foundations)',
+            title: 'Level 1: Python Foundations',
             lessons: [
                 {
                     id: 'lesson-1-1',
-                    title: 'Introduction to Python & Setup',
+                    title: 'Introduction to Python',
                     content: `
 <h1>Welcome to Python!</h1>
 <p>Python is a powerful, versatile, and beginner-friendly programming language. It's used everywhere, from web development (like Instagram and YouTube) to data science, artificial intelligence, and more.</p>
 <h2>What is a Programming Language?</h2>
 <p>Think of it as a set of instructions you can give to a computer to make it perform tasks. Just like we use languages like English to communicate with each other, we use programming languages like Python to communicate with computers.</p>
-<h2>Why Python?</h2>
-<ul>
-    <li><strong>Readable and Simple:</strong> Python's syntax is clean and easy to read, which makes it an excellent language for beginners. It often reads a lot like plain English.</li>
-    <li><strong>Versatile:</strong> You can build almost anything with Python. Web apps, games, data analysis tools, robots—you name it.</li>
-    <li><strong>Huge Community:</strong> Millions of developers use Python, which means there's a vast amount of libraries (pre-written code) and resources available to help you.</li>
-</ul>
 <h2>Your First Program: "Hello, World!"</h2>
 <p>The traditional first program for any new language is one that prints "Hello, World!" to the screen. In Python, it's incredibly simple. You use the <code>print()</code> function.</p>
 <p>A <strong>function</strong> is a reusable block of code that performs a specific action. The <code>print()</code> function's action is to display text or other data on the screen.</p>
@@ -65,6 +59,11 @@ const pythonCourse: Course = {
                             question: "Which of the following is a key reason Python is recommended for beginners?",
                             options: ["It's the oldest programming language", "It's only used for web development", "Its syntax is clean and readable", "It doesn't require a computer to run"],
                             correctAnswer: "Its syntax is clean and readable"
+                        },
+                         {
+                            question: "What is a 'function' in programming?",
+                            options: ["A variable that holds text", "A reusable block of code that performs a specific action", "A type of error", "A way to stop the program"],
+                            correctAnswer: "A reusable block of code that performs a specific action"
                         }
                     ]
                 },
@@ -100,12 +99,17 @@ const pythonCourse: Course = {
                             question: "Which data type would you use to store a person's age as a whole number?",
                             options: ["Float", "String", "Boolean", "Integer"],
                             correctAnswer: "Integer"
+                        },
+                        {
+                            question: "What value would a variable of type 'bool' hold?",
+                            options: ["A number", "Text", "True or False", "A list of items"],
+                            correctAnswer: "True or False"
                         }
                     ]
                 },
                 {
                     id: 'lesson-1-3',
-                    title: 'Numbers & Math Operations',
+                    title: 'Numbers & Math',
                     content: `
 <h1>Working with Numbers</h1>
 <p>Python is also a powerful calculator. You can perform all the standard mathematical operations directly in your code.</p>
@@ -132,7 +136,7 @@ const pythonCourse: Course = {
                     `,
                     quiz: [
                         {
-                            question: "What is the result of the expression `2 * 3` in Python?",
+                            question: "What is the result of the expression `2 ** 3` in Python?",
                             options: ["8", "6", "5", "9"],
                             correctAnswer: "8"
                         },
@@ -140,9 +144,65 @@ const pythonCourse: Course = {
                             question: "What does the modulo operator (`%`) do?",
                             options: ["Calculates the percentage", "Finds the remainder of a division", "Performs multiplication", "Rounds a number"],
                             correctAnswer: "Finds the remainder of a division"
+                        },
+                         {
+                            question: "What is the value of `(2 + 2) * 3`?",
+                            options: ["8", "12", "10", "9"],
+                            correctAnswer: "12"
                         }
                     ]
-                }
+                },
+                 {
+                    id: 'lesson-1-4',
+                    title: 'Working with Strings',
+                    content: `
+<h1>Mastering Text: Strings</h1>
+<p>Strings are sequences of characters, used to store text. We've already seen them with <code>print("Hello, World!")</code>. Let's dive deeper.</p>
+<h2>Concatenation</h2>
+<p>You can combine strings using the <code>+</code> operator. This is called concatenation.</p>
+<code>first_name = "Sasha"
+last_name = "Codes"
+full_name = first_name + " " + last_name
+print(full_name)  # Output: Sasha Codes
+</code>
+<h2>String Methods</h2>
+<p>Strings come with many built-in functions called <strong>methods</strong> that let you perform common tasks. You call them using a dot <code>.</code> after the string variable.</p>
+<ul>
+    <li><code>.lower()</code>: Converts the string to lowercase.</li>
+    <li><code>.upper()</code>: Converts the string to uppercase.</li>
+    <li><code>.strip()</code>: Removes any whitespace from the beginning or end.</li>
+    <li><code>.replace(old, new)</code>: Replaces a substring with another.</li>
+</ul>
+<code>message = "  Hello Python!  "
+print(message.strip().upper()) # Output: HELLO PYTHON!
+</code>
+<h2>F-Strings</h2>
+<p>F-strings (formatted string literals) are a modern and convenient way to embed expressions inside string literals.</p>
+<code>name = "Sasha"
+age = 10
+greeting = f"Hello, my name is {name} and I am {age} years old."
+print(greeting)
+</code>
+<interactive-code-cell description="Create a variable 'shout' with the value 'hello' converted to all uppercase letters." expected="shout = 'hello'.upper()" />
+`,
+                    quiz: [
+                        {
+                            question: "What is the term for combining two strings together with the `+` operator?",
+                            options: ["Addition", "Merging", "Concatenation", "Joining"],
+                            correctAnswer: "Concatenation"
+                        },
+                        {
+                            question: "Which string method would you use to remove leading and trailing whitespace?",
+                            options: [".trim()", ".clean()", ".remove_space()", ".strip()"],
+                            correctAnswer: ".strip()"
+                        },
+                         {
+                            question: "What would `f'2 + 2 = {2+2}'` evaluate to?",
+                            options: ["f'2 + 2 = 4'", "2 + 2 = {2+2}", "2 + 2 = 4", "An error"],
+                            correctAnswer: "2 + 2 = 4"
+                        }
+                    ]
+                },
             ]
         },
         {
@@ -151,7 +211,7 @@ const pythonCourse: Course = {
             lessons: [
                 {
                     id: 'lesson-2-1',
-                    title: 'if, elif, else Statements',
+                    title: 'Conditional Logic (if/elif/else)',
                     content: `
 <h1>Making Decisions in Code</h1>
 <p>So far, our code has run from top to bottom. But what if we want to run certain code only if a condition is true? We use <strong>conditional statements</strong>.</p>
@@ -191,12 +251,17 @@ else:
                             question: "What is required after the condition in an `if` statement and at the start of the code block that follows?",
                             options: ["A semicolon and curly braces", "A colon and indentation", "A period and tabs", "Parentheses and quotes"],
                             correctAnswer: "A colon and indentation"
+                        },
+                        {
+                            question: "Which operator is used to check for equality?",
+                            options: ["=", "==", "!=", "=>"],
+                            correctAnswer: "=="
                         }
                     ]
                 },
                 {
                     id: 'lesson-2-2',
-                    title: 'for Loops',
+                    title: '`for` Loops',
                     content: `
 <h1>Repeating Actions: The 'for' Loop</h1>
 <p>A loop is a way to repeat a block of code multiple times. The <code>for</code> loop in Python is used to iterate over a sequence (like a list, a tuple, a dictionary, a set, or a string).</p>
@@ -225,6 +290,679 @@ for fruit in fruits:
                             question: "What is a `for` loop typically used for?",
                             options: ["Making a single decision", "Storing a single value", "Iterating over a sequence of items", "Ending the program"],
                             correctAnswer: "Iterating over a sequence of items"
+                        },
+                        {
+                            question: "In `for item in items:`, what is `item`?",
+                            options: ["The entire list", "A temporary variable holding the current element", "The index of the current element", "A keyword that can't be changed"],
+                            correctAnswer: "A temporary variable holding the current element"
+                        }
+                    ]
+                },
+                {
+                    id: 'lesson-2-3',
+                    title: '`while` Loops',
+                    content: `
+<h1>Conditional Looping: The 'while' Loop</h1>
+<p>While a <code>for</code> loop runs for each item in a sequence, a <code>while</code> loop runs as long as a certain condition is true.</p>
+<h2>Structure of a \`while\` Loop</h2>
+<p>A <code>while</code> loop continuously executes a block of code as long as its condition evaluates to <code>True</code>.</p>
+<code>count = 0
+while count < 5:
+    print(count)
+    count = count + 1 # Or more concisely: count += 1
+</code>
+<p>This code will print the numbers 0, 1, 2, 3, and 4. The line <code>count = count + 1</code> is crucial. It's the <strong>update step</strong>. Without it, <code>count</code> would always be 0, the condition <code>count < 5</code> would always be true, and the loop would run forever! This is called an <strong>infinite loop</strong>.</p>
+<h2>When to use \`while\` vs \`for\`</h2>
+<ul>
+    <li>Use a <strong>\`for\` loop</strong> when you know how many times you want to loop (e.g., for every item in a list, for 10 repetitions).</li>
+    <li>Use a <strong>\`while\` loop</strong> when you want to loop until a certain condition changes (e.g., until the user enters 'quit', until a health bar reaches 0).</li>
+</ul>
+<interactive-code-cell description="Initialize a variable 'n' to 3. Write a while loop that prints 'Go!' as long as 'n' is greater than 0, and decrements n by 1 each time." expected="n = 3; while n > 0: print('Go!'); n -= 1" />
+`,
+                    quiz: [
+                        {
+                            question: "What happens if you forget to include a line that changes the condition variable in a `while` loop?",
+                            options: ["The program crashes", "The loop runs once", "The loop doesn't run at all", "It creates an infinite loop"],
+                            correctAnswer: "It creates an infinite loop"
+                        },
+                        {
+                            question: "You need to write a program that keeps asking for user input until they type 'exit'. Which loop is better suited for this?",
+                            options: ["`for` loop", "`while` loop", "Either is fine", "Neither is suitable"],
+                            correctAnswer: "`while` loop"
+                        },
+                        {
+                            question: "What is the primary difference between a `for` loop and a `while` loop?",
+                            options: ["`for` loops are faster", "`for` loops iterate over a sequence, `while` loops iterate as long as a condition is true", "`while` loops can only count up", "`for` loops can't have `if` statements inside them"],
+                            correctAnswer: "`for` loops iterate over a sequence, `while` loops iterate as long as a condition is true"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            id: 'chapter-3',
+            title: 'Level 3: Data Structures',
+            lessons: [
+                {
+                    id: 'lesson-3-1',
+                    title: 'Lists',
+                    content: `
+<h1>Organizing Data: Lists</h1>
+<p>A list is an ordered and changeable collection of items. Lists are one of the most versatile data structures in Python.</p>
+<h2>Creating and Accessing Lists</h2>
+<p>You create a list by placing items inside square brackets <code>[]</code>, separated by commas.</p>
+<code>my_list = [10, "hello", True, 3.14]</code>
+<p>You can access items in a list using their <strong>index</strong>, which starts at 0.</p>
+<code>colors = ["red", "green", "blue"]
+first_color = colors[0] # "red"
+second_color = colors[1] # "green"
+</code>
+<h2>Modifying Lists</h2>
+<p>Lists are mutable, meaning you can change them after they are created.</p>
+<ul>
+    <li><strong>Append:</strong> Add an item to the end with <code>.append()</code>.</li>
+    <li><strong>Remove:</strong> Remove an item with <code>.remove()</code>.</li>
+    <li><strong>Change an item:</strong> Reassign a value at a specific index.</li>
+</ul>
+<code>numbers = [1, 2, 3]
+numbers.append(4) # numbers is now [1, 2, 3, 4]
+numbers[0] = 99  # numbers is now [99, 2, 3, 4]
+</code>
+<interactive-code-cell description="Create a list named 'items' containing the numbers 1, 2, and 3." expected="items = [1, 2, 3]" />
+`,
+                    quiz: [
+                        {
+                            question: "What is the index of the first item in a Python list?",
+                            options: ["1", "A", "-1", "0"],
+                            correctAnswer: "0"
+                        },
+                        {
+                            question: "Which method is used to add an element to the end of a list?",
+                            options: [".add()", ".insert()", ".append()", ".push()"],
+                            correctAnswer: ".append()"
+                        },
+                        {
+                            question: "What does 'mutable' mean in the context of a list?",
+                            options: ["It cannot be changed", "It can be changed after creation", "It can only hold numbers", "It is ordered"],
+                            correctAnswer: "It can be changed after creation"
+                        }
+                    ]
+                },
+                {
+                    id: 'lesson-3-2',
+                    title: 'Dictionaries',
+                    content: `
+<h1>Key-Value Pairs: Dictionaries</h1>
+<p>A dictionary is an unordered collection of data values, used to store data values like a map. Unlike lists, which are indexed by a range of numbers, dictionaries are indexed by <strong>keys</strong>.</p>
+<h2>Creating and Accessing Dictionaries</h2>
+<p>You create a dictionary using curly braces <code>{}</code> with key-value pairs.</p>
+<code>student = {
+    "name": "Sasha",
+    "age": 10,
+    "grade": "A"
+}
+</code>
+<p>You access values by their key, not by an index.</p>
+<code>student_name = student["name"] # "Sasha"
+</code>
+<h2>Modifying Dictionaries</h2>
+<p>Dictionaries are also mutable.</p>
+<ul>
+    <li><strong>Add/Update:</strong> You can add a new key-value pair or update an existing one.</li>
+    <li><strong>Remove:</strong> Remove a pair with <code>del</code>.</li>
+</ul>
+<code># Add a new key
+student["course"] = "Python"
+# Update an existing key
+student["age"] = 11
+# Remove a key
+del student["grade"]
+</code>
+<interactive-code-cell description="Create a dictionary 'car' with a key 'color' and value 'red'." expected="car = {'color': 'red'}" />
+`,
+                    quiz: [
+                        {
+                            question: "How do you access the value associated with a key in a dictionary?",
+                            options: ["Using its numerical index, like `dict[0]`", "Using the key, like `dict['key']`", "Using the `.get_value()` method", "You cannot access individual values"],
+                            correctAnswer: "Using the key, like `dict['key']`"
+                        },
+                        {
+                            question: "What kind of brackets are used to define a dictionary?",
+                            options: ["Parentheses ()", "Square brackets []", "Curly braces {}", "Angle brackets <>"],
+                            correctAnswer: "Curly braces {}"
+                        },
+                        {
+                            question: "In a dictionary, what is the 'name' part of `\"name\": \"Sasha\"` called?",
+                            options: ["The value", "The item", "The key", "The element"],
+                            correctAnswer: "The key"
+                        }
+                    ]
+                },
+                 {
+                    id: 'lesson-3-3',
+                    title: 'Tuples and Sets',
+                    content: `
+<h1>Specialized Collections: Tuples and Sets</h1>
+<p>While lists and dictionaries are the most common data structures, Python offers two others for specific use cases: tuples and sets.</p>
+<h2>Tuples</h2>
+<p>A tuple is an <strong>ordered and unchangeable</strong> collection of items. Think of it as a list that cannot be modified after it's created. This is useful for data that should not change, like coordinates or RGB color values.</p>
+<p>You create tuples using parentheses <code>()</code>.</p>
+<code>point = (10, 20)
+print(point[0]) # Accessing works just like lists
+</code>
+<p>The main difference is that you cannot append, remove, or change items. <code>point[0] = 5</code> would cause an error.</p>
+<h2>Sets</h2>
+<p>A set is an <strong>unordered and unindexed</strong> collection of <strong>unique</strong> items. The key features are that they don't allow duplicate elements and they are very fast for checking if an item is present.</p>
+<p>You create sets using curly braces <code>{}</code>, but without key-value pairs.</p>
+<code>numbers = {1, 2, 3, 3, 4, 2}
+print(numbers) # Output: {1, 2, 3, 4}
+</code>
+<p>Sets are great for removing duplicates from a list or for performing mathematical set operations like union and intersection.</p>
+<interactive-code-cell description="Create a tuple named 'rgb' with the values 255, 0, 128." expected="rgb = (255, 0, 128)" />
+`,
+                    quiz: [
+                        {
+                            question: "What is the main difference between a list and a tuple?",
+                            options: ["Lists are ordered, tuples are not", "Tuples are mutable, lists are not", "Lists are mutable, tuples are not", "There is no difference"],
+                            correctAnswer: "Lists are mutable, tuples are not"
+                        },
+                        {
+                            question: "What happens if you try to add a duplicate item to a set?",
+                            options: ["It raises an error", "It adds the item twice", "It is ignored", "It replaces the existing item"],
+                            correctAnswer: "It is ignored"
+                        },
+                         {
+                            question: "Which data structure is best for storing a collection of items where you need to frequently check for the existence of an item?",
+                            options: ["List", "Tuple", "Set", "Dictionary"],
+                            correctAnswer: "Set"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            id: 'chapter-4',
+            title: 'Level 4: Functions & Modules',
+            lessons: [
+                 {
+                    id: 'lesson-4-1',
+                    title: 'Defining Functions',
+                    content: `
+<h1>Creating Reusable Code: Functions</h1>
+<p>A function is a block of organized, reusable code that is used to perform a single, related action. Functions provide better modularity for your application and a high degree of code reusing.</p>
+<h2>Defining a Function</h2>
+<p>You define a function using the <code>def</code> keyword, followed by a function name, parentheses <code>()</code>, and a colon <code>:</code>. The code block within every function starts with an indentation.</p>
+<code>def greet():
+    print("Hello from a function!")
+</code>
+<h2>Calling a Function</h2>
+<p>To execute the function, you "call" it by its name followed by parentheses.</p>
+<code>greet() # This will print "Hello from a function!"
+</code>
+<h2>Parameters and Arguments</h2>
+<p>You can pass information into a function through parameters (also called arguments).</p>
+<code>def greet_user(name):
+    print(f"Hello, {name}!")
+
+greet_user("Sasha") # Prints "Hello, Sasha!"
+greet_user("Alex")  # Prints "Hello, Alex!"
+</code>
+<h2>Return Values</h2>
+<p>Functions can also send a value back to the code that called it. This is done using the <code>return</code> keyword.</p>
+<code>def add_numbers(x, y):
+    return x + y
+
+sum_result = add_numbers(5, 3)
+print(sum_result) # Prints 8
+</code>
+<interactive-code-cell description="Define a function 'say_hi' that prints the string 'Hi!'." expected="def say_hi(): print('Hi!')" />
+`,
+                    quiz: [
+                        {
+                            question: "Which keyword is used to define a function in Python?",
+                            options: ["function", "def", "create", "fun"],
+                            correctAnswer: "def"
+                        },
+                        {
+                            question: "What is the purpose of the `return` keyword in a function?",
+                            options: ["To print a value to the console", "To stop the function's execution", "To send a value back to the caller", "To define a parameter"],
+                            correctAnswer: "To send a value back to the caller"
+                        },
+                        {
+                            question: "What is a 'parameter' in a function definition?",
+                            options: ["The value returned by the function", "A variable listed inside the parentheses in the function definition", "The name of the function", "The indented code block"],
+                            correctAnswer: "A variable listed inside the parentheses in the function definition"
+                        }
+                    ]
+                },
+                 {
+                    id: 'lesson-4-2',
+                    title: 'Importing Modules',
+                    content: `
+<h1>Using External Code: Modules</h1>
+<p>A module is simply a file containing Python code. Modules allow you to logically organize your Python code. Grouping related code into a module makes the code easier to understand and use.</p>
+<p>Python has a huge <strong>standard library</strong> of modules that come with it, and there are millions more third-party modules you can install.</p>
+<h2>The <code>import</code> Statement</h2>
+<p>To use the code from a module, you need to import it using the <code>import</code> keyword. A common module is the <code>math</code> module, which provides mathematical functions.</p>
+<code>import math
+
+# Now you can use functions from the math module
+x = 16
+square_root = math.sqrt(x)
+print(square_root) # Prints 4.0
+</code>
+<h2>Importing Specific Functions</h2>
+<p>If you only need one or two functions from a module, you can import them directly using <code>from ... import ...</code>.</p>
+<code>from random import choice
+
+players = ["Alice", "Bob", "Charlie"]
+winner = choice(players) # No need to write random.choice()
+print(f"The winner is {winner}!")
+</code>
+<h2>Giving a Module an Alias</h2>
+<p>Sometimes module names can be long. You can give them a shorter alias using the <code>as</code> keyword. This is very common with libraries like Pandas.</p>
+<code>import pandas as pd
+</code>
+<interactive-code-cell description="Import the \`randint\` function from the \`random\` module." expected="from random import randint" />
+`,
+                    quiz: [
+                        {
+                            question: "Which module in the standard library would you import to get the value of Pi (π)?",
+                            options: ["`random`", "`datetime`", "`math`", "`os`"],
+                            correctAnswer: "`math`"
+                        },
+                        {
+                            question: "What is the keyword used to give an imported module a shorter nickname?",
+                            options: ["`alias`", "`rename`", "`as`", "`like`"],
+                            correctAnswer: "`as`"
+                        },
+                        {
+                            question: "What is the Python Standard Library?",
+                            options: ["A single file with all Python code", "A collection of modules included with Python", "A website for Python help", "A paid add-on for advanced features"],
+                            correctAnswer: "A collection of modules included with Python"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            id: 'chapter-5',
+            title: 'Level 5: Object-Oriented Programming (OOP)',
+            lessons: [
+                {
+                    id: 'lesson-5-1',
+                    title: 'Classes and Objects',
+                    content: `
+<h1>A New Way of Thinking: Object-Oriented Programming</h1>
+<p>Object-Oriented Programming (OOP) is a programming paradigm based on the concept of "objects", which can contain data (attributes) and code (methods).</p>
+<h2>Classes: The Blueprint</h2>
+<p>A <strong>class</strong> is like a blueprint for creating objects. It defines the properties (attributes) and behaviors (methods) that all objects of that class will have.</p>
+<p>You define a class using the <code>class</code> keyword.</p>
+<code>class Dog:
+    # This is a special method called the constructor
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+    # This is a method
+    def bark(self):
+        print("Woof!")
+</code>
+<h2>Objects: The Instance</h2>
+<p>An <strong>object</strong> (or instance) is a specific creation based on a class. You can create multiple objects from the same class.</p>
+<code># Creating two Dog objects
+my_dog = Dog("Rex", 5)
+your_dog = Dog("Lucy", 3)
+
+print(my_dog.name) # Prints "Rex"
+your_dog.bark()   # Prints "Woof!"
+</code>
+<p>The <code>__init__</code> method is called automatically when you create a new object. The <code>self</code> parameter refers to the instance itself, allowing you to store attributes like <code>self.name</code>.</p>
+<interactive-code-cell description="Create a simple class named 'Cat' with a pass statement inside." expected="class Cat: pass" />
+`,
+                    quiz: [
+                        {
+                            question: "In OOP, what is a 'class' often compared to?",
+                            options: ["A specific object", "A blueprint", "A function", "A variable"],
+                            correctAnswer: "A blueprint"
+                        },
+                        {
+                            question: "What is the special method used to initialize an object's attributes?",
+                            options: ["`__start__()`", "`__main__()`", "`__init__()`", "`__create__()`"],
+                            correctAnswer: "`__init__()`"
+                        },
+                        {
+                            question: "What is an 'attribute' in the context of a class?",
+                            options: ["A function inside a class", "A variable that belongs to an object", "The name of the class", "The `class` keyword"],
+                            correctAnswer: "A variable that belongs to an object"
+                        }
+                    ]
+                },
+                {
+                    id: 'lesson-5-2',
+                    title: 'Inheritance',
+                    content: `
+<h1>Building on a Foundation: Inheritance</h1>
+<p>Inheritance allows us to define a class that inherits all the methods and properties from another class. This is a core concept in OOP that promotes code reuse.</p>
+<h2>Parent and Child Classes</h2>
+<p>The class being inherited from is called the <strong>parent class</strong> (or base class). The class that inherits from another class is called the <strong>child class</strong> (or derived class).</p>
+<p>Let's create a general <code>Animal</code> class and then a specific <code>Cat</code> class that inherits from it.</p>
+<code>class Animal:
+    def __init__(self, name):
+        self.name = name
+
+    def speak(self):
+        print("Some generic animal sound")
+
+# The Cat class inherits from Animal
+class Cat(Animal):
+    def purr(self):
+        print("Purrrr...")
+</code>
+<h2>Using Inherited and Child-Specific Methods</h2>
+<p>An object of the <code>Cat</code> class can use methods from both the <code>Animal</code> parent class and its own <code>Cat</code> class.</p>
+<code>my_cat = Cat("Whiskers")
+my_cat.speak() # Output: Some generic animal sound
+my_cat.purr()  # Output: Purrrr...
+</code>
+<p>We can also <strong>override</strong> parent methods by defining a method with the same name in the child class.</p>
+<interactive-code-cell description="Define a \`Fish\` class that inherits from the \`Animal\` class (assuming Animal is defined)." expected="class Fish(Animal): pass" />
+`,
+                    quiz: [
+                        {
+                            question: "In inheritance, what is the class that is being inherited from called?",
+                            options: ["Child Class", "Sub Class", "Derived Class", "Parent Class"],
+                            correctAnswer: "Parent Class"
+                        },
+                        {
+                            question: "What does a child class automatically get from its parent class?",
+                            options: ["Only attributes", "Nothing", "All methods and attributes", "Only methods"],
+                            correctAnswer: "All methods and attributes"
+                        },
+                         {
+                            question: "What is it called when a child class provides its own implementation of a method that is already defined in its parent class?",
+                            options: ["Overloading", "Overriding", "Overwriting", "Overruling"],
+                            correctAnswer: "Overriding"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            id: 'chapter-6',
+            title: 'Level 6: File Handling',
+            lessons: [
+                 {
+                    id: 'lesson-6-1',
+                    title: 'Reading and Writing Files',
+                    content: `
+<h1>Working with Files</h1>
+<p>A lot of programming involves reading data from and writing data to files. Python provides simple and powerful tools to do this.</p>
+<h2>The <code>with open(...)</code> Statement</h2>
+<p>The recommended way to work with files is using the <code>with open(...) as ...</code> syntax. This ensures that the file is automatically closed when you're done with it, even if errors occur.</p>
+<h2>Writing to a File</h2>
+<p>To write to a file, you open it in 'write' mode (<code>'w'</code>). Be careful: this will overwrite the file if it already exists!</p>
+<code>with open('greeting.txt', 'w') as f:
+    f.write('Hello, file!')
+</code>
+<h2>Reading from a File</h2>
+<p>To read a file's contents, you open it in 'read' mode (<code>'r'</code>), which is the default.</p>
+<code>with open('greeting.txt', 'r') as f:
+    content = f.read()
+print(content) # Output: Hello, file!
+</code>
+<h2>Appending to a File</h2>
+<p>If you want to add content to the end of an existing file without deleting its contents, use 'append' mode (<code>'a'</code>).</p>
+<code>with open('greeting.txt', 'a') as f:
+    f.write('\\nWelcome back!')
+</code>
+<interactive-code-cell description="Write the Python code to open a file named 'data.txt' in write mode." expected="with open('data.txt', 'w') as f:" />
+`,
+                    quiz: [
+                        {
+                            question: "What is the main advantage of using the `with open(...)` syntax?",
+                            options: ["It makes files run faster", "It automatically closes the file", "It can only be used for reading", "It encrypts the file"],
+                            correctAnswer: "It automatically closes the file"
+                        },
+                        {
+                            question: "Which mode would you use to add content to the end of an existing file?",
+                            options: ["'r' (read)", "'w' (write)", "'a' (append)", "'x' (create)"],
+                            correctAnswer: "'a' (append)"
+                        },
+                         {
+                            question: "What happens if you open an existing file in 'w' (write) mode?",
+                            options: ["An error occurs", "It adds new content to the end", "Its existing content is erased", "It opens in read-only mode"],
+                            correctAnswer: "Its existing content is erased"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            id: 'chapter-7',
+            title: 'Level 7: Error Handling',
+            lessons: [
+                 {
+                    id: 'lesson-7-1',
+                    title: 'Try and Except Blocks',
+                    content: `
+<h1>Handling the Unexpected: Errors</h1>
+<p>Errors, or <strong>exceptions</strong>, are a normal part of programming. A good program anticipates and handles potential errors gracefully instead of crashing.</p>
+<h2>The <code>try...except</code> Block</h2>
+<p>Python's primary tool for handling errors is the <code>try...except</code> block. You put the code that might cause an error in the <code>try</code> block, and the code to run if an error occurs in the <code>except</code> block.</p>
+<p>A common error is trying to divide by zero.</p>
+<code>try:
+    result = 10 / 0
+except ZeroDivisionError:
+    print("You can't divide by zero!")
+</code>
+<p>Without the <code>try...except</code>, this code would crash. With it, it prints a user-friendly message and continues.</p>
+<h2>Handling Multiple Exceptions</h2>
+<p>You can handle different types of exceptions by adding more <code>except</code> blocks.</p>
+<code>try:
+    # Code that might cause different errors
+except ZeroDivisionError:
+    # Handle this specific error
+except FileNotFoundError:
+    # Handle this one
+except:
+    # Handle any other error
+</code>
+<interactive-code-cell description="Write a simple try block that attempts to print a variable `x` (which is not defined)." expected="try: print(x)" />
+`,
+                    quiz: [
+                        {
+                            question: "Which block contains the code that might raise an exception?",
+                            options: ["`except`", "`finally`", "`try`", "`if`"],
+                            correctAnswer: "`try`"
+                        },
+                        {
+                            question: "What is the purpose of the `except` block?",
+                            options: ["To always run, regardless of errors", "To define the error-prone code", "To contain the code that runs if an error occurs", "To crash the program"],
+                            correctAnswer: "To contain the code that runs if an error occurs"
+                        },
+                         {
+                            question: "What would happen if you try `10 / 0` outside of a `try` block?",
+                            options: ["The program prints an error and continues", "The program crashes", "The result is 0", "The result is infinity"],
+                            correctAnswer: "The program crashes"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            id: 'chapter-8',
+            title: 'Level 8: Advanced Concepts',
+            lessons: [
+                {
+                    id: 'lesson-8-1',
+                    title: 'List Comprehensions',
+                    content: `
+<h1>Elegant Looping: List Comprehensions</h1>
+<p>List comprehensions provide a concise and readable way to create lists. They are often more efficient and easier to write than a standard <code>for</code> loop.</p>
+<h2>The Basic Syntax</h2>
+<p>A list comprehension consists of brackets containing an expression followed by a <code>for</code> clause.</p>
+<p>Imagine you have a list of numbers and you want to create a new list containing the square of each number. Here's the standard <code>for</code> loop way:</p>
+<code>numbers = [1, 2, 3, 4]
+squares = []
+for n in numbers:
+    squares.append(n * n)
+# squares is now [1, 4, 9, 16]
+</code>
+<p>Here's the same thing as a list comprehension:</p>
+<code>numbers = [1, 2, 3, 4]
+squares = [n * n for n in numbers]
+</code>
+<h2>Adding a Condition</h2>
+<p>You can also add an <code>if</code> condition to filter the items.</p>
+<code># Get only the squares of even numbers
+numbers = [1, 2, 3, 4, 5, 6]
+even_squares = [n * n for n in numbers if n % 2 == 0]
+# even_squares is now [4, 16, 36]
+</code>
+<interactive-code-cell description="Use a list comprehension to create a list of the numbers 0, 1, 2 from `range(3)`." expected="[i for i in range(3)]" />
+`,
+                    quiz: [
+                        {
+                            question: "What is the primary benefit of using a list comprehension?",
+                            options: ["They are the only way to create lists", "They are more verbose but easier for beginners", "They offer a concise syntax for creating lists from sequences", "They run slower than `for` loops"],
+                            correctAnswer: "They offer a concise syntax for creating lists from sequences"
+                        },
+                        {
+                            question: "What is the list comprehension equivalent of this code: `[c.upper() for c in 'hello']`?",
+                            options: ["['H', 'E', 'L', 'L', 'O']", "['h', 'e', 'l', 'l', 'o']", "'HELLO'", "An error"],
+                            correctAnswer: "['H', 'E', 'L', 'L', 'O']"
+                        }
+                    ]
+                },
+                 {
+                    id: 'lesson-8-2',
+                    title: 'Lambda Functions',
+                    content: `
+<h1>Anonymous Functions: Lambda</h1>
+<p>A lambda function is a small, anonymous function. It can take any number of arguments, but can only have one expression. They are useful when you need a simple function for a short period of time.</p>
+<h2>Syntax</h2>
+<p>The syntax is: <code>lambda arguments: expression</code></p>
+<p>Here's a normal function that adds 10 to a number:</p>
+<code>def add_ten(x):
+    return x + 10
+</code>
+<p>Here is the same function as a lambda:</p>
+<code>add_ten = lambda x: x + 10
+print(add_ten(5)) # Output: 15
+</code>
+<h2>When to Use Lambdas</h2>
+<p>Lambdas are most powerful when used as an anonymous function inside another function. For example, they are often used with functions like <code>sorted()</code>, <code>map()</code>, and <code>filter()</code>.</p>
+<code># Sort a list of tuples by the second element
+points = [(1, 5), (3, 2), (5, 8)]
+sorted_points = sorted(points, key=lambda point: point[1])
+# sorted_points is now [(3, 2), (1, 5), (5, 8)]
+</code>
+<interactive-code-cell description="Write a lambda function that takes two arguments, \`a\` and \`b\`, and returns their product." expected="lambda a, b: a * b" />
+`,
+                    quiz: [
+                        {
+                            question: "What is a key characteristic of a lambda function?",
+                            options: ["It must have a name", "It can have multiple expressions", "It is a small, anonymous function", "It can't take any arguments"],
+                            correctAnswer: "It is a small, anonymous function"
+                        },
+                        {
+                            question: "How many expressions can a lambda function have?",
+                            options: ["As many as needed", "Only one", "Two", "None"],
+                            correctAnswer: "Only one"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            id: 'chapter-9',
+            title: 'Level 9: Working with Libraries',
+            lessons: [
+                 {
+                    id: 'lesson-9-1',
+                    title: 'Using `pip` and Installing Packages',
+                    content: `
+<h1>Expanding Python's Power: Packages</h1>
+<p>While Python's standard library is extensive, the true power of the Python ecosystem comes from the millions of third-party packages available.</p>
+<h2>PyPI: The Python Package Index</h2>
+<p>The Python Package Index (PyPI) is a vast repository of software for the Python programming language. Think of it as an app store for Python libraries.</p>
+<h2>\`pip\`: The Package Installer</h2>
+<p><code>pip</code> is the standard package-management system used to install and manage software packages written in Python. It's included with modern versions of Python.</p>
+<p>To install a package, you use the command line (like Terminal or Command Prompt) and type:</p>
+<code>pip install package-name</code>
+<p>For example, to install the popular \`requests\` library for making HTTP requests, you would run:</p>
+<code>pip install requests</code>
+<h2>Using an Installed Package</h2>
+<p>Once a package is installed, you can use it in your code just like any other module by importing it.</p>
+<code>import requests
+
+response = requests.get('https://api.github.com')
+print(response.status_code) # Prints 200 if successful
+</code>
+<interactive-code-cell description="What is the command to install the data science library 'pandas' using pip?" expected="pip install pandas" />
+`,
+                    quiz: [
+                        {
+                            question: "What is `pip`?",
+                            options: ["A Python code editor", "Python's standard package installer", "A website for Python tutorials", "A built-in Python function"],
+                            correctAnswer: "Python's standard package installer"
+                        },
+                        {
+                            question: "What is PyPI?",
+                            options: ["A popular Python conference", "A type of Python data structure", "The official third-party software repository for Python", "A tool for debugging code"],
+                            correctAnswer: "The official third-party software repository for Python"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            id: 'chapter-10',
+            title: 'Level 10: Final Project',
+            lessons: [
+                {
+                    id: 'lesson-10-1',
+                    title: 'Putting It All Together',
+                    content: `
+<h1>Congratulations!</h1>
+<p>You've reached the final stage of your foundational Python journey. You have learned about variables, data types, control flow, data structures, functions, OOP, and how to handle files and errors. Now it's time to put it all together.</p>
+<h2>Project Idea: Simple Contact Book</h2>
+<p>A great way to practice your skills is to build a simple command-line contact book. Here's a possible structure:</p>
+<ol>
+    <li>Use a dictionary to store contacts, where the key is the contact's name and the value is another dictionary with details like phone number and email.</li>
+    <li>Create functions to:
+        <ul>
+            <li>Add a new contact.</li>
+            <li>View a contact.</li>
+            <li>Delete a contact.</li>
+            <li>List all contacts.</li>
+        </ul>
+    </li>
+    <li>Use a <code>while</code> loop to keep the program running, asking the user for input (e.g., 'add', 'view', 'exit').</li>
+    <li>(Advanced) Save the contacts dictionary to a file (like a JSON file) when the program exits and load it when it starts.</li>
+</ol>
+<h2>Next Steps</h2>
+<p>Programming is a journey of continuous learning. Don't stop here! Explore libraries that interest you:</p>
+<ul>
+    <li><strong>Web Development:</strong> Django, Flask</li>
+    <li><strong>Data Science:</strong> Pandas, NumPy, Matplotlib</li>
+    <li><strong>Game Development:</strong> Pygame</li>
+    <li><strong>Automation:</strong> Selenium, Beautiful Soup</li>
+</ul>
+<p>Keep coding, keep building, and keep learning!</p>
+<interactive-code-cell description="What data structure is recommended for storing the main collection of contacts?" expected="A dictionary" />
+`,
+                    quiz: [
+                        {
+                            question: "What is a good way to keep a command-line application running until the user decides to quit?",
+                            options: ["A `for` loop with `range(100)`", "An `if` statement", "A `while` loop that checks for an 'exit' command", "A list comprehension"],
+                            correctAnswer: "A `while` loop that checks for an 'exit' command"
+                        },
+                        {
+                            question: "To save your contact data permanently, you would need to use which concept we learned?",
+                            options: ["Dictionaries", "File Handling", "For Loops", "Lambda Functions"],
+                            correctAnswer: "File Handling"
                         }
                     ]
                 }
@@ -338,7 +1076,7 @@ const excelCourse: Course = {
                             correctAnswer: "3"
                         },
                         {
-                            question: "In the formula `=IF(C1<10, 'Under', 'Over')`, what is the result if cell C1 contains the value 5?",
+                            question: "In the formula \`=IF(C1<10, 'Under', 'Over')\`, what is the result if cell C1 contains the value 5?",
                             options: ["Over", "Under", "Error", "10"],
                             correctAnswer: "Under"
                         }
