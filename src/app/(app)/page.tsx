@@ -45,12 +45,12 @@ const featuredCourses = [
 export default function DashboardPage() {
   return (
     <div className="flex flex-col h-full">
-      <main className="flex-1 overflow-auto p-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tighter">
+      <main className="flex-1 overflow-auto p-4 md:p-6">
+        <div className="max-w-4xl mx-auto text-center py-12 md:py-20">
+          <h1 className="text-4xl md:text-7xl font-bold tracking-tighter">
             Your Personalized E-Learning Platform
           </h1>
-          <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="mt-6 text-base md:text-xl text-muted-foreground max-w-2xl mx-auto">
             This is an interactive, AI-powered journey to master any subject. Just ask our AI in the search bar above to generate a custom course for you on any topic!
           </p>
            <div className="mt-8 flex justify-center gap-4">
@@ -63,9 +63,9 @@ export default function DashboardPage() {
           </div>
         </div>
         
-        <div className="max-w-5xl mx-auto mt-20">
-            <h2 className="text-3xl font-bold text-center mb-8">Or explore our featured learning paths</h2>
-            <div className="grid md:grid-cols-3 gap-8">
+        <div className="max-w-5xl mx-auto mt-12 md:mt-20">
+            <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">Or explore our featured learning paths</h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                 {featuredCourses.map(course => (
                      <Card key={course.title} className="hover:shadow-lg transition-shadow">
                         <CardHeader className="flex flex-row items-center gap-4">

@@ -2,7 +2,7 @@
 'use client';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { Check, Lock, Play, Loader2, Sparkles, Pencil, ChevronRight, AlertCircle, CheckCircle } from 'lucide-react';
+import { Check, Lock, Play, Loader2, Sparkles, Pencil, ChevronRight, AlertCircle, CheckCircle, Menu } from 'lucide-react';
 import { explainCode, evaluatePythonCode, generatePracticeSession, generateLessonContent } from '@/lib/actions';
 import type { EvaluatePythonCodeOutput } from '@/ai/flows/evaluate-python-code';
 import type { GeneratePracticeSessionOutput } from '@/ai/flows/generate-practice-session';
@@ -22,6 +22,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 
 function CircularProgress({ progress }: { progress: number }) {
@@ -153,7 +154,7 @@ function InteractiveCodeCell({ exerciseDescription, expectedOutput }: { exercise
         />
         <Button onClick={handleRunCode} disabled={isEvaluating || !code}>
           {isEvaluating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
-          <span className="ml-2">Run</span>
+          <span className="ml-2 hidden sm:inline">Run</span>
         </Button>
       </div>
       {evaluation && (
@@ -174,7 +175,7 @@ function ArticleWithInteractiveContent({ content }: { content: string }) {
   const parts = content.split(/<interactive-code-cell\s+description="([^"]+)"\s+expected="([^"]+)"\s*\/>/g);
 
   return (
-    <article className="prose prose-lg dark:prose-invert max-w-4xl mx-auto p-8 md:p-12">
+    <article className="prose prose-lg dark:prose-invert max-w-4xl mx-auto p-4 md:p-12">
       {parts.map((part, index) => {
         if (index % 3 === 0) {
           // This is a regular content part
@@ -340,6 +341,88 @@ function EndOfLessonQuiz({ lessonTitle, onQuizComplete }: { lessonTitle: string,
     );
 }
 
+function LearningPathSidebar({ 
+  topic, 
+  course, 
+  completedLessons, 
+  activeLesson, 
+  handleLessonChange, 
+  isLessonUnlocked 
+}: { 
+  topic: string, 
+  course: Course, 
+  completedLessons: string[], 
+  activeLesson: Lesson,
+  handleLessonChange: (lessonId: string) => void, 
+  isLessonUnlocked: (lessonId: string) => boolean 
+}) {
+  const totalLessons = course.chapters.reduce((sum, chap) => sum + chap.lessons.length, 0);
+  const pathProgress = totalLessons > 0 ? (completedLessons.length / totalLessons) * 100 : 0;
+  
+  return (
+    <>
+      <div className="p-4 border-b">
+        <h2 className="text-lg font-semibold tracking-tight capitalize">{topic.replace(/-/g, ' ')} Path</h2>
+        <div className="mt-2">
+           <div className="w-full bg-muted rounded-full h-2.5">
+              <div className="bg-primary h-2.5 rounded-full" style={{width: `${pathProgress}%`}}></div>
+          </div>
+           <p className="text-sm text-muted-foreground mt-1 text-center">{completedLessons.length} of {totalLessons} lessons complete</p>
+        </div>
+      </div>
+      <nav className="flex-1 overflow-auto p-4 space-y-1">
+        {course.chapters.map((chapter) => {
+           const isChapterComplete = chapter.lessons.every(l => completedLessons.includes(l.id));
+           return (
+              <div key={chapter.id}>
+                  <h3 className="mb-2 mt-4 px-3 text-sm font-semibold text-muted-foreground">{chapter.title}</h3>
+                  <div className="space-y-1">
+                  {chapter.lessons.map(lesson => {
+                      const isUnlocked = isLessonUnlocked(lesson.id);
+                      const isCompleted = completedLessons.includes(lesson.id);
+                      const isActive = lesson.id === activeLesson.id;
+
+                      return (
+                      <button
+                          key={lesson.id}
+                          onClick={() => handleLessonChange(lesson.id)}
+                          disabled={!isUnlocked}
+                          className={cn(
+                          'w-full text-left px-3 py-2 rounded-md text-sm transition-colors flex items-center gap-3',
+                          isActive ? 'bg-primary text-primary-foreground' : 'hover:bg-muted',
+                          !isUnlocked && 'opacity-50 cursor-not-allowed'
+                          )}
+                      >
+                          <div className={cn("flex items-center justify-center w-5 h-5 rounded-full border-2 text-xs font-bold shrink-0",
+                          isCompleted ? 'border-green-500 bg-green-500 text-white' : 'border-muted-foreground',
+                          isActive && 'border-primary-foreground'
+                          )}
+                          >
+                          {isCompleted ? <Check className="w-3 h-3" /> : !isUnlocked ? <Lock className="w-3 h-3"/> : <span className='text-xs'></span>}
+                          </div>
+                          <span className="truncate">{lesson.title}</span>
+                      </button>
+                      )
+                  })}
+                  </div>
+                  {isChapterComplete && (
+                     <div className="mt-2 px-3">
+                       <Link href={`/practice/${encodeURIComponent(chapter.title)}`}>
+                          <Button size="sm" className="w-full">
+                             <Pencil className="mr-2 h-4 w-4" />
+                             Practice Chapter
+                          </Button>
+                        </Link>
+                     </div>
+                  )}
+              </div>
+           )
+          })}
+      </nav>
+    </>
+  );
+}
+
 export default function LearningPathClient({ topic: topicParam }: { topic: string }) {
   const topic = decodeURIComponent(topicParam);
   const [course, setCourseState] = useState<Course | null>(null);
@@ -360,8 +443,6 @@ export default function LearningPathClient({ topic: topicParam }: { topic: strin
       setActiveLesson(firstLesson);
     }
   }, [topic]);
-
-  const chapters = course?.chapters ?? [];
 
   const handleLessonChange = useCallback(async (lessonId: string) => {
     if (!course) return;
@@ -433,12 +514,13 @@ export default function LearningPathClient({ topic: topicParam }: { topic: strin
   }, [activeLesson, handleScroll]);
 
   const completeLesson = () => {
-    if (!activeLesson || !activeChapter) return;
+    if (!activeLesson || !activeChapter || !course) return;
     
     if (!completedLessons.includes(activeLesson.id)) {
       setCompletedLessons(prev => [...prev, activeLesson.id]);
     }
     
+    const chapters = course.chapters;
     const currentChapterIndex = chapters.findIndex(c => c.id === activeChapter.id);
     const currentLessonIndex = activeChapter.lessons.findIndex(l => l.id === activeLesson.id);
 
@@ -453,12 +535,12 @@ export default function LearningPathClient({ topic: topicParam }: { topic: strin
   };
 
   const isLessonUnlocked = (lessonId: string) => {
-    if (!chapters.length || !chapters[0].lessons.length) return false;
+    if (!course || !course.chapters.length || !course.chapters[0].lessons.length) return false;
     // The very first lesson is always unlocked
-    if (chapters[0].lessons[0].id === lessonId) return true;
+    if (course.chapters[0].lessons[0].id === lessonId) return true;
 
     let prevLessonId: string | null = null;
-    for (const chapter of chapters) {
+    for (const chapter of course.chapters) {
         for (const lesson of chapter.lessons) {
             if (lesson.id === lessonId) {
                 return prevLessonId === null || completedLessons.includes(prevLessonId);
@@ -478,76 +560,51 @@ export default function LearningPathClient({ topic: topicParam }: { topic: strin
     );
   }
 
-  const totalLessons = chapters.reduce((sum, chap) => sum + chap.lessons.length, 0);
-  const pathProgress = totalLessons > 0 ? (completedLessons.length / totalLessons) * 100 : 0;
   const isCurrentLessonComplete = completedLessons.includes(activeLesson.id);
-  const isFinalLesson = chapters.length > 0 && 
-                      chapters[chapters.length-1].lessons.length > 0 &&
-                      chapters[chapters.length-1].lessons[chapters[chapters.length-1].lessons.length-1].id === activeLesson.id;
+  const isFinalLesson = course.chapters.length > 0 && 
+                      course.chapters[course.chapters.length-1].lessons.length > 0 &&
+                      course.chapters[course.chapters.length-1].lessons[course.chapters[course.chapters.length-1].lessons.length-1].id === activeLesson.id;
   
   return (
     <div className="grid md:grid-cols-[280px_1fr] h-[calc(100vh-3.5rem)]">
-      <aside className="border-r flex flex-col bg-card">
-        <div className="p-4 border-b">
-          <h2 className="text-lg font-semibold tracking-tight capitalize">{topic.replace(/-/g, ' ')} Path</h2>
-          <div className="mt-2">
-             <div className="w-full bg-muted rounded-full h-2.5">
-                <div className="bg-primary h-2.5 rounded-full" style={{width: `${pathProgress}%`}}></div>
-            </div>
-             <p className="text-sm text-muted-foreground mt-1 text-center">{completedLessons.length} of {totalLessons} lessons complete</p>
-          </div>
-        </div>
-        <nav className="flex-1 overflow-auto p-4 space-y-1">
-          {chapters.map((chapter) => {
-             const isChapterComplete = chapter.lessons.every(l => completedLessons.includes(l.id));
-             return (
-                <div key={chapter.id}>
-                    <h3 className="mb-2 mt-4 px-3 text-sm font-semibold text-muted-foreground">{chapter.title}</h3>
-                    <div className="space-y-1">
-                    {chapter.lessons.map(lesson => {
-                        const isUnlocked = isLessonUnlocked(lesson.id);
-                        const isCompleted = completedLessons.includes(lesson.id);
-                        const isActive = lesson.id === activeLesson.id;
-
-                        return (
-                        <button
-                            key={lesson.id}
-                            onClick={() => handleLessonChange(lesson.id)}
-                            disabled={!isUnlocked}
-                            className={cn(
-                            'w-full text-left px-3 py-2 rounded-md text-sm transition-colors flex items-center gap-3',
-                            isActive ? 'bg-primary text-primary-foreground' : 'hover:bg-muted',
-                            !isUnlocked && 'opacity-50 cursor-not-allowed'
-                            )}
-                        >
-                            <div className={cn("flex items-center justify-center w-5 h-5 rounded-full border-2 text-xs font-bold shrink-0",
-                            isCompleted ? 'border-green-500 bg-green-500 text-white' : 'border-muted-foreground',
-                            isActive && 'border-primary-foreground'
-                            )}
-                            >
-                            {isCompleted ? <Check className="w-3 h-3" /> : !isUnlocked ? <Lock className="w-3 h-3"/> : <span className='text-xs'></span>}
-                            </div>
-                            <span>{lesson.title}</span>
-                        </button>
-                        )
-                    })}
-                    </div>
-                    {isChapterComplete && (
-                       <div className="mt-2 px-3">
-                         <Link href={`/practice/${encodeURIComponent(chapter.title)}`}>
-                            <Button size="sm" className="w-full">
-                               <Pencil className="mr-2 h-4 w-4" />
-                               Practice Chapter
-                            </Button>
-                          </Link>
-                       </div>
-                    )}
-                </div>
-             )
-            })}
-        </nav>
+      {/* Desktop Sidebar */}
+      <aside className="border-r flex-col bg-card hidden md:flex">
+        <LearningPathSidebar 
+          topic={topic}
+          course={course}
+          completedLessons={completedLessons}
+          activeLesson={activeLesson}
+          handleLessonChange={handleLessonChange}
+          isLessonUnlocked={isLessonUnlocked}
+        />
       </aside>
+      
       <div className="flex flex-col relative overflow-hidden">
+        {/* Mobile Header */}
+        <div className="p-2 border-b flex items-center justify-between md:hidden sticky top-0 bg-background z-10">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Menu className="h-6 w-6" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="p-0 w-[300px] flex flex-col">
+               <LearningPathSidebar 
+                topic={topic}
+                course={course}
+                completedLessons={completedLessons}
+                activeLesson={activeLesson}
+                handleLessonChange={handleLessonChange}
+                isLessonUnlocked={isLessonUnlocked}
+              />
+            </SheetContent>
+          </Sheet>
+          <div className="text-center">
+            <h3 className="font-semibold text-sm truncate">{activeLesson?.title}</h3>
+          </div>
+          <div className="w-10"></div>
+        </div>
+
         <div className="flex-1 overflow-y-auto" ref={contentRef}>
             {isGeneratingContent ? (
                 <div className="p-12 max-w-4xl mx-auto space-y-6">
@@ -570,7 +627,7 @@ export default function LearningPathClient({ topic: topicParam }: { topic: strin
           <div className="max-w-4xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-4">
                <CircularProgress progress={scrollProgress} />
-               <div>
+               <div className="hidden sm:block">
                 <h3 className="font-semibold">{activeLesson?.title}</h3>
                 <p className="text-sm text-muted-foreground">Scroll to the end and complete the quiz to continue.</p>
                </div>

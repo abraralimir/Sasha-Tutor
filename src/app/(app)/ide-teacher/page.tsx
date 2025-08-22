@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -69,7 +70,7 @@ export default function IdeTeacherPage() {
         title="AI IDE Teacher"
         description="Learn any Python topic with a personalized lesson from your AI tutor."
       />
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-auto">
         <div className="grid lg:grid-cols-3 h-full">
           <div className="lg:col-span-1 p-6 bg-card lg:border-r">
             <h2 className="text-xl font-semibold">Lesson Settings</h2>

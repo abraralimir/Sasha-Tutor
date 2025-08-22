@@ -3,7 +3,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Bot, Code, DraftingCompass, MessageCircle, Search, Terminal } from 'lucide-react';
+import { Bot, Code, Menu, MessageCircle, Terminal, X } from 'lucide-react';
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -13,6 +13,14 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { AISearch } from './ai-search';
 
@@ -41,13 +49,15 @@ const tools = [
 ];
 
 export function Header() {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 max-w-screen-2xl items-center">
-        <div className="mr-4 hidden md:flex">
+        <div className="mr-4 flex items-center">
           <Link href="/" className="flex items-center gap-2 font-bold">
             <Bot className="h-6 w-6" />
-            <span className="text-lg">Sasha's Path</span>
+            <span className="text-lg hidden sm:inline-block">Sasha's Path</span>
           </Link>
         </div>
 
@@ -56,41 +66,81 @@ export function Header() {
         </div>
         
         <div className="flex items-center justify-end">
-          <NavigationMenu>
-            <NavigationMenuList>
-              <NavigationMenuItem>
-                <Link href="/python/learning-path" legacyBehavior passHref>
-                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                    Learning Path
-                  </NavigationMenuLink>
-                </Link>
-              </NavigationMenuItem>
-               <NavigationMenuItem>
-                <Link href="/workbook" legacyBehavior passHref>
-                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                    Workbook
-                  </NavigationMenuLink>
-                </Link>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <NavigationMenuTrigger>AI Tools</NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-                    {tools.map((tool) => (
-                      <ListItem
-                        key={tool.title}
-                        title={tool.title}
-                        href={tool.href}
-                        icon={tool.icon}
-                      >
-                        {tool.description}
-                      </ListItem>
-                    ))}
-                  </ul>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavigationMenu>
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex">
+            <NavigationMenu>
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <Link href="/python/learning-path" legacyBehavior passHref>
+                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                      Learning Path
+                    </NavigationMenuLink>
+                  </Link>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <Link href="/workbook" legacyBehavior passHref>
+                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                      Workbook
+                    </NavigationMenuLink>
+                  </Link>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger>AI Tools</NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
+                      {tools.map((tool) => (
+                        <ListItem
+                          key={tool.title}
+                          title={tool.title}
+                          href={tool.href}
+                          icon={tool.icon}
+                        >
+                          {tool.description}
+                        </ListItem>
+                      ))}
+                    </ul>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
+          </nav>
+          {/* Mobile Navigation */}
+          <div className="md:hidden">
+            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-6 w-6" />
+                  <span className="sr-only">Open menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right">
+                <SheetHeader>
+                  <SheetTitle className="flex items-center gap-2">
+                     <Bot className="h-6 w-6" />
+                     Sasha's Path
+                  </SheetTitle>
+                </SheetHeader>
+                <div className="mt-8 flex flex-col gap-4">
+                  <Link href="/python/learning-path" onClick={() => setIsMobileMenuOpen(false)}>
+                    <Button variant="ghost" className="w-full justify-start text-base">Learning Path</Button>
+                  </Link>
+                  <Link href="/workbook" onClick={() => setIsMobileMenuOpen(false)}>
+                     <Button variant="ghost" className="w-full justify-start text-base">Workbook</Button>
+                  </Link>
+                   <h3 className="px-4 pt-4 text-sm font-semibold text-muted-foreground">AI Tools</h3>
+                   {tools.map((tool) => (
+                     <Link href={tool.href} key={tool.title} className="flex items-center gap-3 rounded-md p-3 transition-colors hover:bg-accent" onClick={() => setIsMobileMenuOpen(false)}>
+                        <tool.icon className="h-5 w-5 text-primary" />
+                        <div>
+                            <p className="font-medium">{tool.title}</p>
+                            <p className="text-xs text-muted-foreground">{tool.description}</p>
+                        </div>
+                     </Link>
+                   ))}
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </div>
     </header>
