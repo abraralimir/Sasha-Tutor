@@ -6,7 +6,7 @@ import { Check, Lock, Play, Loader2, Sparkles, Pencil, ChevronRight, AlertCircle
 import { explainCode, evaluatePythonCode, generatePracticeSession, generateLessonContent } from '@/lib/actions';
 import type { EvaluatePythonCodeOutput } from '@/ai/flows/evaluate-python-code';
 import type { GeneratePracticeSessionOutput } from '@/ai/flows/generate-practice-session';
-import { getCourse, setCourse, Course, Chapter, Lesson } from '@/services/course-service';
+import { getCourse, setCourse, Course, Chapter, Lesson, QuizQuestion } from '@/services/course-service';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -197,9 +197,9 @@ type QuizAttempt = {
   isCorrect: boolean;
 };
 
-function EndOfLessonQuiz({ lessonTitle, onQuizComplete }: { lessonTitle: string, onQuizComplete: () => void }) {
+function EndOfLessonQuiz({ lesson, onQuizComplete }: { lesson: Lesson, onQuizComplete: () => void }) {
     const [isOpen, setIsOpen] = useState(false);
-    const [quizSession, setQuizSession] = useState<GeneratePracticeSessionOutput | null>(null);
+    const [quizSession, setQuizSession] = useState<GeneratePracticeSessionOutput | { quiz: QuizQuestion[] } | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [activeQuestion, setActiveQuestion] = useState(0);
@@ -216,10 +216,16 @@ function EndOfLessonQuiz({ lessonTitle, onQuizComplete }: { lessonTitle: string,
     const handleGenerateQuiz = useCallback(async () => {
         if (isLoading) return;
         resetQuizState();
+        
+        if (lesson.quiz && lesson.quiz.length > 0) {
+            setQuizSession({ quiz: lesson.quiz });
+            return;
+        }
+
         setIsLoading(true);
         try {
             const result = await generatePracticeSession({
-                topic: lessonTitle,
+                topic: lesson.title,
                 studentLevel: 'beginner',
             });
             setQuizSession(result);
@@ -229,7 +235,7 @@ function EndOfLessonQuiz({ lessonTitle, onQuizComplete }: { lessonTitle: string,
         } finally {
             setIsLoading(false);
         }
-    }, [lessonTitle, isLoading, resetQuizState]);
+    }, [lesson, isLoading, resetQuizState]);
     
     const handleOpenChange = (open: boolean) => {
         setIsOpen(open);
@@ -250,12 +256,6 @@ function EndOfLessonQuiz({ lessonTitle, onQuizComplete }: { lessonTitle: string,
         }));
     };
 
-    useEffect(() => {
-        if (isOpen) {
-            handleGenerateQuiz();
-        }
-    }, [lessonTitle, isOpen, handleGenerateQuiz]);
-
     const isQuizComplete = quizSession && Object.keys(quizAttempts).length === quizSession.quiz.length;
     const currentQuestion = quizSession?.quiz[activeQuestion];
     const currentAttempt = quizAttempts[activeQuestion];
@@ -267,7 +267,7 @@ function EndOfLessonQuiz({ lessonTitle, onQuizComplete }: { lessonTitle: string,
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Lesson Quiz: {lessonTitle}</DialogTitle>
+                    <DialogTitle>Lesson Quiz: {lesson.title}</DialogTitle>
                 </DialogHeader>
                 <div className="p-4 space-y-4 min-h-[300px]">
                     {isLoading && (
@@ -451,6 +451,7 @@ export default function LearningPathClient({ topic: topicParam }: { topic: strin
       if (lesson) {
         setActiveChapter(chapter);
         setActiveLesson(lesson);
+        // Only generate content if it's missing (i.e., not pre-generated)
         if (!lesson.content) {
           setIsGeneratingContent(true);
           try {
@@ -619,7 +620,7 @@ export default function LearningPathClient({ topic: topicParam }: { topic: strin
                 <ArticleWithInteractiveContent content={activeLesson.content} />
             ) : (
                 <div className="flex items-center justify-center h-full">
-                    <p>No content for this lesson yet.</p>
+                    <p>Select a lesson to get started.</p>
                 </div>
             )}
         </div>
@@ -637,7 +638,7 @@ export default function LearningPathClient({ topic: topicParam }: { topic: strin
                 Next Lesson <Play className="w-4 h-4 ml-2" />
               </Button>
             ) : (
-              <EndOfLessonQuiz lessonTitle={activeLesson.title} onQuizComplete={completeLesson} />
+              <EndOfLessonQuiz lesson={activeLesson} onQuizComplete={completeLesson} />
             )}
           </div>
         </footer>
