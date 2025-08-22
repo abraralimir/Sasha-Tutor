@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { setCourse, formatGeneratedCourse } from '@/services/python-course-service';
+import { setCourse, formatGeneratedCourse } from '@/services/course-service';
 
 export function AISearch() {
   const [isOpen, setIsOpen] = useState(false);

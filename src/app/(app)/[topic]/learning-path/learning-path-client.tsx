@@ -6,7 +6,7 @@ import { Check, Lock, Play, Loader2, Sparkles, Pencil, ChevronRight, AlertCircle
 import { explainCode, evaluatePythonCode, generatePracticeSession, generateLessonContent } from '@/lib/actions';
 import type { EvaluatePythonCodeOutput } from '@/ai/flows/evaluate-python-code';
 import type { GeneratePracticeSessionOutput } from '@/ai/flows/generate-practice-session';
-import { getCourse, setCourse, Course, Chapter, Lesson } from '@/services/python-course-service';
+import { getCourse, setCourse, Course, Chapter, Lesson } from '@/services/course-service';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {

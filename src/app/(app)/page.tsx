@@ -16,28 +16,28 @@ const featuredCourses = [
     title: 'Excel',
     description: 'Learn spreadsheet magic, from formulas to data visualization.',
     icon: Table,
-    href: '#', // Placeholder
+    href: '/excel/learning-path',
     color: 'text-green-500',
   },
   {
     title: 'SAP FICO',
     description: 'Understand financial accounting and reporting with SAP.',
     icon: BookOpen,
-    href: '#', // Placeholder
+    href: '/sap-fico/learning-path',
     color: 'text-orange-500',
   },
   {
     title: 'Cloud Learning',
     description: 'Explore cloud platforms like AWS, Azure, and Google Cloud.',
     icon: Cloud,
-    href: '#',
+    href: '/cloud-learning/learning-path',
     color: 'text-sky-500',
   },
   {
     title: 'Data Analytics',
     description: 'Turn data into insights with SQL, Python, and visualization tools.',
     icon: BarChart,
-    href: '#',
+    href: '/data-analytics/learning-path',
     color: 'text-purple-500',
   },
 ];
@@ -75,8 +75,8 @@ export default function DashboardPage() {
                         <CardContent>
                             <p className="text-muted-foreground">{course.description}</p>
                              <Link href={course.href} className="mt-4 inline-block">
-                                <Button variant="outline" disabled={course.href === '#'}>
-                                    {course.href === '#' ? 'Coming Soon' : 'Start Learning'}
+                                <Button variant="outline">
+                                    Start Learning
                                 </Button>
                             </Link>
                         </CardContent>
