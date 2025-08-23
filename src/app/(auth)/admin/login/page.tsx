@@ -58,15 +58,13 @@ export default function AdminLoginPage() {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
       
-      // After successful login, check if the user is the admin
       if (userCredential.user.email === ADMIN_EMAIL) {
         toast({
           title: "Admin Login Successful",
-          description: "Welcome back, Abrar!",
+          description: "Redirecting to the dashboard...",
         });
         router.push('/admin');
       } else {
-        // If it's a valid user but not the admin, sign them out and show an error
         await signOut(auth);
         setError("This account does not have administrator privileges.");
       }
