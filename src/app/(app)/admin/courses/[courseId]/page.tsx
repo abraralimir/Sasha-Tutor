@@ -61,7 +61,7 @@ export default function CourseEditPage() {
   const router = useRouter();
   const params = useParams();
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(true);
+  const [isPageLoading, setIsPageLoading] = useState(true);
   const courseId = params.courseId as string;
   const isNewCourse = courseId === 'new';
 
@@ -81,7 +81,7 @@ export default function CourseEditPage() {
 
   const loadCourse = useCallback(async () => {
     if (isNewCourse) {
-      setIsLoading(false);
+      setIsPageLoading(false);
       return;
     }
     try {
@@ -96,7 +96,7 @@ export default function CourseEditPage() {
       console.error(error);
       toast({ title: 'Error', description: 'Failed to load course.', variant: 'destructive' });
     } finally {
-      setIsLoading(false);
+      setIsPageLoading(false);
     }
   }, [courseId, isNewCourse, router, toast, form]);
 
@@ -106,25 +106,22 @@ export default function CourseEditPage() {
 
   const onSubmit = async (data: CourseFormData) => {
     try {
-      setIsLoading(true);
       if (isNewCourse) {
         const newCourseId = await addCourse(data);
         toast({ title: 'Success', description: 'Course created successfully.' });
-        router.push(`/admin/courses/${newCourseId}`);
+        router.push(`/admin/courses/${newCourseId}`); // Go to edit page after creation
       } else {
         await updateCourse(courseId, data);
         toast({ title: 'Success', description: 'Course updated successfully.' });
+        router.push('/admin'); // Go back to list after update
       }
-       router.push('/admin');
     } catch (error) {
       console.error(error);
       toast({ title: 'Error', description: 'Failed to save course.', variant: 'destructive' });
-    } finally {
-      setIsLoading(false);
     }
   };
 
-  if (isLoading && !isNewCourse) {
+  if (isPageLoading) {
     return <div className="flex justify-center items-center h-full"><Loader2 className="animate-spin h-8 w-8" /></div>;
   }
 
@@ -250,7 +247,7 @@ export default function CourseEditPage() {
 
 
 function LessonsArray({ chapterIndex }: { chapterIndex: number }) {
-  const { control } = useFormContext();
+  const { control } = useFormContext<CourseFormData>();
   const { fields, append, remove } = useFieldArray({
     control,
     name: `chapters.${chapterIndex}.lessons`,
