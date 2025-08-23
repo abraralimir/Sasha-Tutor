@@ -8,13 +8,13 @@ import { getAnalytics } from "firebase/analytics";
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyCXhzamSzAvlnQcy_TDMjo0cY9bwRRLnZo",
-  authDomain: "sasha-tutor.firebaseapp.com",
-  projectId: "sasha-tutor",
-  storageBucket: "sasha-tutor.appspot.com",
-  messagingSenderId: "362836624519",
-  appId: "1:362836624519:web:bd6214e073f2b8c34e6422",
-  measurementId: "G-D6Y8450ZVK"
+  "projectId": "sasha-e-learning",
+  "appId": "1:124651455087:web:582c0b9bb3ea15f31ec39a",
+  "storageBucket": "sasha-e-learning.firebasestorage.app",
+  "apiKey": "AIzaSyCDQdX6d-p_jJt90WInEdRHdAzuAtcUjWU",
+  "authDomain": "sasha-e-learning.firebaseapp.com",
+  "measurementId": "",
+  "messagingSenderId": "124651455087"
 };
 
 // Initialize Firebase
