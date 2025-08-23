@@ -41,6 +41,7 @@ export interface Course {
     id: string;
     title: string;
     chapters: Chapter[];
+    showOnHomepage?: boolean;
 }
 
 const courseCollection = collection(db, 'courses');
@@ -52,6 +53,7 @@ const fromFirestore = (doc: QueryDocumentSnapshot<DocumentData> | DocumentData):
         id: doc.id,
         title: data.title,
         chapters: data.chapters || [],
+        showOnHomepage: data.showOnHomepage || false,
     };
 };
 
@@ -157,6 +159,7 @@ export function formatGeneratedCourse(generated: GenerateCourseOutput): Course {
                 ...lesson,
                 content: '' // Initialize with empty content
             }))
-        }))
+        })),
+        showOnHomepage: true, // Default new AI courses to be featured
     }
 }

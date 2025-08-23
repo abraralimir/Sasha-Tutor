@@ -40,6 +40,8 @@ export default function DashboardPage() {
     
     initializeCourses();
   }, []);
+  
+  const featuredCourses = courses.filter(course => course.showOnHomepage);
 
   return (
     <div className="flex flex-col h-full">
@@ -61,7 +63,7 @@ export default function DashboardPage() {
                 </div>
             ) : (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                    {courses.map(course => {
+                    {featuredCourses.map(course => {
                         const Icon = ICONS[course.id] || ICONS.default;
                         return (
                             <Card key={course.id} className="hover:shadow-lg transition-shadow">

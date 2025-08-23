@@ -35,6 +35,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { Separator } from '@/components/ui/separator';
+import { Switch } from '@/components/ui/switch';
 
 const lessonSchema = z.object({
   id: z.string().default(() => `lesson-${Date.now()}-${Math.random()}`),
@@ -51,6 +52,7 @@ const chapterSchema = z.object({
 const courseSchema = z.object({
   title: z.string().min(3, 'Course title must be at least 3 characters.'),
   chapters: z.array(chapterSchema),
+  showOnHomepage: z.boolean().default(false),
 });
 
 type CourseFormData = z.infer<typeof courseSchema>;
@@ -68,6 +70,7 @@ export default function CourseEditPage() {
     defaultValues: {
       title: '',
       chapters: [],
+      showOnHomepage: false,
     },
   });
 
@@ -142,7 +145,7 @@ export default function CourseEditPage() {
                 <CardHeader>
                   <CardTitle>Course Details</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-4">
                   <FormField
                     control={form.control}
                     name="title"
@@ -153,6 +156,26 @@ export default function CourseEditPage() {
                           <Input placeholder="e.g., Mastering Python" {...field} />
                         </FormControl>
                         <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                   <FormField
+                    control={form.control}
+                    name="showOnHomepage"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                        <div className="space-y-0.5">
+                          <FormLabel>Show on Homepage</FormLabel>
+                          <CardDescription>
+                            Enable this to feature the course on the main landing page.
+                          </CardDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
                       </FormItem>
                     )}
                   />

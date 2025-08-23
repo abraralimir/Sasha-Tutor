@@ -5,6 +5,7 @@ const initialCourses: Course[] = [
     {
         id: 'python',
         title: "Sasha's Python Path",
+        showOnHomepage: true,
         chapters: [
             {
                 id: 'chapter-1',
@@ -33,6 +34,7 @@ const initialCourses: Course[] = [
     {
         id: 'excel',
         title: 'Mastering Excel',
+        showOnHomepage: true,
         chapters: [
             {
                 id: 'excel-chapter-1',
@@ -48,6 +50,7 @@ const initialCourses: Course[] = [
     {
         id: 'sap-fico',
         title: 'SAP FICO Fundamentals',
+        showOnHomepage: true,
         chapters: [
             {
                 id: 'sap-fico-chapter-1',
@@ -62,6 +65,7 @@ const initialCourses: Course[] = [
     {
         id: 'cloud-learning',
         title: 'Introduction to Cloud Computing',
+        showOnHomepage: true,
         chapters: [
             {
                 id: 'cloud-chapter-1',
@@ -76,6 +80,7 @@ const initialCourses: Course[] = [
     {
         id: 'data-analytics',
         title: 'Data Analytics with Python',
+        showOnHomepage: true,
         chapters: [
             {
                 id: 'da-chapter-1',
