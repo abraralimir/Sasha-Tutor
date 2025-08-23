@@ -1,3 +1,4 @@
+
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
@@ -7,7 +8,7 @@ import { getAnalytics } from "firebase/analytics";
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyCxhzamSzAvlnQcy_TDMjo0cY9bwRRLnZo",
+  apiKey: "AIzaSyCXhzamSzAvlnQcy_TDMjo0cY9bwRRLnZo",
   authDomain: "sasha-tutor.firebaseapp.com",
   projectId: "sasha-tutor",
   storageBucket: "sasha-tutor.appspot.com",
