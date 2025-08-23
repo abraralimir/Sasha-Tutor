@@ -52,10 +52,13 @@ const tools = [
   },
 ];
 
+const ADMIN_EMAIL = 'abrar@sashaspath.com';
+
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const { user } = useAuth();
   const router = useRouter();
+  const isAdmin = user && user.email === ADMIN_EMAIL;
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -112,7 +115,7 @@ export function Header() {
                     </ul>
                   </NavigationMenuContent>
                 </NavigationMenuItem>
-                {user && (
+                {isAdmin && (
                   <NavigationMenuItem>
                     <Link href="/admin" legacyBehavior passHref>
                       <NavigationMenuLink className={navigationMenuTriggerStyle()}>
@@ -181,6 +184,13 @@ export function Header() {
                         </div>
                      </Link>
                    ))}
+                    {isAdmin && (
+                        <Link href="/admin" onClick={() => setIsMobileMenuOpen(false)}>
+                            <Button variant="ghost" className="w-full justify-start text-base gap-2">
+                                <Shield /> Admin
+                            </Button>
+                        </Link>
+                    )}
                 </div>
                 <div className="absolute bottom-4 left-4 right-4 flex flex-col gap-2">
                   {user ? (
