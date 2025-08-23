@@ -69,10 +69,20 @@ export default function AdminLoginPage() {
       });
       router.push('/admin');
     } catch (error: any) {
-      if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
-        setError('Invalid credentials. Please try again.');
-      } else {
-        setError('An unexpected error occurred. Please try again.');
+      switch (error.code) {
+        case 'auth/wrong-password':
+        case 'auth/user-not-found':
+          setError('Invalid credentials. Please check your email and password.');
+          break;
+        case 'auth/invalid-email':
+          setError('The email address is not valid.');
+          break;
+        case 'auth/user-disabled':
+          setError('This admin account has been disabled.');
+          break;
+        default:
+          setError('An unexpected error occurred. Please try again.');
+          break;
       }
     } finally {
       setIsLoading(false);
