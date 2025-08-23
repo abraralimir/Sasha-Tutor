@@ -3,7 +3,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Bot, Code, Menu, MessageCircle, Terminal, X } from 'lucide-react';
+import { Bot, Code, Menu, MessageCircle, Terminal, User, LogOut, Shield } from 'lucide-react';
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -23,6 +23,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { AISearch } from './ai-search';
+import { useAuth } from '@/context/auth-context';
+import { auth } from '@/lib/firebase';
+import { signOut } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
 
 const tools = [
   {
@@ -50,6 +54,13 @@ const tools = [
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const { user } = useAuth();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    router.push('/');
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -65,7 +76,7 @@ export function Header() {
            <AISearch />
         </div>
         
-        <div className="flex items-center justify-end">
+        <div className="flex items-center justify-end space-x-2">
           {/* Desktop Navigation */}
           <nav className="hidden md:flex">
             <NavigationMenu>
@@ -101,9 +112,37 @@ export function Header() {
                     </ul>
                   </NavigationMenuContent>
                 </NavigationMenuItem>
+                {user && (
+                  <NavigationMenuItem>
+                    <Link href="/admin" legacyBehavior passHref>
+                      <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                        <Shield className="h-4 w-4 mr-1" /> Admin
+                      </NavigationMenuLink>
+                    </Link>
+                  </NavigationMenuItem>
+                )}
               </NavigationMenuList>
             </NavigationMenu>
           </nav>
+
+          {/* Auth buttons */}
+          <div className="hidden md:flex items-center space-x-2">
+            {user ? (
+              <Button variant="ghost" onClick={handleLogout}>
+                <LogOut className="mr-2 h-4 w-4" /> Logout
+              </Button>
+            ) : (
+              <>
+                <Link href="/login">
+                  <Button variant="ghost">Login</Button>
+                </Link>
+                <Link href="/signup">
+                  <Button>Sign Up</Button>
+                </Link>
+              </>
+            )}
+          </div>
+          
           {/* Mobile Navigation */}
           <div className="md:hidden">
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
@@ -121,6 +160,11 @@ export function Header() {
                   </SheetTitle>
                 </SheetHeader>
                 <div className="mt-8 flex flex-col gap-4">
+                  {user ? (
+                    <div className="px-4 py-2 border-b">
+                      <p className="text-sm font-medium">{user.email}</p>
+                    </div>
+                  ) : null}
                   <Link href="/python/learning-path" onClick={() => setIsMobileMenuOpen(false)}>
                     <Button variant="ghost" className="w-full justify-start text-base">Learning Path</Button>
                   </Link>
@@ -137,6 +181,22 @@ export function Header() {
                         </div>
                      </Link>
                    ))}
+                </div>
+                <div className="absolute bottom-4 left-4 right-4 flex flex-col gap-2">
+                  {user ? (
+                     <Button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }}>
+                        <LogOut className="mr-2 h-4 w-4" /> Logout
+                      </Button>
+                  ) : (
+                    <>
+                      <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                        <Button variant="outline" className="w-full">Login</Button>
+                      </Link>
+                      <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)}>
+                        <Button className="w-full">Sign Up</Button>
+                      </Link>
+                    </>
+                  )}
                 </div>
               </SheetContent>
             </Sheet>
