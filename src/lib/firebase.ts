@@ -10,7 +10,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyCxhzamSzAvlnQcy_TDMjo0cY9bwRRLnZo",
   authDomain: "sasha-tutor.firebaseapp.com",
   projectId: "sasha-tutor",
-  storageBucket: "sasha-tutor.firebasestorage.app",
+  storageBucket: "sasha-tutor.appspot.com",
   messagingSenderId: "362836624519",
   appId: "1:362836624519:web:bd6214e073f2b8c34e6422",
   measurementId: "G-D6Y8450ZVK"
@@ -22,7 +22,11 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 // It's safe to check for window since this is a client-side file
 if (typeof window !== 'undefined') {
-  getAnalytics(app);
+  try {
+    getAnalytics(app);
+  } catch (error) {
+    console.error("Firebase Analytics could not be initialized.", error);
+  }
 }
 
 
