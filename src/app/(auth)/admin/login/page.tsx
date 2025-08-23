@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRouter } from 'next/navigation';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 
 import { Button } from '@/components/ui/button';
@@ -55,23 +55,26 @@ export default function AdminLoginPage() {
     setIsLoading(true);
     setError(null);
 
-    if (values.email !== ADMIN_EMAIL) {
-        setError("This is not a valid admin account.");
-        setIsLoading(false);
-        return;
-    }
-
     try {
-      await signInWithEmailAndPassword(auth, values.email, values.password);
-      toast({
-        title: "Admin Login Successful",
-        description: "Welcome back, Abrar!",
-      });
-      router.push('/admin');
+      const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
+      
+      // After successful login, check if the user is the admin
+      if (userCredential.user.email === ADMIN_EMAIL) {
+        toast({
+          title: "Admin Login Successful",
+          description: "Welcome back, Abrar!",
+        });
+        router.push('/admin');
+      } else {
+        // If it's a valid user but not the admin, sign them out and show an error
+        await signOut(auth);
+        setError("This account does not have administrator privileges.");
+      }
     } catch (error: any) {
       switch (error.code) {
-        case 'auth/wrong-password':
         case 'auth/user-not-found':
+        case 'auth/wrong-password':
+        case 'auth/invalid-credential':
           setError('Invalid credentials. Please check your email and password.');
           break;
         case 'auth/invalid-email':
