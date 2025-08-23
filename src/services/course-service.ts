@@ -3,7 +3,6 @@ import { db } from '@/lib/firebase';
 import {
   collection,
   doc,
-  getDocs,
   getDoc,
   setDoc,
   addDoc,
@@ -12,6 +11,9 @@ import {
   query,
   DocumentData,
   QueryDocumentSnapshot,
+  where,
+  getDocs,
+  writeBatch,
 } from 'firebase/firestore';
 import type { GenerateCourseOutput } from "@/ai/flows/generate-course";
 
@@ -44,7 +46,7 @@ export interface Course {
 const courseCollection = collection(db, 'courses');
 
 // Helper to convert Firestore doc to Course object
-const fromFirestore = (doc: QueryDocumentSnapshot<DocumentData>): Course => {
+const fromFirestore = (doc: QueryDocumentSnapshot<DocumentData> | DocumentData): Course => {
     const data = doc.data();
     return {
         id: doc.id,
@@ -77,6 +79,13 @@ export async function getCourse(courseId: string): Promise<Course | null> {
         if (docSnap.exists()) {
             return { id: docSnap.id, ...docSnap.data() } as Course;
         } else {
+            // Fallback for documents that might have been created with addDoc
+             const q = query(courseCollection, where("id", "==", courseId));
+             const querySnapshot = await getDocs(q);
+             if (!querySnapshot.empty) {
+                const docSnap = querySnapshot.docs[0];
+                return fromFirestore(docSnap);
+             }
             console.log("No such course!");
             return null;
         }
@@ -87,17 +96,36 @@ export async function getCourse(courseId: string): Promise<Course | null> {
 }
 
 
-export async function addCourse(course: Omit<Course, 'id'>): Promise<string> {
-    try {
-        const docRef = await addDoc(courseCollection, course);
-        return docRef.id;
-    } catch (error) {
-        console.error("Error adding course: ", error);
-        throw new Error("Failed to add course.");
-    }
+export async function addCourse(course: Omit<Course, 'id'> & { id?: string }): Promise<string> {
+  try {
+    const courseId = course.id || course.title.toLowerCase().replace(/\s+/g, '-');
+    const docRef = doc(db, 'courses', courseId);
+    await setDoc(docRef, { ...course, id: courseId });
+    return courseId;
+  } catch (error) {
+    console.error("Error adding course: ", error);
+    throw new Error("Failed to add course.");
+  }
 }
 
-export async function updateCourse(courseId: string, course: Partial<Course>): Promise<void> {
+export async function addInitialCourses(courses: Course[]): Promise<void> {
+    const batch = writeBatch(db);
+    const coursesQuery = query(collection(db, 'courses'));
+    const existingCoursesSnapshot = await getDocs(coursesQuery);
+    const existingCourseIds = new Set(existingCoursesSnapshot.docs.map(doc => doc.id));
+
+    courses.forEach(course => {
+        if (!existingCourseIds.has(course.id)) {
+            const docRef = doc(db, 'courses', course.id);
+            batch.set(docRef, course);
+        }
+    });
+
+    await batch.commit();
+}
+
+
+export async function updateCourse(courseId: string, course: Partial<Omit<Course, 'id'>>): Promise<void> {
     try {
         const docRef = doc(db, 'courses', courseId);
         await setDoc(docRef, course, { merge: true });

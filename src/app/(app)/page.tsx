@@ -4,9 +4,11 @@
 import { useState, useEffect } from 'react';
 import { ArrowRight, BookOpen, Code, Table, Cloud, BarChart, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { getCourses, Course } from '@/services/course-service';
+import { getCourses, addCourse, Course } from '@/services/course-service';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { seedInitialCourses } from '@/services/seed';
+
 
 const ICONS: { [key: string]: React.ElementType } = {
   python: Code,
@@ -22,13 +24,21 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = getCourses((data, err) => {
-      if (!err) {
-        setCourses(data);
-      }
-      setIsLoading(false);
-    });
-    return () => unsubscribe();
+    const initializeCourses = async () => {
+      setIsLoading(true);
+      // Seed initial courses if they don't exist
+      await seedInitialCourses();
+
+      const unsubscribe = getCourses((data, err) => {
+        if (!err) {
+          setCourses(data);
+        }
+        setIsLoading(false);
+      });
+      return () => unsubscribe();
+    };
+    
+    initializeCourses();
   }, []);
 
   return (
