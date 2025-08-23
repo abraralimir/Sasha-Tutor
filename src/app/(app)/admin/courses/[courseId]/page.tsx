@@ -110,6 +110,7 @@ export default function CourseEditPage() {
         const newCourseId = await addCourse(data);
         toast({ title: 'Success', description: 'Course created successfully.' });
         router.push(`/admin/courses/${newCourseId}`); // Go to edit page after creation
+        router.refresh(); // Refresh page to reflect changes
       } else {
         await updateCourse(courseId, data);
         toast({ title: 'Success', description: 'Course updated successfully.' });
