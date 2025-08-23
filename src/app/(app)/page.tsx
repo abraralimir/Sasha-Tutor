@@ -1,48 +1,36 @@
 
-import { ArrowRight, BookOpen, Bot, Code, Table, Cloud, BarChart } from 'lucide-react';
+'use client';
+
+import { useState, useEffect } from 'react';
+import { ArrowRight, BookOpen, Code, Table, Cloud, BarChart, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { getCourses, Course } from '@/services/course-service';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-const featuredCourses = [
-  {
-    title: 'Python',
-    description: 'Master Python with interactive lessons, from basics to advanced topics.',
-    icon: Code,
-    href: '/python/learning-path',
-    color: 'text-blue-500',
-  },
-  {
-    title: 'Excel',
-    description: 'Learn spreadsheet magic, from formulas to data visualization.',
-    icon: Table,
-    href: '/excel/learning-path',
-    color: 'text-green-500',
-  },
-  {
-    title: 'SAP FICO',
-    description: 'Understand financial accounting and reporting with SAP.',
-    icon: BookOpen,
-    href: '/sap-fico/learning-path',
-    color: 'text-orange-500',
-  },
-  {
-    title: 'Cloud Learning',
-    description: 'Explore cloud platforms like AWS, Azure, and Google Cloud.',
-    icon: Cloud,
-    href: '/cloud-learning/learning-path',
-    color: 'text-sky-500',
-  },
-  {
-    title: 'Data Analytics',
-    description: 'Turn data into insights with SQL, Python, and visualization tools.',
-    icon: BarChart,
-    href: '/data-analytics/learning-path',
-    color: 'text-purple-500',
-  },
-];
+const ICONS: { [key: string]: React.ElementType } = {
+  python: Code,
+  excel: Table,
+  'sap-fico': BookOpen,
+  'cloud-learning': Cloud,
+  'data-analytics': BarChart,
+  default: BookOpen,
+};
 
 export default function DashboardPage() {
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = getCourses((data, err) => {
+      if (!err) {
+        setCourses(data);
+      }
+      setIsLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
   return (
     <div className="flex flex-col h-full">
       <main className="flex-1 overflow-auto p-4 md:p-6">
@@ -53,36 +41,39 @@ export default function DashboardPage() {
           <p className="mt-6 text-base md:text-xl text-muted-foreground max-w-2xl mx-auto">
             This is an interactive, AI-powered journey to master any subject. Just ask our AI in the search bar above to generate a custom course for you on any topic!
           </p>
-           <div className="mt-8 flex justify-center gap-4">
-            <Link href="/python/learning-path">
-              <Button size="lg">
-                Start Learning Python
-                <ArrowRight className="ml-2" />
-              </Button>
-            </Link>
-          </div>
         </div>
         
         <div className="max-w-5xl mx-auto mt-12 md:mt-20">
-            <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">Or explore our featured learning paths</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                {featuredCourses.map(course => (
-                     <Card key={course.title} className="hover:shadow-lg transition-shadow">
-                        <CardHeader className="flex flex-row items-center gap-4">
-                            <course.icon className={`w-10 h-10 ${course.color}`} />
-                            <CardTitle>{course.title}</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-muted-foreground">{course.description}</p>
-                             <Link href={course.href} className="mt-4 inline-block">
-                                <Button variant="outline">
-                                    Start Learning
-                                </Button>
-                            </Link>
-                        </CardContent>
-                    </Card>
-                ))}
-            </div>
+            <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">Explore Learning Paths</h2>
+            {isLoading ? (
+                 <div className="flex justify-center items-center py-10">
+                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                </div>
+            ) : (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                    {courses.map(course => {
+                        const Icon = ICONS[course.id] || ICONS.default;
+                        return (
+                            <Card key={course.id} className="hover:shadow-lg transition-shadow">
+                                <CardHeader className="flex flex-row items-center gap-4">
+                                    <Icon className="w-10 h-10 text-primary" />
+                                    <CardTitle>{course.title}</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <p className="text-muted-foreground">
+                                        {course.chapters.length} chapters to build your skills from the ground up.
+                                    </p>
+                                    <Link href={`/${course.id}/learning-path`} className="mt-4 inline-block">
+                                        <Button variant="outline">
+                                            Start Learning
+                                        </Button>
+                                    </Link>
+                                </CardContent>
+                            </Card>
+                        )
+                    })}
+                </div>
+            )}
         </div>
 
       </main>

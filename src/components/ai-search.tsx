@@ -15,7 +15,8 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { getCourse, setCourse, formatGeneratedCourse } from '@/services/course-service';
+import { getCourse, addCourse, formatGeneratedCourse } from '@/services/course-service';
+import { useToast } from '@/hooks/use-toast';
 
 export function AISearch() {
   const [isOpen, setIsOpen] = useState(false);
@@ -23,6 +24,7 @@ export function AISearch() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const { toast } = useToast();
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,17 +32,22 @@ export function AISearch() {
 
     setIsLoading(true);
     setError(null);
+    
+    const courseId = query.toLowerCase().replace(/\s+/g, '-');
 
     try {
-      // First, check if a pre-generated course exists
-      const existingCourse = getCourse(query);
+      // First, check if a course exists in Firestore
+      const existingCourse = await getCourse(courseId);
       if (existingCourse) {
         router.push(`/${existingCourse.id}/learning-path`);
       } else {
         // If not, generate a new one
+        toast({ title: "Generating Course...", description: "Your AI tutor is building a new learning path. This may take a moment." });
         const result = await generateCourse({ topic: query });
         const formattedCourse = formatGeneratedCourse(result);
-        setCourse(formattedCourse); // Store the generated course
+        
+        // Save the new course to Firestore
+        await addCourse({ title: formattedCourse.title, chapters: formattedCourse.chapters });
         
         // Navigate to the newly created course path
         router.push(`/${formattedCourse.id}/learning-path`);

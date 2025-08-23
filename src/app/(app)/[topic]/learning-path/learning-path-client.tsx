@@ -6,7 +6,7 @@ import { Check, Lock, Play, Loader2, Sparkles, Pencil, ChevronRight, AlertCircle
 import { explainCode, evaluatePythonCode, generatePracticeSession, generateLessonContent } from '@/lib/actions';
 import type { EvaluatePythonCodeOutput } from '@/ai/flows/evaluate-python-code';
 import type { GeneratePracticeSessionOutput } from '@/ai/flows/generate-practice-session';
-import { getCourse, setCourse, Course, Chapter, Lesson, QuizQuestion } from '@/services/course-service';
+import { getCourse, updateCourse, Course, Chapter, Lesson, QuizQuestion } from '@/services/course-service';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,6 +23,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { useToast } from '@/hooks/use-toast';
 
 
 function CircularProgress({ progress }: { progress: number }) {
@@ -228,6 +229,7 @@ function EndOfLessonQuiz({ lesson, onQuizComplete }: { lesson: Lesson, onQuizCom
                 topic: lesson.title,
                 studentLevel: 'beginner',
             });
+            // TODO: Here you would save the generated quiz back to the lesson in Firestore
             setQuizSession(result);
         } catch (err) {
             setError('Failed to generate quiz. Please try again.');
@@ -432,16 +434,20 @@ export default function LearningPathClient({ topic: topicParam }: { topic: strin
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isGeneratingContent, setIsGeneratingContent] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
   
   useEffect(() => {
-    const storedCourse = getCourse(topic);
-    if (storedCourse) {
-      setCourseState(storedCourse);
-      const firstChapter = storedCourse.chapters[0] ?? null;
-      const firstLesson = firstChapter?.lessons[0] ?? null;
-      setActiveChapter(firstChapter);
-      setActiveLesson(firstLesson);
-    }
+      const fetchCourseData = async () => {
+          const courseData = await getCourse(topic);
+          if (courseData) {
+              setCourseState(courseData);
+              const firstChapter = courseData.chapters[0] ?? null;
+              const firstLesson = firstChapter?.lessons[0] ?? null;
+              setActiveChapter(firstChapter);
+              setActiveLesson(firstLesson);
+          }
+      };
+      fetchCourseData();
   }, [topic]);
 
   const handleLessonChange = useCallback(async (lessonId: string) => {
@@ -451,7 +457,6 @@ export default function LearningPathClient({ topic: topicParam }: { topic: strin
       if (lesson) {
         setActiveChapter(chapter);
         setActiveLesson(lesson);
-        // Only generate content if it's missing (i.e., not pre-generated)
         if (!lesson.content) {
           setIsGeneratingContent(true);
           try {
@@ -463,12 +468,12 @@ export default function LearningPathClient({ topic: topicParam }: { topic: strin
                 : c
             );
             const updatedCourse = { ...course, chapters: updatedChapters };
-            setCourse(updatedCourse); // This is the service that saves to cache
-            setCourseState(updatedCourse); // This updates the component state
+            await updateCourse(course.id, updatedCourse);
+            setCourseState(updatedCourse);
             setActiveLesson(updatedLesson);
           } catch (error) {
             console.error("Failed to generate lesson content", error);
-            // Handle error, maybe show a toast
+            toast({ title: "Error", description: "Could not generate lesson content.", variant: "destructive" });
           } finally {
             setIsGeneratingContent(false);
           }
@@ -476,7 +481,7 @@ export default function LearningPathClient({ topic: topicParam }: { topic: strin
         return;
       }
     }
-  }, [course]);
+  }, [course, toast]);
 
   useEffect(() => {
     // Prime the first lesson if it has no content

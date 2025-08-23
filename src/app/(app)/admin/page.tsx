@@ -1,7 +1,79 @@
 
-import { PageHeader } from '@/components/page-header';
+'use client';
 
-export default function AdminPage() {
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { PlusCircle, Loader2, Trash2, Edit } from 'lucide-react';
+import { getCourses, deleteCourse, Course } from '@/services/course-service';
+import { PageHeader } from '@/components/page-header';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { useToast } from '@/hooks/use-toast';
+
+export default function AdminDashboardPage() {
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const unsubscribe = getCourses((data, err) => {
+      if (err) {
+        setError(err);
+        setIsLoading(false);
+      } else {
+        setCourses(data);
+        setIsLoading(false);
+      }
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, []);
+
+  const handleCreateCourse = () => {
+    router.push('/admin/courses/new');
+  };
+
+  const handleEditCourse = (courseId: string) => {
+    router.push(`/admin/courses/${courseId}`);
+  };
+
+  const handleDeleteCourse = async (courseId: string) => {
+    try {
+      await deleteCourse(courseId);
+      toast({
+        title: 'Success',
+        description: 'Course has been deleted.',
+      });
+    } catch (err) {
+      toast({
+        title: 'Error',
+        description: 'Failed to delete the course.',
+        variant: 'destructive',
+      });
+      console.error(err);
+    }
+  };
+
   return (
     <div className="flex flex-col h-full">
       <PageHeader
@@ -10,7 +82,67 @@ export default function AdminPage() {
       />
       <main className="flex-1 overflow-auto p-6">
         <div className="max-w-4xl mx-auto">
-          <p>Welcome to the admin area. Content management features will be added here.</p>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold">Your Courses</h2>
+            <Button onClick={handleCreateCourse}>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Create New Course
+            </Button>
+          </div>
+          {isLoading && (
+            <div className="flex justify-center items-center py-10">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+          )}
+          {error && <p className="text-destructive">{error}</p>}
+          {!isLoading && !error && courses.length === 0 ? (
+            <p>No courses found. Click "Create New Course" to get started.</p>
+          ) : (
+            <div className="grid gap-6">
+              {courses.map((course) => (
+                <Card key={course.id}>
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <CardTitle>{course.title}</CardTitle>
+                            <CardDescription>
+                            {course.chapters.length} chapters, {course.chapters.reduce((acc, chap) => acc + chap.lessons.length, 0)} lessons
+                            </CardDescription>
+                        </div>
+                        <div className="flex gap-2">
+                            <Button variant="outline" size="icon" onClick={() => handleEditCourse(course.id)}>
+                                <Edit className="h-4 w-4" />
+                                <span className="sr-only">Edit</span>
+                            </Button>
+                            <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button variant="destructive" size="icon">
+                                <Trash2 className="h-4 w-4" />
+                                <span className="sr-only">Delete</span>
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    This action cannot be undone. This will permanently delete the course "{course.title}".
+                                </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDeleteCourse(course.id)}>
+                                    Continue
+                                </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                            </AlertDialog>
+                        </div>
+                    </div>
+                  </CardHeader>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </main>
     </div>
