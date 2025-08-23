@@ -2,10 +2,15 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const PROTECTED_ROUTES = ['/admin'];
-const ADMIN_EMAIL = 'abrar@sashaspath.com';
+// const PROTECTED_ROUTES = ['/admin'];
+// const ADMIN_EMAIL = 'abrar@sashaspath.com';
 
 export async function middleware(request: NextRequest) {
+  // Temporarily disabling auth as requested.
+  // The original logic is commented out below for future reference.
+  return NextResponse.next();
+
+  /*
   const { pathname } = request.nextUrl;
 
   const isProtectedRoute = PROTECTED_ROUTES.some(path => pathname.startsWith(path));
@@ -29,6 +34,7 @@ export async function middleware(request: NextRequest) {
   }
 
   return NextResponse.next();
+  */
 }
 
 export const config = {
