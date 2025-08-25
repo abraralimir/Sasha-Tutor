@@ -6,6 +6,9 @@ import { AuthProvider } from '@/context/auth-context';
 export const metadata: Metadata = {
   title: "Sasha's Path - Your AI-Powered Learning Platform",
   description: 'Generate a custom course on any topic with AI. Interactive lessons, quizzes, and exercises to master new skills.',
+  icons: {
+    icon: [],
+  },
 };
 
 export default function RootLayout({
