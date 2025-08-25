@@ -1,9 +1,9 @@
-
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApps, getApp, FirebaseOptions } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getAnalytics } from "firebase/analytics";
+import { getMessaging } from "firebase/messaging";
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -16,10 +16,12 @@ const firebaseConfig: FirebaseOptions = {
   messagingSenderId: "124651455087",
 };
 
+
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
 const db = getFirestore(app);
+
 // It's safe to check for window since this is a client-side file
 if (typeof window !== 'undefined') {
   try {
@@ -29,5 +31,6 @@ if (typeof window !== 'undefined') {
   }
 }
 
+const messaging = typeof window !== 'undefined' ? getMessaging(app) : null;
 
-export { app, auth, db };
+export { app, auth, db, messaging };

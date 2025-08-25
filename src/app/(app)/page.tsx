@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ArrowRight, BookOpen, Code, Table, Cloud, BarChart, Loader2 } from 'lucide-react';
+import { ArrowRight, BookOpen, Code, Table, Cloud, BarChart, Loader2, Bell } from 'lucide-react';
 import Link from 'next/link';
 import { getCourses, Course } from '@/services/course-service';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { seedInitialCourses } from '@/services/seed';
 import { useAuth } from '@/context/auth-context';
 import { useRouter } from 'next/navigation';
+import { useFcmToken } from '@/lib/fcm';
 
 
 const ICONS: { [key: string]: React.ElementType } = {
@@ -26,6 +27,7 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
   const router = useRouter();
+  const { retrieveToken } = useFcmToken();
 
   useEffect(() => {
     const initializeCourses = async () => {
@@ -66,6 +68,11 @@ export default function DashboardPage() {
           <p className="mt-6 text-base md:text-xl text-muted-foreground max-w-2xl mx-auto">
             This is an interactive, AI-powered journey to master any subject. Just ask our AI in the search bar above to generate a custom course for you on any topic!
           </p>
+          <div className="mt-6">
+            <Button variant="outline" onClick={retrieveToken}>
+              <Bell className="mr-2 h-4 w-4" /> Enable Notifications
+            </Button>
+          </div>
         </div>
         
         <div className="max-w-5xl mx-auto mt-12 md:mt-20">
