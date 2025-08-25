@@ -66,4 +66,13 @@
   body {
     @apply bg-background text-foreground;
   }
+  .prose code {
+    @apply text-foreground bg-muted;
+  }
+  .prose pre {
+    @apply bg-gray-800 text-white;
+  }
+  .prose pre code {
+    @apply bg-transparent text-white;
+  }
 }
