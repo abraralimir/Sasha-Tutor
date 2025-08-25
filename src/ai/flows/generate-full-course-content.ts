@@ -11,12 +11,11 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { ChapterSchema, LessonSchema, CourseSchema } from '@/services/course-service';
-
+import { ChapterSchema as FullChapterSchema, LessonSchema as FullLessonSchema, CourseSchema } from '@/services/course-service';
 
 // We only need the structure, not the content, for the input.
-const LessonOutlineSchema = LessonSchema.omit({ content: true, quiz: true });
-const ChapterOutlineSchema = ChapterSchema.omit({ lessons: true }).extend({
+const LessonOutlineSchema = FullLessonSchema.omit({ content: true, quiz: true });
+const ChapterOutlineSchema = FullChapterSchema.omit({ lessons: true }).extend({
     lessons: z.array(LessonOutlineSchema)
 });
 const GenerateFullCourseContentInputSchema = CourseSchema.omit({ chapters: true }).extend({
