@@ -37,6 +37,10 @@ import {
     generateLessonContent as generateLessonContentFlow,
     type GenerateLessonContentInput,
 } from "@/ai/flows/generate-lesson-content";
+import {
+    sendNotification as sendNotificationFlow,
+    type SendNotificationInput,
+} from "@/ai/flows/send-notification";
 
 
 export async function generateCodingExercise(
@@ -75,4 +79,8 @@ export async function generateCourse(input: GenerateCourseInput) {
 
 export async function generateLessonContent(input: GenerateLessonContentInput) {
     return await generateLessonContentFlow(input);
+}
+
+export async function sendNotification(input: SendNotificationInput) {
+    return await sendNotificationFlow(input);
 }

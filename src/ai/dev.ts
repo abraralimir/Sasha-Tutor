@@ -13,4 +13,4 @@ import '@/ai/flows/explain-code.ts';
 import '@/ai/flows/generate-practice-session.ts';
 import '@/ai/flows/generate-course.ts';
 import '@/ai/flows/generate-lesson-content.ts';
-
+import '@/ai/flows/send-notification.ts';

@@ -3,7 +3,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Bot, Code, Menu, MessageCircle, Terminal, User, LogOut, Shield } from 'lucide-react';
+import { Bot, Code, Menu, MessageCircle, Terminal, User, LogOut, Shield, Bell } from 'lucide-react';
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -117,11 +117,19 @@ export function Header() {
                 </NavigationMenuItem>
                 {isAdmin && (
                   <NavigationMenuItem>
-                    <Link href="/admin" legacyBehavior passHref>
-                      <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                        <Shield className="h-4 w-4 mr-1" /> Admin
-                      </NavigationMenuLink>
-                    </Link>
+                    <NavigationMenuTrigger>
+                      <Shield className="h-4 w-4 mr-1" /> Admin
+                    </NavigationMenuTrigger>
+                    <NavigationMenuContent>
+                      <ul className="grid w-[300px] gap-3 p-4">
+                         <ListItem title="Course Management" href="/admin" icon={Shield}>
+                           Manage all courses and their content.
+                         </ListItem>
+                         <ListItem title="Send Notifications" href="/admin/notifications" icon={Bell}>
+                            Send push notifications to all users.
+                         </ListItem>
+                      </ul>
+                    </NavigationMenuContent>
                   </NavigationMenuItem>
                 )}
               </NavigationMenuList>
@@ -185,11 +193,19 @@ export function Header() {
                      </Link>
                    ))}
                     {isAdmin && (
+                      <>
+                        <h3 className="px-4 pt-4 text-sm font-semibold text-muted-foreground">Admin</h3>
                         <Link href="/admin" onClick={() => setIsMobileMenuOpen(false)}>
                             <Button variant="ghost" className="w-full justify-start text-base gap-2">
-                                <Shield /> Admin
+                                <Shield /> Course Management
                             </Button>
                         </Link>
+                        <Link href="/admin/notifications" onClick={() => setIsMobileMenuOpen(false)}>
+                            <Button variant="ghost" className="w-full justify-start text-base gap-2">
+                                <Bell /> Send Notifications
+                            </Button>
+                        </Link>
+                      </>
                     )}
                 </div>
                 <div className="absolute bottom-4 left-4 right-4 flex flex-col gap-2">

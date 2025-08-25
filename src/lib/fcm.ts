@@ -1,8 +1,10 @@
+
 'use client';
 
 import { getToken } from 'firebase/messaging';
-import { messaging } from './firebase';
+import { messaging, db } from './firebase';
 import { useToast } from '@/hooks/use-toast';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 export const useFcmToken = () => {
   const { toast } = useToast();
@@ -17,11 +19,17 @@ export const useFcmToken = () => {
           });
           if (currentToken) {
             console.log('FCM token:', currentToken);
+            
+            // Save the token to Firestore
+            await setDoc(doc(db, 'fcmTokens', currentToken), {
+              token: currentToken,
+              createdAt: serverTimestamp(),
+            });
+
             toast({
               title: "Notifications Enabled!",
               description: "You will now receive updates.",
             });
-            // You would typically send this token to your server to store it.
           } else {
             console.log('No registration token available. Request permission to generate one.');
             toast({
