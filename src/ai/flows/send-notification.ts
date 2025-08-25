@@ -11,7 +11,6 @@ import { getMessaging } from 'firebase-admin/messaging';
 import { getFirestore } from 'firebase-admin/firestore';
 import { z } from 'zod';
 import { ai } from '@/ai/genkit';
-import { defineFlow } from 'genkit';
 
 
 // Initialize Firebase Admin SDK
@@ -32,7 +31,7 @@ export async function sendNotification(input: SendNotificationInput): Promise<{ 
     return sendNotificationFlow(input);
 }
 
-const sendNotificationFlow = defineFlow(
+const sendNotificationFlow = ai.defineFlow(
   {
     name: 'sendNotificationFlow',
     inputSchema: SendNotificationInputSchema,
