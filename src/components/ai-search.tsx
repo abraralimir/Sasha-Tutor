@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { Bot, Loader2, Search, Sparkles } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { generateCourse } from '@/lib/actions';
+import { generateCourse, generateLessonContent } from '@/lib/actions';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -15,9 +15,28 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { getCourse, addCourse, formatGeneratedCourse, associateCourseWithUser } from '@/services/course-service';
+import { getCourse, addCourse, formatGeneratedCourse, associateCourseWithUser, updateLessonContent } from '@/services/course-service';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/auth-context';
+
+// Helper function to parse AI-generated markdown into structured content blocks
+const parseGeneratedContent = (markdown: string) => {
+    const blocks = [];
+    const parts = markdown.split(/<interactive-code-cell\s+description="([^"]+)"\s+expected="([^"]+)"\s*\/>/g);
+
+    for (let i = 0; i < parts.length; i++) {
+        const part = parts[i].trim();
+        if (i % 3 === 0) {
+            if (part) blocks.push({ type: 'text', content: part });
+        } else if (i % 3 === 1) {
+            const description = part;
+            const expectedOutput = parts[i + 1];
+            blocks.push({ type: 'interactiveCode', description, expectedOutput });
+            i++;
+        }
+    }
+    return blocks;
+};
 
 export function AISearch() {
   const [isOpen, setIsOpen] = useState(false);
@@ -54,17 +73,31 @@ export function AISearch() {
       } else {
         // If not, generate a new one
         toast({ title: "Generating Course...", description: "Your AI tutor is building a new learning path. This may take a moment." });
-        const result = await generateCourse({ topic: query, userId: user.uid });
-        const formattedCourse = formatGeneratedCourse(result);
         
-        // Save the new course to the global courses collection
-        await addCourse(formattedCourse);
+        // Step 1: Generate the course outline
+        const courseOutlineResult = await generateCourse({ topic: query, userId: user.uid });
+        let newCourse = formatGeneratedCourse(courseOutlineResult);
         
-        // Associate the new course with the user
-        await associateCourseWithUser(user.uid, formattedCourse.id);
+        // Step 2: Generate content for the very first lesson
+        const firstChapter = newCourse.chapters[0];
+        const firstLesson = firstChapter?.lessons[0];
+
+        if (firstChapter && firstLesson) {
+            const lessonContentResult = await generateLessonContent({ topic: firstLesson.title, studentLevel: 'beginner' });
+            const contentBlocks = parseGeneratedContent(lessonContentResult.content);
+            
+            // Inject the content into the newCourse object
+            newCourse.chapters[0].lessons[0].content = contentBlocks;
+        }
+
+        // Step 3: Save the new course (with first lesson content) to the global collection
+        await addCourse(newCourse);
         
-        // Navigate to the newly created course path
-        router.push(`/${formattedCourse.id}/learning-path`);
+        // Step 4: Associate the new course with the user
+        await associateCourseWithUser(user.uid, newCourse.id);
+        
+        // Step 5: Navigate to the newly created course path
+        router.push(`/${newCourse.id}/learning-path`);
       }
 
       setIsOpen(false);

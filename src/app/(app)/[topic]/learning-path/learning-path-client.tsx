@@ -491,9 +491,8 @@ export default function LearningPathClient({ topic: topicParam }: { topic: strin
             setUserProfile(profileData);
 
             const firstChapter = courseData.chapters[0] ?? null;
-            const firstLesson = firstChapter?.lessons[0] ?? null;
-            setActiveChapter(firstChapter);
             // Wait for the next effect to handle the first lesson change
+            setActiveChapter(firstChapter);
         }
     };
     fetchCourseAndUserData();
@@ -507,10 +506,11 @@ export default function LearningPathClient({ topic: topicParam }: { topic: strin
         setActiveChapter(chapter);
         setActiveLesson(lesson);
         
+        // Check if content is empty or null, and then generate it.
         if (!lesson.content || lesson.content.length === 0) {
           setIsGeneratingContent(true);
           try {
-            toast({ title: "Building Your Lesson...", description: "The AI is generating this content for the first time." });
+            toast({ title: "Building Your Lesson...", description: "The AI is generating this content for you." });
             const result = await generateLessonContent({ topic: lesson.title, studentLevel: 'beginner' });
             const newContentBlocks = parseGeneratedContent(result.content);
             

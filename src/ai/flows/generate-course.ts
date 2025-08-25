@@ -3,7 +3,7 @@
 
 /**
  * @fileOverview An AI agent to generate a complete course outline on demand.
- * This flow includes rate limiting per user.
+ * This flow includes rate limiting per user and generates content for the first lesson only.
  *
  * - generateCourse - A function that generates a course structure.
  * - GenerateCourseInput - The input type for the generateCourse function.
@@ -12,8 +12,9 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
-import { getFirestore, doc, getDoc, setDoc, serverTimestamp, Timestamp } from 'firebase-admin/firestore';
+import { getFirestore } from 'firebase-admin/firestore';
 import { initializeApp, getApps } from 'firebase-admin/app';
+import { generateLessonContent } from './generate-lesson-content';
 
 const GenerateCourseInputSchema = z.object({
   topic: z.string().describe('The topic the user wants to learn about. e.g., "Excel", "Java", "SAP FICO"'),
@@ -78,8 +79,8 @@ const generateCourseFlow = ai.defineFlow(
   },
   async ({ topic, userId }) => {
     // --- Rate Limiting Logic ---
-    const userRef = doc(db, 'users', userId);
-    const userSnap = await getDoc(userRef);
+    const userRef = db.collection('users').doc(userId);
+    const userSnap = await userRef.get();
     const userData = userSnap.data();
     
     const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
@@ -94,16 +95,15 @@ const generateCourseFlow = ai.defineFlow(
     }
     // --- End Rate Limiting Logic ---
 
-    const { output } = await prompt({ topic, userId });
+    const { output: courseOutline } = await prompt({ topic, userId });
     
     // --- Update User's Count ---
-    const newCount = currentCount + 1;
-    await setDoc(userRef, {
-        dailyGenerationCount: newCount,
+    await userRef.set({
+        dailyGenerationCount: currentCount + 1,
         lastGenerationDate: today,
     }, { merge: true });
     // --- End Update ---
     
-    return output!;
+    return courseOutline!;
   }
 );
