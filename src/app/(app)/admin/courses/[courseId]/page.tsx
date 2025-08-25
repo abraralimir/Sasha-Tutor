@@ -6,8 +6,8 @@ import { useParams, useRouter } from 'next/navigation';
 import { useForm, useFieldArray, Controller, useFormContext } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ChevronLeft, Plus, Trash, Loader2 } from 'lucide-react';
-import { getCourse, addCourse, updateCourse, Course } from '@/services/course-service';
+import { ChevronLeft, Plus, Trash, Loader2, Code, FileText } from 'lucide-react';
+import { getCourse, addCourse, updateCourse, Course, ContentBlock } from '@/services/course-service';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import {
@@ -37,10 +37,19 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 
+const contentBlockSchema = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('text'), content: z.string().min(1, 'Text content cannot be empty.') }),
+  z.object({
+    type: z.literal('interactiveCode'),
+    description: z.string().min(1, 'Description is required.'),
+    expectedOutput: z.string().min(1, 'Expected output is required.'),
+  }),
+]);
+
 const lessonSchema = z.object({
   id: z.string().default(() => `lesson-${Date.now()}-${Math.random()}`),
   title: z.string().min(1, 'Lesson title is required.'),
-  content: z.string().optional(),
+  content: z.array(contentBlockSchema).optional().default([]),
 });
 
 const chapterSchema = z.object({
@@ -109,11 +118,11 @@ export default function CourseEditPage() {
       if (isNewCourse) {
         const newCourseId = await addCourse(data);
         toast({ title: 'Success', description: 'Course created successfully.' });
-        router.push(`/admin`); // Go back to the list after creation
+        router.push(`/admin`);
       } else {
         await updateCourse(courseId, data);
         toast({ title: 'Success', description: 'Course updated successfully.' });
-        router.push('/admin'); // Go back to list after update
+        router.push('/admin');
       }
     } catch (error) {
       console.error(error);
@@ -258,7 +267,7 @@ function LessonsArray({ chapterIndex }: { chapterIndex: number }) {
         <Separator />
         <div className='flex justify-between items-center'>
              <h4 className="font-semibold">Lessons</h4>
-             <Button type="button" size="sm" onClick={() => append({ id: `lesson-${Date.now()}`, title: '', content: '' })}>
+             <Button type="button" size="sm" onClick={() => append({ id: `lesson-${Date.now()}`, title: '', content: [] })}>
                 <Plus className="mr-2" /> Add Lesson
             </Button>
         </div>
@@ -285,23 +294,93 @@ function LessonsArray({ chapterIndex }: { chapterIndex: number }) {
                         </FormItem>
                         )}
                     />
-                    <FormField
-                        control={control}
-                        name={`chapters.${chapterIndex}.lessons.${lessonIndex}.content`}
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Lesson Content (Markdown)</FormLabel>
-                            <FormControl>
-                            <Textarea rows={10} placeholder="Use markdown and <interactive-code-cell> for content." {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                        )}
-                    />
+                    <LessonContentArray chapterIndex={chapterIndex} lessonIndex={lessonIndex} />
                 </div>
             </CardContent>
         </Card>
       ))}
     </div>
   );
+}
+
+function LessonContentArray({ chapterIndex, lessonIndex }: { chapterIndex: number, lessonIndex: number }) {
+    const { control } = useFormContext<CourseFormData>();
+    const { fields, append, remove } = useFieldArray({
+      control,
+      name: `chapters.${chapterIndex}.lessons.${lessonIndex}.content`,
+    });
+
+    return (
+        <div className="space-y-4 pt-4">
+            <Separator />
+            <div className="flex justify-between items-center">
+                <h5 className="font-semibold">Lesson Content Blocks</h5>
+                <div className='flex gap-2'>
+                    <Button type="button" size="sm" variant="outline" onClick={() => append({ type: 'text', content: '' })}>
+                        <FileText className="mr-2" /> Add Text
+                    </Button>
+                    <Button type="button" size="sm" variant="outline" onClick={() => append({ type: 'interactiveCode', description: '', expectedOutput: '' })}>
+                        <Code className="mr-2" /> Add Code Cell
+                    </Button>
+                </div>
+            </div>
+            {fields.map((field, index) => (
+                <Card key={field.id} className="bg-muted/50 p-4">
+                     <div className='flex justify-between items-start mb-4'>
+                         <p className='font-medium pt-2 capitalize'>
+                            {`Block ${index + 1}: ${field.type === 'text' ? 'Text' : 'Interactive Code'}`}
+                         </p>
+                         <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)}>
+                            <Trash className="h-4 w-4" />
+                        </Button>
+                    </div>
+                    {field.type === 'text' && (
+                         <FormField
+                            control={control}
+                            name={`chapters.${chapterIndex}.lessons.${lessonIndex}.content.${index}.content`}
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Text Content (Markdown)</FormLabel>
+                                <FormControl>
+                                <Textarea rows={5} placeholder="Write your lesson content here..." {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+                    )}
+                    {field.type === 'interactiveCode' && (
+                        <div className="space-y-4">
+                            <FormField
+                                control={control}
+                                name={`chapters.${chapterIndex}.lessons.${lessonIndex}.content.${index}.description`}
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Exercise Description</FormLabel>
+                                    <FormControl>
+                                    <Input placeholder="A clear, simple instruction for the student" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                             <FormField
+                                control={control}
+                                name={`chapters.${chapterIndex}.lessons.${lessonIndex}.content.${index}.expectedOutput`}
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Expected Answer (Code)</FormLabel>
+                                    <FormControl>
+                                    <Input placeholder="The exact, single-line of code that is the correct answer" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                        </div>
+                    )}
+                </Card>
+            ))}
+        </div>
+    )
 }

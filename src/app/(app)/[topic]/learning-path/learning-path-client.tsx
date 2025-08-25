@@ -6,7 +6,7 @@ import { Check, Lock, Play, Loader2, Sparkles, Pencil, ChevronRight, AlertCircle
 import { explainCode, evaluatePythonCode, generatePracticeSession, generateLessonContent } from '@/lib/actions';
 import type { EvaluatePythonCodeOutput } from '@/ai/flows/evaluate-python-code';
 import type { GeneratePracticeSessionOutput } from '@/ai/flows/generate-practice-session';
-import { getCourse, updateCourse, Course, Chapter, Lesson, QuizQuestion } from '@/services/course-service';
+import { getCourse, updateCourse, Course, Chapter, Lesson, QuizQuestion, ContentBlock } from '@/services/course-service';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -172,20 +172,23 @@ function InteractiveCodeCell({ exerciseDescription, expectedOutput }: { exercise
 }
 
 
-function ArticleWithInteractiveContent({ content }: { content: string }) {
-  const parts = content.split(/<interactive-code-cell\s+description="([^"]+)"\s+expected="([^"]+)"\s*\/>/g);
+function ArticleWithInteractiveContent({ contentBlocks }: { contentBlocks: ContentBlock[] }) {
+  if (!contentBlocks || contentBlocks.length === 0) {
+    return (
+      <div className="prose prose-lg dark:prose-invert max-w-4xl mx-auto p-4 md:p-12">
+        <p>This lesson is under construction. Please check back later!</p>
+      </div>
+    );
+  }
 
   return (
     <article className="prose prose-lg dark:prose-invert max-w-4xl mx-auto p-4 md:p-12">
-      {parts.map((part, index) => {
-        if (index % 3 === 0) {
-          // This is a regular content part
-          return <div key={index} dangerouslySetInnerHTML={{ __html: part.replace(/<code>(.*?)<\/code>/gs, '<code class="font-code bg-muted px-1 rounded-sm">$1</code>') }} />;
-        } else if (index % 3 === 1) {
-          // This is an interactive cell
-          const description = parts[index];
-          const expected = parts[index + 1];
-          return <InteractiveCodeCell key={index} exerciseDescription={description} expectedOutput={expected} />;
+      {contentBlocks.map((block, index) => {
+        if (block.type === 'text') {
+          return <div key={index} dangerouslySetInnerHTML={{ __html: block.content.replace(/<code>(.*?)<\/code>/gs, '<code class="font-code bg-muted px-1 rounded-sm">$1</code>') }} />;
+        }
+        if (block.type === 'interactiveCode') {
+          return <InteractiveCodeCell key={index} exerciseDescription={block.description} expectedOutput={block.expectedOutput} />;
         }
         return null;
       })}
@@ -457,26 +460,20 @@ export default function LearningPathClient({ topic: topicParam }: { topic: strin
       if (lesson) {
         setActiveChapter(chapter);
         setActiveLesson(lesson);
-        if (!lesson.content) {
-          setIsGeneratingContent(true);
-          try {
-            const { content } = await generateLessonContent({ topic: lesson.title, studentLevel: 'beginner' });
-            const updatedLesson = { ...lesson, content };
-            const updatedChapters = course.chapters.map(c => 
-              c.id === chapter.id 
-                ? { ...c, lessons: c.lessons.map(l => l.id === lessonId ? updatedLesson : l) }
-                : c
-            );
-            const updatedCourse = { ...course, chapters: updatedChapters };
-            await updateCourse(course.id, updatedCourse);
-            setCourseState(updatedCourse);
-            setActiveLesson(updatedLesson);
-          } catch (error) {
-            console.error("Failed to generate lesson content", error);
-            toast({ title: "Error", description: "Could not generate lesson content.", variant: "destructive" });
-          } finally {
-            setIsGeneratingContent(false);
-          }
+        // This is a temporary measure. We assume pre-authored content exists now.
+        // The AI generation logic for content is disabled for now as content is structured.
+        // A better approach would be to generate content block by block.
+        if (!lesson.content || lesson.content.length === 0) {
+          // setIsGeneratingContent(true);
+          // try {
+          //   // This part needs to be re-thought. generateLessonContent returns markdown string.
+          //   // We now need structured content.
+          // } catch (error) {
+          //    console.error("Failed to generate lesson content", error);
+          //    toast({ title: "Error", description: "Could not generate lesson content.", variant: "destructive" });
+          // } finally {
+          //   setIsGeneratingContent(false);
+          // }
         }
         return;
       }
@@ -484,11 +481,14 @@ export default function LearningPathClient({ topic: topicParam }: { topic: strin
   }, [course, toast]);
 
   useEffect(() => {
-    // Prime the first lesson if it has no content
-    if (activeLesson && !activeLesson.content) {
-      handleLessonChange(activeLesson.id);
+    // Prime the first lesson
+    if (course && !activeLesson) {
+      const firstLesson = course.chapters[0]?.lessons[0];
+      if (firstLesson) {
+        handleLessonChange(firstLesson.id);
+      }
     }
-  }, [activeLesson, handleLessonChange]);
+  }, [course, activeLesson, handleLessonChange]);
   
   const handleScroll = useCallback(() => {
     const contentEl = contentRef.current;
@@ -622,7 +622,7 @@ export default function LearningPathClient({ topic: topicParam }: { topic: strin
                     <Skeleton className="h-4 w-4/5" />
                 </div>
             ) : activeLesson.content ? (
-                <ArticleWithInteractiveContent content={activeLesson.content} />
+                <ArticleWithInteractiveContent contentBlocks={activeLesson.content} />
             ) : (
                 <div className="flex items-center justify-center h-full">
                     <p>Select a lesson to get started.</p>

@@ -24,10 +24,15 @@ export interface QuizQuestion {
     options: string[];
     correctAnswer: string;
 }
+
+export type ContentBlock = 
+  | { type: 'text'; content: string }
+  | { type: 'interactiveCode'; description: string; expectedOutput: string };
+
 export interface Lesson {
     id: string;
     title: string;
-    content?: string; // Markdown content with special placeholders
+    content?: ContentBlock[]; // Changed from string to ContentBlock[]
     quiz?: QuizQuestion[];
 }
 
@@ -157,7 +162,7 @@ export function formatGeneratedCourse(generated: GenerateCourseOutput): Course {
             ...chapter,
             lessons: chapter.lessons.map(lesson => ({
                 ...lesson,
-                content: '' // Initialize with empty content
+                content: [] // Initialize with empty content array
             }))
         })),
         showOnHomepage: true, // Default new AI courses to be featured
