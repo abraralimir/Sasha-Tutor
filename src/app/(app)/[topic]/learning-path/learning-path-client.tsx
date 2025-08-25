@@ -6,7 +6,7 @@ import { Check, Lock, Play, Loader2, Sparkles, Pencil, ChevronRight, AlertCircle
 import { explainCode, evaluatePythonCode, generatePracticeSession, generateLessonContent } from '@/lib/actions';
 import type { EvaluatePythonCodeOutput } from '@/ai/flows/evaluate-python-code';
 import type { GeneratePracticeSessionOutput } from '@/ai/flows/generate-practice-session';
-import { getCourse, updateCourse, Course, Chapter, Lesson, QuizQuestion, ContentBlock } from '@/services/course-service';
+import { getCourse, updateCourse, Course, Chapter, Lesson, QuizQuestion, ContentBlock, updateLessonContent } from '@/services/course-service';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -181,11 +181,19 @@ function ArticleWithInteractiveContent({ contentBlocks }: { contentBlocks: Conte
     );
   }
 
+  // Helper to parse markdown-like code tags into proper code blocks
+  const parseContent = (htmlContent: string) => {
+    const contentWithCodeBlocks = htmlContent.replace(/<code>(.*?)<\/code>/gs, (match, code) => {
+        return `<pre><code class="font-code bg-muted px-2 py-1 rounded-sm">${code.trim()}</code></pre>`;
+    });
+    return contentWithCodeBlocks;
+  };
+
   return (
     <article className="prose prose-lg dark:prose-invert max-w-4xl mx-auto p-4 md:p-12">
       {contentBlocks.map((block, index) => {
         if (block.type === 'text') {
-          return <div key={index} dangerouslySetInnerHTML={{ __html: block.content.replace(/<code>(.*?)<\/code>/gs, '<code class="font-code bg-muted px-1 rounded-sm">$1</code>') }} />;
+          return <div key={index} dangerouslySetInnerHTML={{ __html: parseContent(block.content) }} />;
         }
         if (block.type === 'interactiveCode') {
           return <InteractiveCodeCell key={index} exerciseDescription={block.description} expectedOutput={block.expectedOutput} />;
@@ -428,6 +436,28 @@ function LearningPathSidebar({
   );
 }
 
+// Helper function to parse AI-generated markdown into structured content blocks
+const parseGeneratedContent = (markdown: string): ContentBlock[] => {
+    const blocks: ContentBlock[] = [];
+    // Split by the interactive code cell placeholder
+    const parts = markdown.split(/<interactive-code-cell\s+description="([^"]+)"\s+expected="([^"]+)"\s*\/>/g);
+
+    for (let i = 0; i < parts.length; i++) {
+        const part = parts[i].trim();
+        if (i % 3 === 0) { // This is the text content
+            if (part) {
+                blocks.push({ type: 'text', content: part });
+            }
+        } else if (i % 3 === 1) { // This is the description
+            const description = part;
+            const expectedOutput = parts[i + 1];
+            blocks.push({ type: 'interactiveCode', description, expectedOutput });
+            i++; // Skip the next part as it's the expected output
+        }
+    }
+    return blocks;
+};
+
 export default function LearningPathClient({ topic: topicParam }: { topic: string }) {
   const topic = decodeURIComponent(topicParam);
   const [course, setCourseState] = useState<Course | null>(null);
@@ -453,27 +483,50 @@ export default function LearningPathClient({ topic: topicParam }: { topic: strin
       fetchCourseData();
   }, [topic]);
 
-  const handleLessonChange = useCallback(async (lessonId: string) => {
+ const handleLessonChange = useCallback(async (lessonId: string) => {
     if (!course) return;
     for (const chapter of course.chapters) {
       const lesson = chapter.lessons.find(l => l.id === lessonId);
       if (lesson) {
         setActiveChapter(chapter);
         setActiveLesson(lesson);
-        // This is a temporary measure. We assume pre-authored content exists now.
-        // The AI generation logic for content is disabled for now as content is structured.
-        // A better approach would be to generate content block by block.
+        
         if (!lesson.content || lesson.content.length === 0) {
-          // setIsGeneratingContent(true);
-          // try {
-          //   // This part needs to be re-thought. generateLessonContent returns markdown string.
-          //   // We now need structured content.
-          // } catch (error) {
-          //    console.error("Failed to generate lesson content", error);
-          //    toast({ title: "Error", description: "Could not generate lesson content.", variant: "destructive" });
-          // } finally {
-          //   setIsGeneratingContent(false);
-          // }
+          setIsGeneratingContent(true);
+          try {
+            toast({ title: "Building Your Lesson...", description: "The AI is generating this content for the first time." });
+            const result = await generateLessonContent({ topic: lesson.title, studentLevel: 'beginner' });
+            const newContentBlocks = parseGeneratedContent(result.content);
+            
+            // Update the lesson content in Firestore
+            await updateLessonContent(course.id, chapter.id, lesson.id, newContentBlocks);
+
+            // Update local state to show new content immediately
+            const updatedLesson = { ...lesson, content: newContentBlocks };
+            setActiveLesson(updatedLesson);
+
+            // Also update the main course state so we don't have to re-fetch
+            setCourseState(prevCourse => {
+                if (!prevCourse) return null;
+                return {
+                    ...prevCourse,
+                    chapters: prevCourse.chapters.map(c => 
+                        c.id === chapter.id ? {
+                            ...c,
+                            lessons: c.lessons.map(l => l.id === lessonId ? updatedLesson : l)
+                        } : c
+                    )
+                };
+            });
+
+          } catch (error) {
+             console.error("Failed to generate lesson content", error);
+             toast({ title: "Error", description: "Could not generate lesson content.", variant: "destructive" });
+             // Optionally set some error content
+             setActiveLesson({...lesson, content: [{type: 'text', content: 'Sorry, we were unable to generate this lesson.'}] });
+          } finally {
+            setIsGeneratingContent(false);
+          }
         }
         return;
       }
@@ -481,7 +534,7 @@ export default function LearningPathClient({ topic: topicParam }: { topic: strin
   }, [course, toast]);
 
   useEffect(() => {
-    // Prime the first lesson
+    // Prime the first lesson if it's not set yet
     if (course && !activeLesson) {
       const firstLesson = course.chapters[0]?.lessons[0];
       if (firstLesson) {
@@ -614,6 +667,11 @@ export default function LearningPathClient({ topic: topicParam }: { topic: strin
         <div className="flex-1 overflow-y-auto" ref={contentRef}>
             {isGeneratingContent ? (
                 <div className="p-12 max-w-4xl mx-auto space-y-6">
+                    <div className="flex items-center justify-center flex-col text-center">
+                        <Sparkles className="h-12 w-12 text-primary animate-pulse mb-4" />
+                        <h2 className="text-2xl font-bold">Building Your Lesson...</h2>
+                        <p className="text-muted-foreground">Please wait a moment while the AI generates this content.</p>
+                    </div>
                     <Skeleton className="h-10 w-3/4" />
                     <Skeleton className="h-4 w-full" />
                     <Skeleton className="h-4 w-5/6" />

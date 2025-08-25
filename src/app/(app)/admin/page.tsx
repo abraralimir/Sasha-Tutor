@@ -3,8 +3,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { PlusCircle, Loader2, Trash2, Edit } from 'lucide-react';
+import { PlusCircle, Loader2, Trash2, Edit, Users, Bell } from 'lucide-react';
 import { getCourses, deleteCourse, Course } from '@/services/course-service';
+import { getTotalUsers, getNotificationSubscriberCount } from '@/services/analytics-service';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,16 +24,53 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
+
+function StatCard({ title, value, icon: Icon }: { title: string, value: string | number, icon: React.ElementType }) {
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        <Icon className="h-4 w-4 text-muted-foreground" />
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold">{value}</div>
+      </CardContent>
+    </Card>
+  );
+}
+
 
 export default function AdminDashboardPage() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [stats, setStats] = useState({ totalUsers: 0, subscribers: 0 });
+  const [isStatsLoading, setIsStatsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      setIsStatsLoading(true);
+      try {
+        const [userCount, subscriberCount] = await Promise.all([
+          getTotalUsers(),
+          getNotificationSubscriberCount()
+        ]);
+        setStats({ totalUsers: userCount, subscribers: subscriberCount });
+      } catch (err) {
+        console.error("Failed to load stats", err);
+        toast({ title: "Error", description: "Could not load dashboard analytics.", variant: "destructive" });
+      } finally {
+        setIsStatsLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, [toast]);
+
 
   useEffect(() => {
     const unsubscribe = getCourses((data, err) => {
@@ -78,10 +116,24 @@ export default function AdminDashboardPage() {
     <div className="flex flex-col h-full">
       <PageHeader
         title="Admin Dashboard"
-        description="Manage your learning content here."
+        description="Manage your learning content and view platform analytics."
       />
       <main className="flex-1 overflow-auto p-6">
         <div className="max-w-4xl mx-auto">
+           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2 mb-8">
+            {isStatsLoading ? (
+              <>
+                <Card><CardHeader><CardTitle><Loader2 className="animate-spin" /></CardTitle></CardHeader><CardContent><div className="text-2xl font-bold">-</div></CardContent></Card>
+                <Card><CardHeader><CardTitle><Loader2 className="animate-spin" /></CardTitle></CardHeader><CardContent><div className="text-2xl font-bold">-</div></CardContent></Card>
+              </>
+            ) : (
+              <>
+                <StatCard title="Total Users" value={stats.totalUsers} icon={Users} />
+                <StatCard title="Notification Subscribers" value={stats.subscribers} icon={Bell} />
+              </>
+            )}
+           </div>
+
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold">Your Courses</h2>
             <Button onClick={handleCreateCourse}>

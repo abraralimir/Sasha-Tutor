@@ -14,6 +14,7 @@ import {
   where,
   getDocs,
   writeBatch,
+  updateDoc,
 } from 'firebase/firestore';
 import type { GenerateCourseOutput } from "@/ai/flows/generate-course";
 
@@ -139,6 +140,38 @@ export async function updateCourse(courseId: string, course: Partial<Omit<Course
     } catch (error) {
         console.error("Error updating course: ", error);
         throw new Error("Failed to update course.");
+    }
+}
+
+export async function updateLessonContent(courseId: string, chapterId: string, lessonId: string, content: ContentBlock[]): Promise<void> {
+    try {
+        const courseRef = doc(db, 'courses', courseId);
+        const courseSnap = await getDoc(courseRef);
+        if (!courseSnap.exists()) {
+            throw new Error("Course not found");
+        }
+        
+        const courseData = courseSnap.data() as Course;
+        const updatedChapters = courseData.chapters.map(chapter => {
+            if (chapter.id === chapterId) {
+                return {
+                    ...chapter,
+                    lessons: chapter.lessons.map(lesson => {
+                        if (lesson.id === lessonId) {
+                            return { ...lesson, content };
+                        }
+                        return lesson;
+                    })
+                };
+            }
+            return chapter;
+        });
+
+        await updateDoc(courseRef, { chapters: updatedChapters });
+
+    } catch (error) {
+        console.error("Error updating lesson content: ", error);
+        throw new Error("Failed to update lesson content.");
     }
 }
 
