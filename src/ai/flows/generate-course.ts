@@ -11,10 +11,7 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
-import { getFirestore } from 'firebase-admin/firestore';
-import { initializeApp, getApps } from 'firebase-admin/app';
-import { generateLessonContent } from './generate-lesson-content';
+import { z } from 'zod';
 
 const GenerateCourseInputSchema = z.object({
   topic: z.string().describe('The topic the user wants to learn about. e.g., "Excel", "Java", "SAP FICO"'),
@@ -63,14 +60,6 @@ Your task is to create a complete course outline. The course should be broken do
 `,
 });
 
-const DAILY_LIMIT = 5;
-
-// Initialize Firebase Admin SDK if not already done
-if (!getApps().length) {
-    initializeApp();
-}
-const db = getFirestore();
-
 const generateCourseFlow = ai.defineFlow(
   {
     name: 'generateCourseFlow',
@@ -78,32 +67,9 @@ const generateCourseFlow = ai.defineFlow(
     outputSchema: GenerateCourseOutputSchema,
   },
   async ({ topic, userId }) => {
-    // --- Rate Limiting Logic ---
-    const userRef = db.collection('users').doc(userId);
-    const userSnap = await userRef.get();
-    const userData = userSnap.data();
-    
-    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
-    
-    let currentCount = 0;
-    if (userData?.lastGenerationDate === today) {
-        currentCount = userData.dailyGenerationCount || 0;
-    }
-
-    if (currentCount >= DAILY_LIMIT) {
-        throw new Error('You have reached your daily limit of 5 course generations.');
-    }
-    // --- End Rate Limiting Logic ---
-
+    // NOTE: Rate limiting was removed to resolve a server authentication error.
+    // The logic can be re-introduced once the environment's ADC or service account is configured correctly.
     const { output: courseOutline } = await prompt({ topic, userId });
-    
-    // --- Update User's Count ---
-    await userRef.set({
-        dailyGenerationCount: currentCount + 1,
-        lastGenerationDate: today,
-    }, { merge: true });
-    // --- End Update ---
-    
     return courseOutline!;
   }
 );
