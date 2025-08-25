@@ -19,13 +19,13 @@ const LessonOutlineSchema = LessonSchema.omit({ content: true, quiz: true });
 const ChapterOutlineSchema = ChapterSchema.omit({ lessons: true }).extend({
     lessons: z.array(LessonOutlineSchema)
 });
-export const GenerateFullCourseContentInputSchema = CourseSchema.omit({ chapters: true }).extend({
+const GenerateFullCourseContentInputSchema = CourseSchema.omit({ chapters: true }).extend({
     chapters: z.array(ChapterOutlineSchema)
 });
 export type GenerateFullCourseContentInput = z.infer<typeof GenerateFullCourseContentInputSchema>;
 
 
-export const GenerateFullCourseContentOutputSchema = CourseSchema;
+const GenerateFullCourseContentOutputSchema = CourseSchema;
 export type GenerateFullCourseContentOutput = z.infer<typeof GenerateFullCourseContentOutputSchema>;
 
 
