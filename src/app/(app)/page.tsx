@@ -68,7 +68,7 @@ export default function DashboardPage() {
       router.push(`/${courseId}/learning-path`);
   };
 
-  const userCourses = userProfile?.courses
+  const userCourses = (userProfile?.courses || [])
     .map(userCourse => {
         const courseDetails = allCourses.find(c => c.id === userCourse.courseId);
         if (!courseDetails) return null;
