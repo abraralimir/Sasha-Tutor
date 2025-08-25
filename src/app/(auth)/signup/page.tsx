@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { createUserWithEmailAndPassword, sendEmailVerification, updateProfile, signInWithPopup, GoogleAuthProvider, OAuthProvider } from 'firebase/auth';
+import { createUserWithEmailAndPassword, sendEmailVerification, updateProfile, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 
 import { Button } from '@/components/ui/button';
@@ -43,7 +43,6 @@ export default function SignupPage() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const [isAppleLoading, setIsAppleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -90,7 +89,7 @@ export default function SignupPage() {
     }
   }
 
-  const handleSocialSignUp = async (provider: GoogleAuthProvider | OAuthProvider) => {
+  const handleSocialSignUp = async (provider: GoogleAuthProvider) => {
     setError(null);
     try {
       await signInWithPopup(auth, provider);
@@ -113,12 +112,6 @@ export default function SignupPage() {
     setIsGoogleLoading(true);
     await handleSocialSignUp(new GoogleAuthProvider());
     setIsGoogleLoading(false);
-  }
-  
-  async function handleAppleSignUp() {
-    setIsAppleLoading(true);
-    await handleSocialSignUp(new OAuthProvider('apple.com'));
-    setIsAppleLoading(false);
   }
 
   return (
@@ -178,7 +171,7 @@ export default function SignupPage() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full" disabled={isLoading || isGoogleLoading || isAppleLoading}>
+            <Button type="submit" className="w-full" disabled={isLoading || isGoogleLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Create an account
             </Button>
@@ -191,15 +184,10 @@ export default function SignupPage() {
         </div>
 
         <div className="space-y-2">
-            <Button variant="outline" className="w-full" onClick={handleGoogleSignUp} disabled={isLoading || isGoogleLoading || isAppleLoading}>
+            <Button variant="outline" className="w-full" onClick={handleGoogleSignUp} disabled={isLoading || isGoogleLoading}>
                  {isGoogleLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512"><path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 126 23.4 172.9 61.9l-76.2 74.9C309.4 104.3 280.8 96 248 96c-88.8 0-160.1 71.1-160.1 160.1s71.3 160.1 160.1 160.1c98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"></path></svg>
                 Sign up with Google
-            </Button>
-            <Button variant="outline" className="w-full" onClick={handleAppleSignUp} disabled={isLoading || isGoogleLoading || isAppleLoading}>
-                 {isAppleLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                 <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M16.1,19.3C15,19.8,14.5,20.2,13.6,21c-0.9,0.8-1.5,1.1-2.5,1c-1,0-1.6-0.3-2.5-1c-0.9-0.8-1.5-1.1-2.5-1c-1.1,0-2.1,0.5-2.8,1.4c-1.1,1.3-2.1,3-0.8,5.1c0.9,1.4,2.2,2.2,3.7,2.2c1.3,0,2.1-0.4,3-1.2c0.9-0.8,1.6-1.2,2.8-1.2s1.9,0.4,2.8,1.2c0.9,0.8,1.7,1.2,3,1.2c1.5,0,2.8-0.8,3.7-2.2c1.3-2.1,0.3-3.8-0.8-5.1C18.2,19.8,17.2,19.3,16.1,19.3z M19.7,10c0,2.7-1.7,4.3-4.4,4.3s-4.4-1.5-4.4-4.2c0-2.6,1.8-4.3,4.4-4.3C18,5.7,19.7,7.4,19.7,10z"></path></svg>
-                Sign up with Apple
             </Button>
         </div>
 
