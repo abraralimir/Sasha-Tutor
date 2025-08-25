@@ -41,6 +41,10 @@ import {
     sendNotification as sendNotificationFlow,
     type SendNotificationInput,
 } from "@/ai/flows/send-notification";
+import {
+    completeNote as completeNoteFlow,
+    type CompleteNoteInput,
+} from "@/ai/flows/complete-note";
 
 
 export async function generateCodingExercise(
@@ -83,4 +87,8 @@ export async function generateLessonContent(input: GenerateLessonContentInput) {
 
 export async function sendNotification(input: SendNotificationInput) {
     return await sendNotificationFlow(input);
+}
+
+export async function completeNote(input: CompleteNoteInput) {
+    return await completeNoteFlow(input);
 }

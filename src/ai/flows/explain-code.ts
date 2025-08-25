@@ -2,7 +2,7 @@
 'use server';
 
 /**
- * @fileOverview An AI agent to explain a snippet of Python code.
+ * @fileOverview An AI agent to explain a snippet of code in any language.
  *
  * - explainCode - A function that generates an explanation for a code snippet.
  * - ExplainCodeInput - The input type for the explainCode function.
@@ -13,7 +13,8 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const ExplainCodeInputSchema = z.object({
-  codeToExplain: z.string().describe('The Python code snippet to be explained.'),
+  codeToExplain: z.string().describe('The code snippet to be explained.'),
+  language: z.string().optional().describe('The programming language of the code. If not provided, the AI will infer it.'),
 });
 export type ExplainCodeInput = z.infer<typeof ExplainCodeInputSchema>;
 
@@ -30,12 +31,18 @@ const prompt = ai.definePrompt({
   name: 'explainCodePrompt',
   input: {schema: ExplainCodeInputSchema},
   output: {schema: ExplainCodeOutputSchema},
-  prompt: `You are an expert Python educator. A beginner student has asked for an explanation of the following code snippet. Provide a clear, step-by-step explanation.
+  prompt: `You are an expert educator AI named Sasha. A beginner student has asked for an explanation of the following code snippet. Provide a clear, step-by-step explanation.
+  
+  {{#if language}}
+  The code is written in {{{language}}}.
+  {{else}}
+  You should infer the programming language.
+  {{/if}}
 
 Assume the student has very little prior knowledge. Break down complex terms and concepts. Use Markdown for formatting.
 
 Code to explain:
-\`\`\`python
+\`\`\`
 {{{codeToExplain}}}
 \`\`\`
 `,

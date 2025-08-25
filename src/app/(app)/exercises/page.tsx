@@ -33,6 +33,7 @@ import { cn } from '@/lib/utils';
 export default function ExercisesPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
+  const [language, setLanguage] = useState('Python');
   const [topic, setTopic] = useState('strings');
   const [difficulty, setDifficulty] = useState('easy');
   const [exercise, setExercise] = useState<GenerateCodingExerciseOutput | null>(
@@ -55,7 +56,7 @@ export default function ExercisesPage() {
     setAssessment(null);
     setStudentCode('');
     try {
-      const result = await generateCodingExercise({ topic, difficulty });
+      const result = await generateCodingExercise({ language, topic, difficulty });
       setExercise(result);
     } catch (error) {
       console.error('Failed to generate exercise:', error);
@@ -95,7 +96,7 @@ export default function ExercisesPage() {
     <div className="flex flex-col h-full">
       <PageHeader
         title="AI-Powered Exercises"
-        description="Generate exercises and get instant feedback on your code."
+        description="Generate exercises in any language and get instant feedback on your code."
       />
       <main className="flex-1 overflow-auto p-6">
         <div className="max-w-2xl mx-auto space-y-8">
@@ -103,23 +104,17 @@ export default function ExercisesPage() {
             <CardHeader>
               <CardTitle>Generate a New Exercise</CardTitle>
               <CardDescription>
-                Select a topic and difficulty level to start.
+                Select a language, topic, and difficulty level to start.
               </CardDescription>
             </CardHeader>
-            <CardContent className="grid sm:grid-cols-2 gap-4">
+            <CardContent className="grid sm:grid-cols-3 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="language">Language</Label>
+                <Input id="language" value={language} onChange={(e) => setLanguage(e.target.value)} placeholder="e.g., Python" />
+              </div>
               <div className="grid gap-2">
                 <Label htmlFor="topic">Topic</Label>
-                <Select value={topic} onValueChange={setTopic}>
-                  <SelectTrigger id="topic">
-                    <SelectValue placeholder="Select topic" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="strings">Strings</SelectItem>
-                    <SelectItem value="lists">Lists</SelectItem>
-                    <SelectItem value="dictionaries">Dictionaries</SelectItem>
-                    <SelectItem value="loops">Loops</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Input id="topic" value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="e.g., strings" />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="difficulty">Difficulty</Label>
@@ -149,7 +144,7 @@ export default function ExercisesPage() {
             <div className="text-center p-8">
               <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary" />
               <p className="mt-2 text-muted-foreground">
-                Generating your exercise...
+                Sasha is generating your exercise...
               </p>
             </div>
           )}
@@ -159,7 +154,7 @@ export default function ExercisesPage() {
               <CardHeader>
                 <CardTitle>Your Challenge</CardTitle>
                 <CardDescription>
-                  Read the problem below and provide a one-line Python solution.
+                  Read the problem below and provide a one-line solution.
                 </CardDescription>
               </CardHeader>
               <CardContent>

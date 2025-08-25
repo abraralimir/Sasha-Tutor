@@ -1,9 +1,9 @@
 'use server';
 
 /**
- * @fileOverview AI-powered IDE teacher flow for interactive Python learning.
+ * @fileOverview AI-powered IDE teacher flow for interactive learning in any programming language.
  *
- * - aiIdeTeacher - A function that guides students through Python algorithms, libraries, and functions in an IDE.
+ * - aiIdeTeacher - A function that guides students through algorithms, libraries, and functions in an IDE.
  * - AiIdeTeacherInput - The input type for the aiIdeTeacher function.
  * - AiIdeTeacherOutput - The return type for the aiIdeTeacher function.
  */
@@ -12,8 +12,9 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const AiIdeTeacherInputSchema = z.object({
-  topic: z.string().describe('The specific Python topic, algorithm, library, or function the student wants to learn.'),
-  studentLevel: z.enum(['beginner', 'intermediate', 'advanced']).describe('The student\u2019s current proficiency level in Python.'),
+  language: z.string().describe('The programming language the student wants to learn about.'),
+  topic: z.string().describe('The specific topic, algorithm, library, or function the student wants to learn.'),
+  studentLevel: z.enum(['beginner', 'intermediate', 'advanced']).describe('The student\u2019s current proficiency level.'),
   preferredLearningStyle: z.string().optional().describe('The student\u2019s preferred learning style (e.g., hands-on, visual, theoretical).'),
 });
 export type AiIdeTeacherInput = z.infer<typeof AiIdeTeacherInputSchema>;
@@ -32,19 +33,21 @@ const prompt = ai.definePrompt({
   name: 'aiIdeTeacherPrompt',
   input: {schema: AiIdeTeacherInputSchema},
   output: {schema: AiIdeTeacherOutputSchema},
-  prompt: `You are an expert Python teacher specializing in teaching coding in an interactive IDE environment. Your goal is to help students master Python programming by guiding them through algorithms, libraries, and functions step-by-step.
+  prompt: `You are an expert programming teacher named Sasha, specializing in teaching coding in an interactive IDE environment. Your goal is to help students master programming by guiding them through algorithms, libraries, and functions step-by-step.
 
-  The student wants to learn about: {{{topic}}}
+  The student wants to learn about: {{{topic}}} in the language {{{language}}}.
   Student level: {{{studentLevel}}}
+  {{#if preferredLearningStyle}}
   Preferred learning style: {{{preferredLearningStyle}}}
+  {{/if}}
 
   Provide a comprehensive lesson plan that includes:
   - Clear explanations of concepts.
-  - Practical code examples.
+  - Practical code examples in {{{language}}}.
   - Interactive exercises for the student to implement in the IDE.
   - AI-generated feedback on the student’s code and progress.
   - Step-by-step instructions.
-  - Use a Apple style layout, characterized by ample whitespace, prominent typography, and content-centered design.
+  - Use a clean, readable layout with ample whitespace and clear typography.
 
   Ensure that the lesson is tailored to the student’s level and learning style.
   Format the response in a way that is easily presentable in the IDE.

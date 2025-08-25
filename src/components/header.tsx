@@ -3,7 +3,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Bot, Code, Menu, MessageCircle, Terminal, User, LogOut, Shield, Bell } from 'lucide-react';
+import { Bot, Code, Menu, MessageCircle, Terminal, User, LogOut, Shield, Bell, BookOpen, BrainCircuit } from 'lucide-react';
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -34,21 +34,27 @@ const tools = [
     href: '/exercises',
     icon: Code,
     description:
-      'Generate coding exercises and get instant AI feedback to improve faster.',
+      'Generate coding exercises in any language and get instant AI feedback.',
   },
   {
     title: 'AI IDE Teacher',
     href: '/ide-teacher',
     icon: Terminal,
     description:
-      'Learn any Python topic with a personalized lesson from your AI tutor.',
+      'Learn any coding topic with a personalized lesson from your AI tutor.',
+  },
+  {
+    title: 'Code Explainer',
+    href: '/code-explainer',
+    icon: BrainCircuit,
+    description: 'Paste any code snippet to get a detailed, step-by-step explanation.',
   },
   {
     title: 'AI Chatbot',
     href: '/chatbot',
     icon: MessageCircle,
     description:
-      'Our AI assistant is here to answer any Python questions you have.',
+      'Sasha is here to answer any questions you have, with context from your lessons.',
   },
 ];
 

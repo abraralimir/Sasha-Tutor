@@ -39,6 +39,7 @@ const formSchema = z.object({
   topic: z.string().min(2, {
     message: 'Topic must be at least 2 characters.',
   }),
+  language: z.string().min(1, { message: 'Please specify a language.'}),
   studentLevel: z.enum(['beginner', 'intermediate', 'advanced']),
 });
 
@@ -58,6 +59,7 @@ export default function IdeTeacherPage() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       topic: '',
+      language: 'Python',
       studentLevel: 'beginner',
     },
   });
@@ -86,17 +88,30 @@ export default function IdeTeacherPage() {
     <div className="flex flex-col h-full">
       <PageHeader
         title="AI IDE Teacher"
-        description="Learn any Python topic with a personalized lesson from your AI tutor."
+        description="Learn any coding topic with a personalized lesson from your AI tutor."
       />
       <div className="flex-1 overflow-auto">
         <div className="grid lg:grid-cols-3 h-full">
           <div className="lg:col-span-1 p-6 bg-card lg:border-r">
             <h2 className="text-xl font-semibold">Lesson Settings</h2>
             <p className="text-muted-foreground mt-1 mb-6">
-              Tell the AI what you want to learn.
+              Tell Sasha what you want to learn.
             </p>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                 <FormField
+                  control={form.control}
+                  name="language"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Language</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., Python, JavaScript, Java" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="topic"
@@ -104,10 +119,10 @@ export default function IdeTeacherPage() {
                     <FormItem>
                       <FormLabel>Topic</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., Python decorators" {...field} />
+                        <Input placeholder="e.g., Decorators, Async/Await" {...field} />
                       </FormControl>
                       <FormDescription>
-                        Enter a Python algorithm, library, or function.
+                        Enter a concept, algorithm, or library.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -149,14 +164,14 @@ export default function IdeTeacherPage() {
               {isLoading && (
                 <div className="flex flex-col items-center justify-center h-full pt-20">
                   <Loader2 className="h-12 w-12 animate-spin text-primary" />
-                  <p className="mt-4 text-muted-foreground">Your AI teacher is preparing your lesson...</p>
+                  <p className="mt-4 text-muted-foreground">Sasha is preparing your lesson...</p>
                 </div>
               )}
               {!isLoading && !lesson && (
                  <div className="flex flex-col items-center justify-center h-full pt-20 text-center">
                     <Bot className="h-16 w-16 text-muted-foreground/50" />
                     <h3 className="mt-4 text-xl font-semibold">Ready to learn?</h3>
-                    <p className="mt-1 text-muted-foreground">Fill out the form to generate your personalized Python lesson.</p>
+                    <p className="mt-1 text-muted-foreground">Fill out the form to generate your personalized lesson.</p>
                 </div>
               )}
               {lesson && (
