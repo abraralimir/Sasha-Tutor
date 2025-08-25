@@ -13,7 +13,7 @@ export const useFcmToken = () => {
         const permission = await Notification.requestPermission();
         if (permission === 'granted') {
           const currentToken = await getToken(messaging, {
-            vapidKey: 'YOUR_VAPID_KEY_FROM_FIREBASE_CONSOLE', // Replace with your VAPID key
+            vapidKey: 'BC-RfFNoWmHNrsaVTVnHZ8qX4uZ-EhgrQAE4OxAehtBmrk8u4cTeqsJ9fQpxf9f8oiKFTv23EPGryfSwtAQAaLU', // Replace with your VAPID key
           });
           if (currentToken) {
             console.log('FCM token:', currentToken);
