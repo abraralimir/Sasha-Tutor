@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, OAuthProvider } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 
 import { Button } from '@/components/ui/button';
@@ -43,6 +43,7 @@ export default function LoginPage() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isAppleLoading, setIsAppleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -64,7 +65,7 @@ export default function LoginPage() {
       });
       router.push('/');
     } catch (error: any) {
-      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
         setError('Invalid email or password. Please try again.');
       } else if (error.code === 'auth/user-disabled') {
          setError('This account has been disabled.');
@@ -95,6 +96,29 @@ export default function LoginPage() {
        }
     } finally {
       setIsGoogleLoading(false);
+    }
+  }
+  
+  async function handleAppleLogin() {
+    setIsAppleLoading(true);
+    setError(null);
+    try {
+      const provider = new OAuthProvider('apple.com');
+      await signInWithPopup(auth, provider);
+      toast({
+        title: "Login Successful",
+        description: "Welcome back!",
+      });
+      router.push('/');
+    } catch (error: any) {
+      if (error.code === 'auth/account-exists-with-different-credential') {
+        setError('An account already exists with the same email address but different sign-in credentials. Please sign in using a provider associated with this email address.');
+      } else if (error.code !== 'auth/popup-closed-by-user') {
+        setError('Failed to login with Apple. Please try again.');
+        console.error(error);
+      }
+    } finally {
+      setIsAppleLoading(false);
     }
   }
 
@@ -142,7 +166,7 @@ export default function LoginPage() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full" disabled={isLoading || isGoogleLoading}>
+            <Button type="submit" className="w-full" disabled={isLoading || isGoogleLoading || isAppleLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Login
             </Button>
@@ -153,12 +177,20 @@ export default function LoginPage() {
           <Separator />
           <span className="absolute left-1/2 -translate-x-1/2 top-[-10px] bg-card px-2 text-sm text-muted-foreground">OR</span>
         </div>
+        
+        <div className="space-y-2">
+            <Button variant="outline" className="w-full" onClick={handleGoogleLogin} disabled={isLoading || isGoogleLoading || isAppleLoading}>
+                 {isGoogleLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512"><path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 126 23.4 172.9 61.9l-76.2 74.9C309.4 104.3 280.8 96 248 96c-88.8 0-160.1 71.1-160.1 160.1s71.3 160.1 160.1 160.1c98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"></path></svg>
+                Login with Google
+            </Button>
+             <Button variant="outline" className="w-full" onClick={handleAppleLogin} disabled={isLoading || isGoogleLoading || isAppleLoading}>
+                 {isAppleLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                 <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M16.1,19.3C15,19.8,14.5,20.2,13.6,21c-0.9,0.8-1.5,1.1-2.5,1c-1,0-1.6-0.3-2.5-1c-0.9-0.8-1.5-1.1-2.5-1c-1.1,0-2.1,0.5-2.8,1.4c-1.1,1.3-2.1,3-0.8,5.1c0.9,1.4,2.2,2.2,3.7,2.2c1.3,0,2.1-0.4,3-1.2c0.9-0.8,1.6-1.2,2.8-1.2s1.9,0.4,2.8,1.2c0.9,0.8,1.7,1.2,3,1.2c1.5,0,2.8-0.8,3.7-2.2c1.3-2.1,0.3-3.8-0.8-5.1C18.2,19.8,17.2,19.3,16.1,19.3z M19.7,10c0,2.7-1.7,4.3-4.4,4.3s-4.4-1.5-4.4-4.2c0-2.6,1.8-4.3,4.4-4.3C18,5.7,19.7,7.4,19.7,10z"></path></svg>
+                Login with Apple
+            </Button>
+        </div>
 
-        <Button variant="outline" className="w-full" onClick={handleGoogleLogin} disabled={isLoading || isGoogleLoading}>
-             {isGoogleLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512"><path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 126 23.4 172.9 61.9l-76.2 74.9C309.4 104.3 280.8 96 248 96c-88.8 0-160.1 71.1-160.1 160.1s71.3 160.1 160.1 160.1c98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"></path></svg>
-            Login with Google
-        </Button>
 
         <div className="mt-4 text-center text-sm">
           Don&apos;t have an account?{' '}
