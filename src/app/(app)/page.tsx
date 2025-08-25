@@ -2,15 +2,17 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ArrowRight, BookOpen, Code, Table, Cloud, BarChart, Loader2, Bell } from 'lucide-react';
+import { ArrowRight, BookOpen, Code, Table, Cloud, BarChart, Loader2, Bell, PlusCircle } from 'lucide-react';
 import Link from 'next/link';
-import { getCourses, Course } from '@/services/course-service';
+import { getCourses, Course, UserProfile, getUserProfileStream } from '@/services/course-service';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 import { seedInitialCourses } from '@/services/seed';
 import { useAuth } from '@/context/auth-context';
 import { useRouter } from 'next/navigation';
 import { useFcmToken } from '@/lib/fcm';
+import { AISearch } from '@/components/ai-search';
 
 
 const ICONS: { [key: string]: React.ElementType } = {
@@ -23,39 +25,63 @@ const ICONS: { [key: string]: React.ElementType } = {
 };
 
 export default function DashboardPage() {
-  const [courses, setCourses] = useState<Course[]>([]);
+  const [allCourses, setAllCourses] = useState<Course[]>([]);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
   const router = useRouter();
   const { retrieveToken } = useFcmToken();
 
   useEffect(() => {
-    const initializeCourses = async () => {
+    const initializeData = async () => {
       setIsLoading(true);
-      // Seed initial courses if they don't exist
       await seedInitialCourses();
 
-      const unsubscribe = getCourses((data, err) => {
+      const unsubscribeCourses = getCourses((data, err) => {
         if (!err) {
-          setCourses(data);
+          setAllCourses(data);
         }
-        setIsLoading(false);
       });
-      return () => unsubscribe();
+
+      let unsubscribeProfile: (() => void) | null = null;
+      if (user) {
+        unsubscribeProfile = getUserProfileStream(user.uid, (profile) => {
+          setUserProfile(profile);
+          setIsLoading(false);
+        });
+      } else {
+        setIsLoading(false);
+      }
+      
+      return () => {
+        unsubscribeCourses();
+        if (unsubscribeProfile) {
+            unsubscribeProfile();
+        }
+      };
     };
     
-    initializeCourses();
-  }, []);
+    initializeData();
+  }, [user]);
   
   const handleStartLearning = (courseId: string) => {
-    if (user) {
       router.push(`/${courseId}/learning-path`);
-    } else {
-      router.push('/login');
-    }
   };
 
-  const featuredCourses = courses.filter(course => course.showOnHomepage);
+  const userCourses = userProfile?.courses
+    .map(userCourse => {
+        const courseDetails = allCourses.find(c => c.id === userCourse.courseId);
+        if (!courseDetails) return null;
+
+        const totalLessons = courseDetails.chapters.reduce((acc, chap) => acc + chap.lessons.length, 0);
+        const completedLessons = userCourse.completedLessons.length;
+        const progress = totalLessons > 0 ? (completedLessons / totalLessons) * 100 : 0;
+        
+        return { ...courseDetails, progress, completedLessons, totalLessons };
+    })
+    .filter(Boolean) as (Course & { progress: number, completedLessons: number, totalLessons: number })[];
+
+
   const userName = user?.displayName?.split(' ')[0] || user?.email;
 
   return (
@@ -66,43 +92,66 @@ export default function DashboardPage() {
             {user ? `Welcome back, ${userName}!` : "Your Personalized E-Learning Platform"}
           </h1>
           <p className="mt-6 text-base md:text-xl text-muted-foreground max-w-2xl mx-auto">
-            This is an interactive, AI-powered journey to master any subject. Just ask our AI in the search bar above to generate a custom course for you on any topic!
+            This is an interactive, AI-powered journey to master any subject. Just ask our AI in the search bar to generate a custom course for you on any topic!
           </p>
-          <div className="mt-6">
-            <Button variant="outline" onClick={retrieveToken}>
-              <Bell className="mr-2 h-4 w-4" /> Enable Notifications
-            </Button>
+          <div className="mt-6 flex items-center justify-center gap-4">
+            {user && (
+                <Button variant="outline" onClick={retrieveToken}>
+                    <Bell className="mr-2 h-4 w-4" /> Enable Notifications
+                </Button>
+            )}
           </div>
         </div>
         
         <div className="max-w-5xl mx-auto mt-12 md:mt-20">
-            <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">Explore Learning Paths</h2>
-            {isLoading ? (
-                 <div className="flex justify-center items-center py-10">
-                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                </div>
-            ) : (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                    {featuredCourses.map(course => {
-                        const Icon = ICONS[course.id] || ICONS.default;
-                        return (
-                            <Card key={course.id} className="hover:shadow-lg transition-shadow">
-                                <CardHeader className="flex flex-row items-center gap-4">
-                                    <Icon className="w-10 h-10 text-primary" />
-                                    <CardTitle>{course.title}</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <p className="text-muted-foreground">
-                                        {course.chapters.length} chapters to build your skills from the ground up.
-                                    </p>
-                                    <Button variant="outline" className="mt-4" onClick={() => handleStartLearning(course.id)}>
-                                        Start Learning
-                                    </Button>
-                                </CardContent>
-                            </Card>
-                        )
-                    })}
-                </div>
+            {user && (
+                <>
+                <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">My Learning Paths</h2>
+                 {isLoading ? (
+                    <div className="flex justify-center items-center py-10">
+                        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                    </div>
+                ) : userCourses && userCourses.length > 0 ? (
+                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                        {userCourses.map(course => {
+                             const Icon = ICONS[course.id] || ICONS.default;
+                             return (
+                                <Card key={course.id} className="hover:shadow-lg transition-shadow flex flex-col">
+                                    <CardHeader>
+                                        <div className="flex items-start justify-between">
+                                            <CardTitle>{course.title}</CardTitle>
+                                            <Icon className="w-8 h-8 text-primary" />
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent className="flex-1">
+                                        <p className="text-muted-foreground text-sm">
+                                            {course.completedLessons} of {course.totalLessons} lessons completed.
+                                        </p>
+                                        <Progress value={course.progress} className="mt-2" />
+                                    </CardContent>
+                                    <div className="p-6 pt-0">
+                                         <Button className="w-full" onClick={() => handleStartLearning(course.id)}>
+                                            Continue Learning
+                                        </Button>
+                                    </div>
+                                </Card>
+                             )
+                        })}
+                     </div>
+                ) : (
+                    <div className="text-center py-16 border-2 border-dashed rounded-lg">
+                        <BookOpen className="mx-auto h-12 w-12 text-muted-foreground" />
+                        <h3 className="mt-4 text-lg font-medium">Your learning path is empty</h3>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                        Use the AI search bar to generate a course on any topic.
+                        </p>
+                         <div className="mt-6">
+                            {/* The AISearch component is in the header, this is just a prompt */}
+                            <p className="text-sm">Click the search bar in the header to begin.</p>
+                        </div>
+                    </div>
+                )}
+                </>
             )}
         </div>
 

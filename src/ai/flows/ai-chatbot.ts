@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -13,6 +14,7 @@ import {z} from 'genkit';
 
 const AIChatbotInputSchema = z.object({
   message: z.string().describe('The user message to the chatbot.'),
+  lessonContext: z.string().optional().describe('The content of the current lesson the user is viewing, to provide context for the chat.'),
 });
 export type AIChatbotInput = z.infer<typeof AIChatbotInputSchema>;
 
@@ -32,6 +34,13 @@ const prompt = ai.definePrompt({
   prompt: `You are a helpful AI assistant specializing in Python programming.
 
   Answer the user's question to the best of your ability. Provide code examples when appropriate.
+
+  {{#if lessonContext}}
+  The user is currently viewing a lesson with the following content. Use this as the primary context for your answer:
+  ---
+  {{{lessonContext}}}
+  ---
+  {{/if}}
 
   User message: {{{message}}}
   `,

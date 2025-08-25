@@ -1,7 +1,9 @@
+
 'use server';
 
 /**
  * @fileOverview An AI agent to generate a complete course outline on demand.
+ * This flow includes rate limiting per user.
  *
  * - generateCourse - A function that generates a course structure.
  * - GenerateCourseInput - The input type for the generateCourse function.
@@ -10,9 +12,12 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp, Timestamp } from 'firebase-admin/firestore';
+import { initializeApp, getApps } from 'firebase-admin/app';
 
 const GenerateCourseInputSchema = z.object({
   topic: z.string().describe('The topic the user wants to learn about. e.g., "Excel", "Java", "SAP FICO"'),
+  userId: z.string().describe('The unique ID of the user requesting the course.'),
 });
 export type GenerateCourseInput = z.infer<typeof GenerateCourseInputSchema>;
 
@@ -57,14 +62,48 @@ Your task is to create a complete course outline. The course should be broken do
 `,
 });
 
+const DAILY_LIMIT = 5;
+
+// Initialize Firebase Admin SDK if not already done
+if (!getApps().length) {
+    initializeApp();
+}
+const db = getFirestore();
+
 const generateCourseFlow = ai.defineFlow(
   {
     name: 'generateCourseFlow',
     inputSchema: GenerateCourseInputSchema,
     outputSchema: GenerateCourseOutputSchema,
   },
-  async (input) => {
-    const { output } = await prompt(input);
+  async ({ topic, userId }) => {
+    // --- Rate Limiting Logic ---
+    const userRef = doc(db, 'users', userId);
+    const userSnap = await getDoc(userRef);
+    const userData = userSnap.data();
+    
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+    
+    let currentCount = 0;
+    if (userData?.lastGenerationDate === today) {
+        currentCount = userData.dailyGenerationCount || 0;
+    }
+
+    if (currentCount >= DAILY_LIMIT) {
+        throw new Error('You have reached your daily limit of 5 course generations.');
+    }
+    // --- End Rate Limiting Logic ---
+
+    const { output } = await prompt({ topic, userId });
+    
+    // --- Update User's Count ---
+    const newCount = currentCount + 1;
+    await setDoc(userRef, {
+        dailyGenerationCount: newCount,
+        lastGenerationDate: today,
+    }, { merge: true });
+    // --- End Update ---
+    
     return output!;
   }
 );

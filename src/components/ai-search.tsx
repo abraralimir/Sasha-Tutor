@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { getCourse, addCourse, formatGeneratedCourse } from '@/services/course-service';
+import { getCourse, addCourse, formatGeneratedCourse, associateCourseWithUser } from '@/services/course-service';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/auth-context';
 
@@ -41,21 +41,27 @@ export function AISearch() {
     setIsLoading(true);
     setError(null);
     
-    const courseId = query.toLowerCase().replace(/\s+/g, '-');
+    const courseId = query.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
 
     try {
-      // First, check if a course exists in Firestore
+      // First, check if a course exists in the global courses collection
       const existingCourse = await getCourse(courseId);
+
       if (existingCourse) {
+        // If it exists, just associate it with the user
+        await associateCourseWithUser(user.uid, existingCourse.id);
         router.push(`/${existingCourse.id}/learning-path`);
       } else {
         // If not, generate a new one
         toast({ title: "Generating Course...", description: "Your AI tutor is building a new learning path. This may take a moment." });
-        const result = await generateCourse({ topic: query });
+        const result = await generateCourse({ topic: query, userId: user.uid });
         const formattedCourse = formatGeneratedCourse(result);
         
-        // Save the new course to Firestore
-        await addCourse({ title: formattedCourse.title, chapters: formattedCourse.chapters });
+        // Save the new course to the global courses collection
+        await addCourse(formattedCourse);
+        
+        // Associate the new course with the user
+        await associateCourseWithUser(user.uid, formattedCourse.id);
         
         // Navigate to the newly created course path
         router.push(`/${formattedCourse.id}/learning-path`);
@@ -63,8 +69,8 @@ export function AISearch() {
 
       setIsOpen(false);
       setQuery('');
-    } catch (err) {
-      setError('Sorry, something went wrong. Please try again.');
+    } catch (err: any) {
+      setError(err.message || 'Sorry, something went wrong. Please try again.');
       console.error(err);
     } finally {
       setIsLoading(false);

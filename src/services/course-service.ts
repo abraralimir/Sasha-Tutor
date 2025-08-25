@@ -15,6 +15,9 @@ import {
   getDocs,
   writeBatch,
   updateDoc,
+  arrayUnion,
+  arrayRemove,
+  Timestamp,
 } from 'firebase/firestore';
 import type { GenerateCourseOutput } from "@/ai/flows/generate-course";
 
@@ -50,7 +53,24 @@ export interface Course {
     showOnHomepage?: boolean;
 }
 
+// New interfaces for user data
+export interface UserCourse {
+    courseId: string;
+    startedAt: Timestamp;
+    completedLessons: string[];
+}
+
+export interface UserProfile {
+    uid: string;
+    email: string;
+    displayName: string | null;
+    courses: UserCourse[];
+    dailyGenerationCount?: number;
+    lastGenerationDate?: string;
+}
+
 const courseCollection = collection(db, 'courses');
+const usersCollection = collection(db, 'users');
 
 // Helper to convert Firestore doc to Course object
 const fromFirestore = (doc: QueryDocumentSnapshot<DocumentData> | DocumentData): Course => {
@@ -198,6 +218,70 @@ export function formatGeneratedCourse(generated: GenerateCourseOutput): Course {
                 content: [] // Initialize with empty content array
             }))
         })),
-        showOnHomepage: true, // Default new AI courses to be featured
+        showOnHomepage: false, // AI courses are not featured by default
     }
+}
+
+// User Profile and Progress Functions
+
+export async function getUserProfile(uid: string): Promise<UserProfile | null> {
+    if (!uid) return null;
+    try {
+        const userRef = doc(db, 'users', uid);
+        const docSnap = await getDoc(userRef);
+        if (docSnap.exists()) {
+            return docSnap.data() as UserProfile;
+        }
+        return null;
+    } catch (error) {
+        console.error("Error fetching user profile:", error);
+        return null;
+    }
+}
+
+export function getUserProfileStream(uid: string, callback: (profile: UserProfile | null) => void): () => void {
+    const userRef = doc(db, 'users', uid);
+    return onSnapshot(userRef, (doc) => {
+        callback(doc.exists() ? doc.data() as UserProfile : null);
+    });
+}
+
+export async function associateCourseWithUser(uid: string, courseId: string): Promise<void> {
+    const userRef = doc(db, 'users', uid);
+    const userProfile = await getUserProfile(uid);
+
+    if (userProfile && userProfile.courses.some(c => c.courseId === courseId)) {
+        console.log("User already has this course.");
+        return;
+    }
+
+    const newCourse: UserCourse = {
+        courseId,
+        startedAt: Timestamp.now(),
+        completedLessons: [],
+    };
+    
+    await updateDoc(userRef, {
+        courses: arrayUnion(newCourse)
+    });
+}
+
+export async function updateUserLessonProgress(uid: string, courseId: string, lessonId: string, completed: boolean): Promise<void> {
+    const userRef = doc(db, 'users', uid);
+    const userProfile = await getUserProfile(uid);
+    if (!userProfile) return;
+
+    const courseIndex = userProfile.courses.findIndex(c => c.courseId === courseId);
+    if (courseIndex === -1) return;
+
+    const updatedCourses = [...userProfile.courses];
+    const currentCompleted = updatedCourses[courseIndex].completedLessons;
+
+    if (completed && !currentCompleted.includes(lessonId)) {
+        updatedCourses[courseIndex].completedLessons.push(lessonId);
+    } else if (!completed) {
+        updatedCourses[courseIndex].completedLessons = currentCompleted.filter(id => id !== lessonId);
+    }
+    
+    await updateDoc(userRef, { courses: updatedCourses });
 }

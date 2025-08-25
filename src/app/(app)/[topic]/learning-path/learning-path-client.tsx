@@ -2,11 +2,11 @@
 'use client';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { Check, Lock, Play, Loader2, Sparkles, Pencil, ChevronRight, AlertCircle, CheckCircle, Menu } from 'lucide-react';
+import { Check, Lock, Play, Loader2, Sparkles, Pencil, ChevronRight, AlertCircle, CheckCircle, Menu, MessageCircle } from 'lucide-react';
 import { explainCode, evaluatePythonCode, generatePracticeSession, generateLessonContent } from '@/lib/actions';
 import type { EvaluatePythonCodeOutput } from '@/ai/flows/evaluate-python-code';
 import type { GeneratePracticeSessionOutput } from '@/ai/flows/generate-practice-session';
-import { getCourse, updateCourse, Course, Chapter, Lesson, QuizQuestion, ContentBlock, updateLessonContent } from '@/services/course-service';
+import { getCourse, updateCourse, Course, Chapter, Lesson, QuizQuestion, ContentBlock, updateLessonContent, UserProfile, getUserProfile, updateUserLessonProgress } from '@/services/course-service';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -24,6 +24,8 @@ import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/context/auth-context';
+import { useRouter } from 'next/navigation';
 
 
 function CircularProgress({ progress }: { progress: number }) {
@@ -460,28 +462,42 @@ const parseGeneratedContent = (markdown: string): ContentBlock[] => {
 
 export default function LearningPathClient({ topic: topicParam }: { topic: string }) {
   const topic = decodeURIComponent(topicParam);
+  const router = useRouter();
+  const { user } = useAuth();
   const [course, setCourseState] = useState<Course | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [activeChapter, setActiveChapter] = useState<Chapter | null>(null);
   const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
-  const [completedLessons, setCompletedLessons] = useState<string[]>([]);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isGeneratingContent, setIsGeneratingContent] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   
+  const completedLessons = userProfile?.courses.find(c => c.courseId === course?.id)?.completedLessons || [];
+
   useEffect(() => {
-      const fetchCourseData = async () => {
-          const courseData = await getCourse(topic);
-          if (courseData) {
-              setCourseState(courseData);
-              const firstChapter = courseData.chapters[0] ?? null;
-              const firstLesson = firstChapter?.lessons[0] ?? null;
-              setActiveChapter(firstChapter);
-              setActiveLesson(firstLesson);
-          }
-      };
-      fetchCourseData();
-  }, [topic]);
+    if (!user) {
+        router.push('/login');
+        return;
+    }
+    const fetchCourseAndUserData = async () => {
+        const [courseData, profileData] = await Promise.all([
+            getCourse(topic),
+            getUserProfile(user.uid)
+        ]);
+
+        if (courseData) {
+            setCourseState(courseData);
+            setUserProfile(profileData);
+
+            const firstChapter = courseData.chapters[0] ?? null;
+            const firstLesson = firstChapter?.lessons[0] ?? null;
+            setActiveChapter(firstChapter);
+            // Wait for the next effect to handle the first lesson change
+        }
+    };
+    fetchCourseAndUserData();
+  }, [topic, user, router]);
 
  const handleLessonChange = useCallback(async (lessonId: string) => {
     if (!course) return;
@@ -572,11 +588,21 @@ export default function LearningPathClient({ topic: topicParam }: { topic: strin
     }
   }, [activeLesson, handleScroll]);
 
-  const completeLesson = () => {
-    if (!activeLesson || !activeChapter || !course) return;
+  const completeLesson = async () => {
+    if (!activeLesson || !activeChapter || !course || !user) return;
     
     if (!completedLessons.includes(activeLesson.id)) {
-      setCompletedLessons(prev => [...prev, activeLesson.id]);
+        await updateUserLessonProgress(user.uid, course.id, activeLesson.id, true);
+        // Refresh profile data locally
+        setUserProfile(prev => {
+            if (!prev) return null;
+            const updatedCourses = prev.courses.map(c => 
+                c.courseId === course.id 
+                ? { ...c, completedLessons: [...c.completedLessons, activeLesson.id] } 
+                : c
+            );
+            return { ...prev, courses: updatedCourses };
+        });
     }
     
     const chapters = course.chapters;
@@ -609,8 +635,20 @@ export default function LearningPathClient({ topic: topicParam }: { topic: strin
     }
     return false;
   }
+
+  const handleChatWithAI = () => {
+    if (!activeLesson?.content) return;
+    const lessonText = activeLesson.content.map(block => {
+        if (block.type === 'text') return block.content;
+        if (block.type === 'interactiveCode') return `[Code Exercise: ${block.description}]`;
+        return '';
+    }).join('\n\n');
+    
+    const context = encodeURIComponent(lessonText);
+    router.push(`/chatbot?context=${context}`);
+  };
   
-  if (!course || !activeChapter || !activeLesson) {
+  if (!course || !activeChapter || !activeLesson || !userProfile) {
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader2 className="w-12 h-12 animate-spin text-primary" />
@@ -688,7 +726,7 @@ export default function LearningPathClient({ topic: topicParam }: { topic: strin
             )}
         </div>
         <footer className="p-4 border-t bg-background/80 backdrop-blur-sm sticky bottom-0">
-          <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">
                <CircularProgress progress={scrollProgress} />
                <div className="hidden sm:block">
@@ -696,13 +734,18 @@ export default function LearningPathClient({ topic: topicParam }: { topic: strin
                 <p className="text-sm text-muted-foreground">Scroll to the end and complete the quiz to continue.</p>
                </div>
             </div>
-            {isCurrentLessonComplete ? (
-              <Button onClick={completeLesson} disabled={isFinalLesson}>
-                Next Lesson <Play className="w-4 h-4 ml-2" />
-              </Button>
-            ) : (
-              <EndOfLessonQuiz lesson={activeLesson} onQuizComplete={completeLesson} />
-            )}
+            <div className='flex items-center gap-2'>
+                <Button variant="outline" onClick={handleChatWithAI}>
+                    <MessageCircle className="w-4 h-4 mr-2" /> Chat with AI
+                </Button>
+                {isCurrentLessonComplete ? (
+                <Button onClick={completeLesson} disabled={isFinalLesson}>
+                    Next Lesson <Play className="w-4 h-4 ml-2" />
+                </Button>
+                ) : (
+                <EndOfLessonQuiz lesson={activeLesson} onQuizComplete={completeLesson} />
+                )}
+            </div>
           </div>
         </footer>
       </div>
