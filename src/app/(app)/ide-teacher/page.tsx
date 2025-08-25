@@ -1,11 +1,13 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Bot, Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/auth-context';
 
 import { aiIdeTeacher } from '@/lib/actions';
 import type { AiIdeTeacherOutput } from '@/ai/flows/ai-ide-teacher';
@@ -41,8 +43,16 @@ const formSchema = z.object({
 });
 
 export default function IdeTeacherPage() {
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
   const [lesson, setLesson] = useState<AiIdeTeacherOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, authLoading, router]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -62,6 +72,14 @@ export default function IdeTeacherPage() {
       console.error("Failed to get lesson from AI.", error);
     }
     setIsLoading(false);
+  }
+
+  if (authLoading || !user) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="w-12 h-12 animate-spin text-primary" />
+      </div>
+    );
   }
 
   return (

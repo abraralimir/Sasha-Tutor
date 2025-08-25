@@ -1,6 +1,9 @@
+
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/auth-context';
 import { AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
 import type { GenerateCodingExerciseOutput } from '@/ai/flows/generate-coding-exercise';
 import type { AssessCodeOutput } from '@/ai/flows/assess-code-exercise';
@@ -28,6 +31,8 @@ import { PageHeader } from '@/components/page-header';
 import { cn } from '@/lib/utils';
 
 export default function ExercisesPage() {
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
   const [topic, setTopic] = useState('strings');
   const [difficulty, setDifficulty] = useState('easy');
   const [exercise, setExercise] = useState<GenerateCodingExerciseOutput | null>(
@@ -37,6 +42,12 @@ export default function ExercisesPage() {
   const [studentCode, setStudentCode] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [isAssessing, setIsAssessing] = useState(false);
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, authLoading, router]);
 
   const handleGenerate = async () => {
     setIsGenerating(true);
@@ -71,6 +82,14 @@ export default function ExercisesPage() {
       setIsAssessing(false);
     }
   };
+
+  if (authLoading || !user) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="w-12 h-12 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full">

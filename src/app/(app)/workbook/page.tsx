@@ -1,7 +1,9 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/auth-context';
 import { Bot, Loader2, Sparkles } from 'lucide-react';
 import { explainCode } from '@/lib/actions';
 import { PageHeader } from '@/components/page-header';
@@ -10,9 +12,17 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function WorkbookPage() {
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
   const [code, setCode] = useState('');
   const [explanation, setExplanation] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, authLoading, router]);
 
   const handleExplain = async () => {
     if (!code) return;
@@ -30,6 +40,14 @@ export default function WorkbookPage() {
       setIsLoading(false);
     }
   };
+
+  if (authLoading || !user) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="w-12 h-12 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full">
