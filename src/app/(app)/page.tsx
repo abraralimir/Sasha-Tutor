@@ -4,10 +4,12 @@
 import { useState, useEffect } from 'react';
 import { ArrowRight, BookOpen, Code, Table, Cloud, BarChart, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { getCourses, addCourse, Course } from '@/services/course-service';
+import { getCourses, Course } from '@/services/course-service';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { seedInitialCourses } from '@/services/seed';
+import { useAuth } from '@/context/auth-context';
+import { useRouter } from 'next/navigation';
 
 
 const ICONS: { [key: string]: React.ElementType } = {
@@ -22,6 +24,8 @@ const ICONS: { [key: string]: React.ElementType } = {
 export default function DashboardPage() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { user } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     const initializeCourses = async () => {
@@ -41,14 +45,23 @@ export default function DashboardPage() {
     initializeCourses();
   }, []);
   
+  const handleStartLearning = (courseId: string) => {
+    if (user) {
+      router.push(`/${courseId}/learning-path`);
+    } else {
+      router.push('/login');
+    }
+  };
+
   const featuredCourses = courses.filter(course => course.showOnHomepage);
+  const userName = user?.displayName?.split(' ')[0] || user?.email;
 
   return (
     <div className="flex flex-col h-full">
       <main className="flex-1 overflow-auto p-4 md:p-6">
         <div className="max-w-4xl mx-auto text-center py-12 md:py-20">
           <h1 className="text-4xl md:text-7xl font-bold tracking-tighter">
-            Your Personalized E-Learning Platform
+            {user ? `Welcome back, ${userName}!` : "Your Personalized E-Learning Platform"}
           </h1>
           <p className="mt-6 text-base md:text-xl text-muted-foreground max-w-2xl mx-auto">
             This is an interactive, AI-powered journey to master any subject. Just ask our AI in the search bar above to generate a custom course for you on any topic!
@@ -75,11 +88,9 @@ export default function DashboardPage() {
                                     <p className="text-muted-foreground">
                                         {course.chapters.length} chapters to build your skills from the ground up.
                                     </p>
-                                    <Link href={`/${course.id}/learning-path`} className="mt-4 inline-block">
-                                        <Button variant="outline">
-                                            Start Learning
-                                        </Button>
-                                    </Link>
+                                    <Button variant="outline" className="mt-4" onClick={() => handleStartLearning(course.id)}>
+                                        Start Learning
+                                    </Button>
                                 </CardContent>
                             </Card>
                         )

@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { getCourse, addCourse, formatGeneratedCourse } from '@/services/course-service';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/context/auth-context';
 
 export function AISearch() {
   const [isOpen, setIsOpen] = useState(false);
@@ -25,10 +26,17 @@ export function AISearch() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!query) return;
+
+    if (!user) {
+      router.push('/login');
+      setIsOpen(false);
+      return;
+    }
 
     setIsLoading(true);
     setError(null);

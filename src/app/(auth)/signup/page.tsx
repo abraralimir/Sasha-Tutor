@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, sendEmailVerification, updateProfile, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 
 import { Button } from '@/components/ui/button';
@@ -30,8 +30,10 @@ import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Separator } from '@/components/ui/separator';
 
 const formSchema = z.object({
+  fullName: z.string().min(2, { message: 'Full name must be at least 2 characters.' }),
   email: z.string().email({ message: 'Invalid email address.' }),
   password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
 });
@@ -40,11 +42,13 @@ export default function SignupPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      fullName: '',
       email: '',
       password: '',
     },
@@ -54,16 +58,45 @@ export default function SignupPage() {
     setIsLoading(true);
     setError(null);
     try {
-      await createUserWithEmailAndPassword(auth, values.email, values.password);
+      const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
+      await updateProfile(userCredential.user, { displayName: values.fullName });
+      await sendEmailVerification(userCredential.user);
+      
       toast({
         title: "Account Created",
-        description: "You have been successfully signed up.",
+        description: "A verification email has been sent. Please check your inbox.",
       });
       router.push('/');
     } catch (error: any) {
-        setError(error.message);
+        if (error.code === 'auth/email-already-in-use') {
+          setError('This email is already associated with an account. Please login instead.');
+        } else {
+          setError('An unexpected error occurred. Please try again.');
+        }
+        console.error(error);
     } finally {
       setIsLoading(false);
+    }
+  }
+
+  async function handleGoogleSignUp() {
+    setIsGoogleLoading(true);
+    setError(null);
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+      toast({
+        title: "Account Created",
+        description: "You have been successfully signed up with Google.",
+      });
+      router.push('/');
+    } catch (error: any) {
+       if (error.code !== 'auth/popup-closed-by-user') {
+          setError('Failed to sign up with Google. Please try again.');
+          console.error(error);
+       }
+    } finally {
+      setIsGoogleLoading(false);
     }
   }
 
@@ -76,15 +109,28 @@ export default function SignupPage() {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {error && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Signup Failed</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-             {error && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Signup Failed</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
+            <FormField
+              control={form.control}
+              name="fullName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Full Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="John Doe" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="email"
@@ -111,12 +157,24 @@ export default function SignupPage() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full" disabled={isLoading || isGoogleLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Create an account
             </Button>
           </form>
         </Form>
+        
+        <div className="relative my-6">
+          <Separator />
+          <span className="absolute left-1/2 -translate-x-1/2 top-[-10px] bg-card px-2 text-sm text-muted-foreground">OR</span>
+        </div>
+
+        <Button variant="outline" className="w-full" onClick={handleGoogleSignUp} disabled={isLoading || isGoogleLoading}>
+             {isGoogleLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512"><path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 126 23.4 172.9 61.9l-76.2 74.9C309.4 104.3 280.8 96 248 96c-88.8 0-160.1 71.1-160.1 160.1s71.3 160.1 160.1 160.1c98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"></path></svg>
+            Sign up with Google
+        </Button>
+
         <div className="mt-4 text-center text-sm">
           Already have an account?{' '}
           <Link href="/login" className="underline">
