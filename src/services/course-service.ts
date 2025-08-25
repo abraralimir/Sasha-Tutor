@@ -5,7 +5,6 @@ import {
   doc,
   getDoc,
   setDoc,
-  addDoc,
   deleteDoc,
   onSnapshot,
   query,
@@ -20,38 +19,52 @@ import {
   Timestamp,
 } from 'firebase/firestore';
 import type { GenerateCourseOutput } from "@/ai/flows/generate-course";
+import { z } from 'zod';
 
-// In a real application, this data would likely come from a database or a CMS.
-// For this prototype, we'll keep it in a local file.
-export interface QuizQuestion {
-    question: string;
-    options: string[];
-    correctAnswer: string;
-}
+// Zod schemas for validation, can be used by other parts of the app.
+export const QuizQuestionSchema = z.object({
+    question: z.string(),
+    options: z.array(z.string()),
+    correctAnswer: z.string(),
+});
 
-export type ContentBlock = 
-  | { type: 'text'; content: string }
-  | { type: 'interactiveCode'; description: string; expectedOutput: string };
+export const ContentBlockSchema = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('text'), content: z.string() }),
+  z.object({
+    type: z.literal('interactiveCode'),
+    description: z.string(),
+    expectedOutput: z.string(),
+  }),
+]);
 
-export interface Lesson {
-    id: string;
-    title: string;
-    content?: ContentBlock[]; // Changed from string to ContentBlock[]
-    quiz?: QuizQuestion[];
-}
+export const LessonSchema = z.object({
+    id: z.string(),
+    title: z.string(),
+    content: z.array(ContentBlockSchema).optional(),
+    quiz: z.array(QuizQuestionSchema).optional(),
+});
 
-export interface Chapter {
-    id: string;
-    title: string;
-    lessons: Lesson[];
-}
+export const ChapterSchema = z.object({
+    id: z.string(),
+    title: z.string(),
+    lessons: z.array(LessonSchema),
+});
 
-export interface Course {
-    id: string;
-    title: string;
-    chapters: Chapter[];
-    showOnHomepage?: boolean;
-}
+export const CourseSchema = z.object({
+    id: z.string(),
+    title: z.string(),
+    chapters: z.array(ChapterSchema),
+    showOnHomepage: z.boolean().optional(),
+});
+
+
+// TypeScript types inferred from Zod schemas
+export type QuizQuestion = z.infer<typeof QuizQuestionSchema>;
+export type ContentBlock = z.infer<typeof ContentBlockSchema>;
+export type Lesson = z.infer<typeof LessonSchema>;
+export type Chapter = z.infer<typeof ChapterSchema>;
+export type Course = z.infer<typeof CourseSchema>;
+
 
 // New interfaces for user data
 export interface UserCourse {
@@ -65,8 +78,6 @@ export interface UserProfile {
     email: string;
     displayName: string | null;
     courses: UserCourse[];
-    dailyGenerationCount?: number;
-    lastGenerationDate?: string;
 }
 
 const courseCollection = collection(db, 'courses');
@@ -136,18 +147,38 @@ export async function addCourse(course: Omit<Course, 'id'> & { id?: string }): P
   }
 }
 
-export async function addInitialCourses(courses: Course[]): Promise<void> {
+export async function addInitialCourses(courses: Course[], generateContent: (course: Course) => Promise<Course>): Promise<void> {
     const batch = writeBatch(db);
     const coursesQuery = query(collection(db, 'courses'));
     const existingCoursesSnapshot = await getDocs(coursesQuery);
-    const existingCourseIds = new Set(existingCoursesSnapshot.docs.map(doc => doc.id));
+    const existingCourses = new Map(existingCoursesSnapshot.docs.map(doc => [doc.id, doc.data() as Course]));
 
-    courses.forEach(course => {
-        if (!existingCourseIds.has(course.id)) {
+    for (const course of courses) {
+        const existingCourse = existingCourses.get(course.id);
+        const isContentEmpty = !existingCourse || existingCourse.chapters.some(c => c.lessons.some(l => !l.content || l.content.length === 0));
+
+        // Only generate content if the course is new or has empty lessons and is featured
+        if (course.showOnHomepage && isContentEmpty) {
+             console.log(`Featured course "${course.title}" needs content. Generating...`);
+             try {
+                const courseWithContent = await generateContent(course);
+                const docRef = doc(db, 'courses', courseWithContent.id);
+                batch.set(docRef, courseWithContent);
+                console.log(`Content generated for "${course.title}".`);
+             } catch (error) {
+                console.error(`Failed to generate content for ${course.title}. Saving without content.`, error);
+                // Save the course without content if generation fails
+                if (!existingCourse) {
+                    const docRef = doc(db, 'courses', course.id);
+                    batch.set(docRef, course);
+                }
+             }
+        } else if (!existingCourse) {
+            // If it's not a featured course and doesn't exist, just add it
             const docRef = doc(db, 'courses', course.id);
             batch.set(docRef, course);
         }
-    });
+    }
 
     await batch.commit();
 }

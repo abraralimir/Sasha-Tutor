@@ -15,3 +15,4 @@ import '@/ai/flows/generate-course.ts';
 import '@/ai/flows/generate-lesson-content.ts';
 import '@/ai/flows/send-notification.ts';
 import '@/ai/flows/complete-note.ts';
+import '@/ai/flows/generate-full-course-content.ts';
