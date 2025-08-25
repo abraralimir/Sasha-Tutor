@@ -28,14 +28,15 @@ export const QuizQuestionSchema = z.object({
     correctAnswer: z.string(),
 });
 
-export const ContentBlockSchema = z.discriminatedUnion('type', [
-  z.object({ type: z.literal('text'), content: z.string() }),
-  z.object({
-    type: z.literal('interactiveCode'),
-    description: z.string(),
-    expectedOutput: z.string(),
-  }),
-]);
+// Refactored schema to avoid z.discriminatedUnion which can cause issues with some model backends.
+// This schema is more explicit and compatible.
+export const ContentBlockSchema = z.object({
+  type: z.enum(['text', 'interactiveCode']),
+  content: z.string().optional().describe("The text content for a 'text' block."),
+  description: z.string().optional().describe("The exercise description for an 'interactiveCode' block."),
+  expectedOutput: z.string().optional().describe("The expected code answer for an 'interactiveCode' block."),
+});
+
 
 export const LessonSchema = z.object({
     id: z.string(),
@@ -353,3 +354,5 @@ export async function updateUserLessonProgress(uid: string, courseId: string, le
     
     await updateDoc(userRef, { courses: updatedCourses });
 }
+
+    

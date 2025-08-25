@@ -36,15 +36,22 @@ import {
 } from '@/components/ui/accordion';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-const contentBlockSchema = z.discriminatedUnion('type', [
-  z.object({ type: z.literal('text'), content: z.string().min(1, 'Text content cannot be empty.') }),
-  z.object({
-    type: z.literal('interactiveCode'),
-    description: z.string().min(1, 'Description is required.'),
-    expectedOutput: z.string().min(1, 'Expected output is required.'),
-  }),
-]);
+
+const contentBlockSchema = z.object({
+  type: z.enum(['text', 'interactiveCode']),
+  content: z.string().optional(),
+  description: z.string().optional(),
+  expectedOutput: z.string().optional(),
+}).refine(data => {
+    if (data.type === 'text') return !!data.content;
+    if (data.type === 'interactiveCode') return !!data.description && !!data.expectedOutput;
+    return false;
+}, {
+    message: 'Required fields are missing for the selected block type.'
+});
+
 
 const lessonSchema = z.object({
   id: z.string().default(() => `lesson-${Date.now()}-${Math.random()}`),
@@ -304,7 +311,7 @@ function LessonsArray({ chapterIndex }: { chapterIndex: number }) {
 }
 
 function LessonContentArray({ chapterIndex, lessonIndex }: { chapterIndex: number, lessonIndex: number }) {
-    const { control } = useFormContext<CourseFormData>();
+    const { control, watch } = useFormContext<CourseFormData>();
     const { fields, append, remove } = useFieldArray({
       control,
       name: `chapters.${chapterIndex}.lessons.${lessonIndex}.content`,
@@ -324,63 +331,89 @@ function LessonContentArray({ chapterIndex, lessonIndex }: { chapterIndex: numbe
                     </Button>
                 </div>
             </div>
-            {fields.map((field, index) => (
-                <Card key={field.id} className="bg-muted/50 p-4">
-                     <div className='flex justify-between items-start mb-4'>
-                         <p className='font-medium pt-2 capitalize'>
-                            {`Block ${index + 1}: ${field.type === 'text' ? 'Text' : 'Interactive Code'}`}
-                         </p>
-                         <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)}>
-                            <Trash className="h-4 w-4" />
-                        </Button>
-                    </div>
-                    {field.type === 'text' && (
+            {fields.map((field, index) => {
+                const blockType = watch(`chapters.${chapterIndex}.lessons.${lessonIndex}.content.${index}.type`);
+                return (
+                    <Card key={field.id} className="bg-muted/50 p-4">
+                        <div className='flex justify-between items-start mb-4'>
+                            <p className='font-medium pt-2 capitalize'>
+                                {`Block ${index + 1}`}
+                            </p>
+                            <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)}>
+                                <Trash className="h-4 w-4" />
+                            </Button>
+                        </div>
                          <FormField
                             control={control}
-                            name={`chapters.${chapterIndex}.lessons.${lessonIndex}.content.${index}.content`}
+                            name={`chapters.${chapterIndex}.lessons.${lessonIndex}.content.${index}.type`}
                             render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Text Content (Markdown)</FormLabel>
-                                <FormControl>
-                                <Textarea rows={5} placeholder="Write your lesson content here..." {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
+                                <FormItem>
+                                    <FormLabel>Block Type</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select a block type" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="text">Text</SelectItem>
+                                            <SelectItem value="interactiveCode">Interactive Code</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
                             )}
                         />
-                    )}
-                    {field.type === 'interactiveCode' && (
-                        <div className="space-y-4">
+                        {blockType === 'text' && (
                             <FormField
                                 control={control}
-                                name={`chapters.${chapterIndex}.lessons.${lessonIndex}.content.${index}.description`}
+                                name={`chapters.${chapterIndex}.lessons.${lessonIndex}.content.${index}.content`}
                                 render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Exercise Description</FormLabel>
+                                <FormItem className="mt-4">
+                                    <FormLabel>Text Content (Markdown)</FormLabel>
                                     <FormControl>
-                                    <Input placeholder="A clear, simple instruction for the student" {...field} />
+                                    <Textarea rows={5} placeholder="Write your lesson content here..." {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                                 )}
                             />
-                             <FormField
-                                control={control}
-                                name={`chapters.${chapterIndex}.lessons.${lessonIndex}.content.${index}.expectedOutput`}
-                                render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Expected Answer (Code)</FormLabel>
-                                    <FormControl>
-                                    <Input placeholder="The exact, single-line of code that is the correct answer" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                                )}
-                            />
-                        </div>
-                    )}
-                </Card>
-            ))}
+                        )}
+                        {blockType === 'interactiveCode' && (
+                            <div className="space-y-4 mt-4">
+                                <FormField
+                                    control={control}
+                                    name={`chapters.${chapterIndex}.lessons.${lessonIndex}.content.${index}.description`}
+                                    render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Exercise Description</FormLabel>
+                                        <FormControl>
+                                        <Input placeholder="A clear, simple instruction for the student" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={control}
+                                    name={`chapters.${chapterIndex}.lessons.${lessonIndex}.content.${index}.expectedOutput`}
+                                    render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Expected Answer (Code)</FormLabel>
+                                        <FormControl>
+                                        <Input placeholder="The exact, single-line of code that is the correct answer" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                    )}
+                                />
+                            </div>
+                        )}
+                    </Card>
+                )
+            })}
         </div>
     )
 }
+
+    
