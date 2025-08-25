@@ -90,48 +90,35 @@ export default function SignupPage() {
     }
   }
 
-  async function handleGoogleSignUp() {
-    setIsGoogleLoading(true);
+  const handleSocialSignUp = async (provider: GoogleAuthProvider | OAuthProvider) => {
     setError(null);
     try {
-      const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
       toast({
         title: "Account Created",
-        description: "You have been successfully signed up with Google.",
+        description: "You have been successfully signed up.",
       });
       router.push('/');
     } catch (error: any) {
-       if (error.code !== 'auth/popup-closed-by-user') {
-          setError('Failed to sign up with Google. Please try again.');
-          console.error(error);
+       console.error("Social sign-up error:", error);
+       if (error.code === 'auth/account-exists-with-different-credential') {
+        setError('An account already exists with this email using a different sign-in method. Try logging in with the original method.');
+      } else if (error.code !== 'auth/popup-closed-by-user') {
+          setError('Failed to sign up. Please try again.');
        }
-    } finally {
-      setIsGoogleLoading(false);
     }
+  };
+
+  async function handleGoogleSignUp() {
+    setIsGoogleLoading(true);
+    await handleSocialSignUp(new GoogleAuthProvider());
+    setIsGoogleLoading(false);
   }
   
   async function handleAppleSignUp() {
     setIsAppleLoading(true);
-    setError(null);
-    try {
-      const provider = new OAuthProvider('apple.com');
-      await signInWithPopup(auth, provider);
-      toast({
-        title: "Account Created",
-        description: "You have been successfully signed up with Apple.",
-      });
-      router.push('/');
-    } catch (error: any) {
-       if (error.code === 'auth/account-exists-with-different-credential') {
-        setError('An account already exists with the same email address but different sign-in credentials. Please sign in using a provider associated with this email address.');
-      } else if (error.code !== 'auth/popup-closed-by-user') {
-          setError('Failed to sign up with Apple. Please try again.');
-          console.error(error);
-       }
-    } finally {
-      setIsAppleLoading(false);
-    }
+    await handleSocialSignUp(new OAuthProvider('apple.com'));
+    setIsAppleLoading(false);
   }
 
   return (

@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, OAuthProvider } from 'firebase/auth';
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, OAuthProvider, getRedirectResult } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 
 import { Button } from '@/components/ui/button';
@@ -78,48 +78,35 @@ export default function LoginPage() {
     }
   }
 
-  async function handleGoogleLogin() {
-    setIsGoogleLoading(true);
+  const handleSocialLogin = async (provider: GoogleAuthProvider | OAuthProvider) => {
     setError(null);
     try {
-      const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
       toast({
         title: "Login Successful",
-        description: "Welcome back!",
+        description: "Welcome!",
       });
       router.push('/');
     } catch (error: any) {
-       if (error.code !== 'auth/popup-closed-by-user') {
-          setError('Failed to login with Google. Please try again.');
-          console.error(error);
-       }
-    } finally {
-      setIsGoogleLoading(false);
+      console.error("Social login error:", error);
+      if (error.code === 'auth/account-exists-with-different-credential') {
+        setError('An account already exists with this email using a different sign-in method. Try logging in with the original method.');
+      } else if (error.code !== 'auth/popup-closed-by-user') {
+        setError('Failed to login. Please try again.');
+      }
     }
+  };
+
+  async function handleGoogleLogin() {
+    setIsGoogleLoading(true);
+    await handleSocialLogin(new GoogleAuthProvider());
+    setIsGoogleLoading(false);
   }
   
   async function handleAppleLogin() {
     setIsAppleLoading(true);
-    setError(null);
-    try {
-      const provider = new OAuthProvider('apple.com');
-      await signInWithPopup(auth, provider);
-      toast({
-        title: "Login Successful",
-        description: "Welcome back!",
-      });
-      router.push('/');
-    } catch (error: any) {
-      if (error.code === 'auth/account-exists-with-different-credential') {
-        setError('An account already exists with the same email address but different sign-in credentials. Please sign in using a provider associated with this email address.');
-      } else if (error.code !== 'auth/popup-closed-by-user') {
-        setError('Failed to login with Apple. Please try again.');
-        console.error(error);
-      }
-    } finally {
-      setIsAppleLoading(false);
-    }
+    await handleSocialLogin(new OAuthProvider('apple.com'));
+    setIsAppleLoading(false);
   }
 
   return (
