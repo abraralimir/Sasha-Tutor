@@ -281,6 +281,28 @@ export async function associateCourseWithUser(uid: string, courseId: string): Pr
     }, { merge: true });
 }
 
+export async function removeCourseFromUserProfile(uid: string, courseId: string): Promise<void> {
+    const userRef = doc(db, 'users', uid);
+    const userProfile = await getUserProfile(uid);
+
+    if (!userProfile || !userProfile.courses) {
+        console.log("User profile or courses not found.");
+        return;
+    }
+
+    const courseToRemove = userProfile.courses.find(c => c.courseId === courseId);
+
+    if (!courseToRemove) {
+        console.log("Course not found in user's profile.");
+        return;
+    }
+    
+    await updateDoc(userRef, {
+        courses: arrayRemove(courseToRemove)
+    });
+}
+
+
 export async function updateUserLessonProgress(uid: string, courseId: string, lessonId: string, completed: boolean): Promise<void> {
     const userRef = doc(db, 'users', uid);
     const userProfile = await getUserProfile(uid);

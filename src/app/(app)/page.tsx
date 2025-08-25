@@ -2,16 +2,33 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ArrowRight, BookOpen, Code, Table, Cloud, BarChart, Loader2, Bell } from 'lucide-react';
+import { ArrowRight, BookOpen, Code, Table, Cloud, BarChart, Loader2, Bell, MoreVertical, Trash2 } from 'lucide-react';
 import Link from 'next/link';
-import { getCourses, Course, UserProfile, getUserProfileStream } from '@/services/course-service';
+import { getCourses, Course, UserProfile, getUserProfileStream, removeCourseFromUserProfile } from '@/services/course-service';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { seedInitialCourses } from '@/services/seed';
 import { useAuth } from '@/context/auth-context';
 import { useRouter } from 'next/navigation';
 import { useFcmToken } from '@/lib/fcm';
+import { useToast } from '@/hooks/use-toast';
 
 
 const ICONS: { [key: string]: React.ElementType } = {
@@ -23,42 +40,85 @@ const ICONS: { [key: string]: React.ElementType } = {
   default: BookOpen,
 };
 
-function CourseCard({ course, progress, completedLessons, totalLessons, onStart }: {
+function CourseCard({ course, progress, completedLessons, totalLessons, onStart, onRemove }: {
   course: Course;
   progress?: number;
   completedLessons?: number;
   totalLessons?: number;
   onStart: (courseId: string) => void;
+  onRemove?: (courseId: string) => void;
 }) {
   const Icon = ICONS[course.id] || ICONS.default;
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  
+  const handleRemove = () => {
+    if (onRemove) {
+        onRemove(course.id);
+    }
+    setIsAlertOpen(false);
+  }
+
   return (
-    <Card className="hover:shadow-lg transition-shadow flex flex-col">
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <CardTitle>{course.title}</CardTitle>
-          <Icon className="w-8 h-8 text-primary" />
-        </div>
-      </CardHeader>
-      <CardContent className="flex-1">
-        {progress !== undefined && totalLessons !== undefined && completedLessons !== undefined ? (
-          <>
+    <>
+      <Card className="hover:shadow-lg transition-shadow flex flex-col">
+        <CardHeader>
+          <div className="flex items-start justify-between">
+            <CardTitle>{course.title}</CardTitle>
+            <div className="flex items-center gap-2">
+              <Icon className="w-8 h-8 text-primary" />
+              {onRemove && (
+                 <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => setIsAlertOpen(true)} className="text-destructive">
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Remove from Path
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="flex-1">
+          {progress !== undefined && totalLessons !== undefined && completedLessons !== undefined ? (
+            <>
+              <p className="text-muted-foreground text-sm">
+                {completedLessons} of {totalLessons} lessons completed.
+              </p>
+              <Progress value={progress} className="mt-2" />
+            </>
+          ) : (
             <p className="text-muted-foreground text-sm">
-              {completedLessons} of {totalLessons} lessons completed.
+              {course.chapters.reduce((acc, chap) => acc + chap.lessons.length, 0)} lessons to master.
             </p>
-            <Progress value={progress} className="mt-2" />
-          </>
-        ) : (
-          <p className="text-muted-foreground text-sm">
-            {course.chapters.reduce((acc, chap) => acc + chap.lessons.length, 0)} lessons to master.
-          </p>
-        )}
-      </CardContent>
-      <CardFooter>
-        <Button className="w-full" onClick={() => onStart(course.id)}>
-          {progress !== undefined && progress > 0 ? 'Continue Learning' : 'Start Learning'} <ArrowRight className="ml-2" />
-        </Button>
-      </CardFooter>
-    </Card>
+          )}
+        </CardContent>
+        <CardFooter>
+          <Button className="w-full" onClick={() => onStart(course.id)}>
+            {progress !== undefined && progress > 0 ? 'Continue Learning' : 'Start Learning'} <ArrowRight className="ml-2" />
+          </Button>
+        </CardFooter>
+      </Card>
+      <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will remove the course and your progress from your learning path. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleRemove}>Continue</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   )
 }
 
@@ -70,6 +130,7 @@ export default function DashboardPage() {
   const { user } = useAuth();
   const router = useRouter();
   const { retrieveToken } = useFcmToken();
+  const { toast } = useToast();
 
   useEffect(() => {
     const initializeData = async () => {
@@ -78,7 +139,7 @@ export default function DashboardPage() {
 
       const unsubscribeCourses = getCourses((data, err) => {
         if (!err) {
-          setAllCourses(data);
+          setAllCourses(data.filter(c => c.showOnHomepage));
         }
       });
 
@@ -107,10 +168,32 @@ export default function DashboardPage() {
       router.push(`/${courseId}/learning-path`);
   };
 
+  const handleRemoveCourse = async (courseId: string) => {
+    if (!user) return;
+    try {
+        await removeCourseFromUserProfile(user.uid, courseId);
+        toast({
+            title: "Course Removed",
+            description: "The course has been removed from your learning path.",
+        });
+    } catch (error) {
+        toast({
+            title: "Error",
+            description: "Failed to remove the course. Please try again.",
+            variant: "destructive"
+        });
+        console.error("Failed to remove course", error);
+    }
+  };
+
   const userCourses = (userProfile?.courses || [])
     .map(userCourse => {
         const courseDetails = allCourses.find(c => c.id === userCourse.courseId);
-        if (!courseDetails) return null;
+        if (!courseDetails) {
+            // This can happen if a course is deleted by an admin but still in user's profile
+            // We could fetch the course details individually here if needed
+            return null;
+        };
 
         const totalLessons = courseDetails.chapters.reduce((acc, chap) => acc + chap.lessons.length, 0);
         const completedLessons = userCourse.completedLessons.length;
@@ -164,6 +247,7 @@ export default function DashboardPage() {
                             completedLessons={course.completedLessons}
                             totalLessons={course.totalLessons}
                             onStart={handleStartLearning}
+                            onRemove={handleRemoveCourse}
                         />
                     ))}
                     </div>
