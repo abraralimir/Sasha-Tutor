@@ -6,12 +6,11 @@
  * - sendNotification - A function that sends a notification.
  * - SendNotificationInput - The input type for the sendNotification function.
  */
-import { initializeApp, getApps, getApp } from 'firebase-admin/app';
+import { initializeApp, getApps } from 'firebase-admin/app';
 import { getMessaging } from 'firebase-admin/messaging';
 import { getFirestore } from 'firebase-admin/firestore';
 import { z } from 'zod';
 import { ai } from '@/ai/genkit';
-
 
 // Initialize Firebase Admin SDK
 if (!getApps().length) {
@@ -21,11 +20,11 @@ if (!getApps().length) {
 const db = getFirestore();
 const messaging = getMessaging();
 
-export const SendNotificationInputSchema = z.object({
-  title: z.string().describe('The title of the notification.'),
-  body: z.string().describe('The main message content of the notification.'),
-});
-export type SendNotificationInput = z.infer<typeof SendNotificationInputSchema>;
+// Define the input type for the function, which is allowed.
+export type SendNotificationInput = {
+  title: string;
+  body: string;
+};
 
 export async function sendNotification(input: SendNotificationInput): Promise<{ success: boolean; message: string }> {
     return sendNotificationFlow(input);
@@ -34,7 +33,11 @@ export async function sendNotification(input: SendNotificationInput): Promise<{ 
 const sendNotificationFlow = ai.defineFlow(
   {
     name: 'sendNotificationFlow',
-    inputSchema: SendNotificationInputSchema,
+    // Define the Zod schema inline here so it doesn't need to be exported.
+    inputSchema: z.object({
+      title: z.string().describe('The title of the notification.'),
+      body: z.string().describe('The main message content of the notification.'),
+    }),
     outputSchema: z.object({
       success: z.boolean(),
       message: z.string(),
@@ -68,6 +71,29 @@ const sendNotificationFlow = ai.defineFlow(
       
       const successCount = response.successCount;
       const failureCount = response.failureCount;
+
+      // Clean up invalid tokens
+      const tokensToDelete: string[] = [];
+      response.responses.forEach((result, index) => {
+        if (!result.success) {
+          const error = result.error;
+          if (error && (error.code === 'messaging/registration-token-not-registered' || error.code === 'messaging/invalid-registration-token')) {
+            const invalidToken = tokens[index];
+            tokensToDelete.push(invalidToken);
+            console.log(`Marking token for deletion: ${invalidToken}`);
+          }
+        }
+      });
+
+      if (tokensToDelete.length > 0) {
+        const batch = db.batch();
+        tokensToDelete.forEach(token => {
+            const tokenRef = db.collection('fcmTokens').doc(token);
+            batch.delete(tokenRef);
+        });
+        await batch.commit();
+        console.log(`Deleted ${tokensToDelete.length} invalid tokens.`);
+      }
 
       return {
         success: true,
