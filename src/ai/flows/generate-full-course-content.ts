@@ -34,7 +34,7 @@ export async function generateFullCourseContent(input: GenerateFullCourseContent
 
 const prompt = ai.definePrompt({
   name: 'generateFullCourseContentPrompt',
-  input: { schema: GenerateFullCourseContentInputSchema },
+  input: { schema: GenerateFullCourseContentInputSchema.extend({ chaptersJson: z.string() }) },
   output: { schema: GenerateFullCourseContentOutputSchema },
   prompt: `You are an expert curriculum designer and educator named Sasha. Your task is to take a given course outline and generate comprehensive content for every single lesson.
 
@@ -54,7 +54,7 @@ Return the complete course object, with the generated content added to each less
 
 Course Structure to be filled:
 ---
-{{{JSON.stringify chapters}}}
+{{{chaptersJson}}}
 ---
 `,
 });
@@ -67,7 +67,10 @@ const generateFullCourseContentFlow = ai.defineFlow(
   },
   async (input) => {
     console.log(`Starting full course generation for: ${input.title}`);
-    const { output } = await prompt(input);
+    const { output } = await prompt({
+        ...input,
+        chaptersJson: JSON.stringify(input.chapters, null, 2),
+    });
     console.log(`Finished full course generation for: ${input.title}`);
 
     if (!output) {
