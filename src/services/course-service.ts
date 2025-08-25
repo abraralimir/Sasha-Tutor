@@ -230,7 +230,12 @@ export async function getUserProfile(uid: string): Promise<UserProfile | null> {
         const userRef = doc(db, 'users', uid);
         const docSnap = await getDoc(userRef);
         if (docSnap.exists()) {
-            return docSnap.data() as UserProfile;
+            // Ensure courses array exists
+            const data = docSnap.data();
+            if (!data.courses) {
+                data.courses = [];
+            }
+            return data as UserProfile;
         }
         return null;
     } catch (error) {
@@ -242,7 +247,15 @@ export async function getUserProfile(uid: string): Promise<UserProfile | null> {
 export function getUserProfileStream(uid: string, callback: (profile: UserProfile | null) => void): () => void {
     const userRef = doc(db, 'users', uid);
     return onSnapshot(userRef, (doc) => {
-        callback(doc.exists() ? doc.data() as UserProfile : null);
+        if (doc.exists()) {
+            const data = doc.data();
+            if (!data.courses) {
+                data.courses = [];
+            }
+            callback(data as UserProfile);
+        } else {
+            callback(null);
+        }
     });
 }
 
@@ -250,7 +263,8 @@ export async function associateCourseWithUser(uid: string, courseId: string): Pr
     const userRef = doc(db, 'users', uid);
     const userProfile = await getUserProfile(uid);
 
-    if (userProfile && userProfile.courses.some(c => c.courseId === courseId)) {
+    // Safely check if the courses array exists and if the course is already associated
+    if (userProfile && (userProfile.courses || []).some(c => c.courseId === courseId)) {
         console.log("User already has this course.");
         return;
     }
@@ -261,9 +275,10 @@ export async function associateCourseWithUser(uid: string, courseId: string): Pr
         completedLessons: [],
     };
     
-    await updateDoc(userRef, {
+    // Use setDoc with merge to initialize the courses array if it doesn't exist
+    await setDoc(userRef, {
         courses: arrayUnion(newCourse)
-    });
+    }, { merge: true });
 }
 
 export async function updateUserLessonProgress(uid: string, courseId: string, lessonId: string, completed: boolean): Promise<void> {
@@ -271,7 +286,7 @@ export async function updateUserLessonProgress(uid: string, courseId: string, le
     const userProfile = await getUserProfile(uid);
     if (!userProfile) return;
 
-    const courseIndex = userProfile.courses.findIndex(c => c.courseId === courseId);
+    const courseIndex = (userProfile.courses || []).findIndex(c => c.courseId === courseId);
     if (courseIndex === -1) return;
 
     const updatedCourses = [...userProfile.courses];
