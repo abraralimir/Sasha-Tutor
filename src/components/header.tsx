@@ -27,6 +27,7 @@ import { useAuth } from '@/context/auth-context';
 import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
+import { RateLimitHeader } from './rate-limit-header';
 
 const tools = [
   {
@@ -235,6 +236,7 @@ export function Header() {
           </div>
         </div>
       </div>
+      <RateLimitHeader />
     </header>
   );
 }

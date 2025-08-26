@@ -12,6 +12,7 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import { ContentBlockSchema } from '@/services/course-service';
+import { checkAndIncrementRateLimit } from '@/services/rate-limit-service';
 
 
 const GenerateLessonContentInputSchema = z.object({
@@ -59,6 +60,11 @@ const generateLessonContentFlow = ai.defineFlow(
     outputSchema: GenerateLessonContentOutputSchema,
   },
   async input => {
+    const rateLimit = await checkAndIncrementRateLimit();
+    if (rateLimit.isExceeded) {
+      throw new Error(rateLimit.message);
+    }
+    
     const {output} = await prompt(input);
     return output!;
   }

@@ -11,22 +11,12 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { CourseSchema, ChapterSchema as FullChapterSchema, LessonSchema as FullLessonSchema } from '@/services/course-service';
+import { CourseSchema } from '@/services/course-service';
 import { generateLessonContent } from './generate-lesson-content';
+import { checkAndIncrementRateLimit } from '@/services/rate-limit-service';
 
-// We only need the structure, not the content, for the input.
-const LessonOutlineSchema = FullLessonSchema.omit({ content: true, quiz: true });
-const ChapterOutlineSchema = FullChapterSchema.omit({ lessons: true }).extend({
-    lessons: z.array(LessonOutlineSchema)
-});
-const GenerateFullCourseContentInputSchema = CourseSchema.omit({ chapters: true }).extend({
-    chapters: z.array(ChapterOutlineSchema)
-});
-export type GenerateFullCourseContentInput = z.infer<typeof GenerateFullCourseContentInputSchema>;
-
-
-const GenerateFullCourseContentOutputSchema = CourseSchema;
-export type GenerateFullCourseContentOutput = z.infer<typeof GenerateFullCourseContentOutputSchema>;
+export type GenerateFullCourseContentInput = z.infer<typeof CourseSchema>;
+export type GenerateFullCourseContentOutput = z.infer<typeof CourseSchema>;
 
 
 export async function generateFullCourseContent(input: GenerateFullCourseContentInput): Promise<GenerateFullCourseContentOutput> {
@@ -36,10 +26,15 @@ export async function generateFullCourseContent(input: GenerateFullCourseContent
 const generateFullCourseContentFlow = ai.defineFlow(
   {
     name: 'generateFullCourseContentFlow',
-    inputSchema: GenerateFullCourseContentInputSchema,
-    outputSchema: GenerateFullCourseContentOutputSchema,
+    inputSchema: CourseSchema,
+    outputSchema: CourseSchema,
   },
   async (courseOutline) => {
+    const rateLimit = await checkAndIncrementRateLimit();
+    if (rateLimit.isExceeded) {
+      throw new Error(rateLimit.message);
+    }
+    
     console.log(`Starting full course generation for: ${courseOutline.title}`);
 
     const updatedChapters = await Promise.all(

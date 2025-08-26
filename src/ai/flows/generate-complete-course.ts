@@ -13,6 +13,7 @@ import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import { generateCourse } from './generate-course';
 import { CourseSchema, Course } from '@/services/course-service';
+import { checkAndIncrementRateLimit } from '@/services/rate-limit-service';
 
 const GenerateCompleteCourseInputSchema = z.object({
   topic: z.string().describe('The topic for the new course.'),
@@ -33,6 +34,11 @@ const generateCompleteCourseFlow = ai.defineFlow(
     outputSchema: CourseSchema,
   },
   async ({ topic, userId }) => {
+    const rateLimit = await checkAndIncrementRateLimit();
+    if (rateLimit.isExceeded) {
+      throw new Error(rateLimit.message);
+    }
+
     console.log(`Starting course outline generation for topic: ${topic}`);
 
     // Step 1: Generate the course outline (chapters and lessons)

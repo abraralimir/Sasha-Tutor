@@ -12,6 +12,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
+import { checkAndIncrementRateLimit } from '@/services/rate-limit-service';
 
 const GenerateCourseInputSchema = z.object({
   topic: z.string().describe('The topic the user wants to learn about. e.g., "Excel", "Java", "SAP FICO"'),
@@ -67,8 +68,11 @@ const generateCourseFlow = ai.defineFlow(
     outputSchema: GenerateCourseOutputSchema,
   },
   async ({ topic, userId }) => {
-    // NOTE: Rate limiting was removed to resolve a server authentication error.
-    // The logic can be re-introduced once the environment's ADC or service account is configured correctly.
+    const rateLimit = await checkAndIncrementRateLimit();
+    if (rateLimit.isExceeded) {
+      throw new Error(rateLimit.message);
+    }
+
     const { output: courseOutline } = await prompt({ topic, userId });
     return courseOutline!;
   }
