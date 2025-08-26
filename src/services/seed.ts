@@ -1,6 +1,5 @@
 
 import { addInitialCourses, Course } from './course-service';
-import { generateFullCourseContent } from '@/lib/actions';
 
 const initialCourses: Omit<Course, 'chapters'> & { chapters: Omit<Course['chapters'][0], 'lessons'> & { lessons: Omit<Course['chapters'][0]['lessons'][0], 'content' | 'quiz'>[] }[] }[] = [
     {
@@ -104,8 +103,8 @@ const getFullCourses = (): Course[] => {
             ...chapter,
             lessons: chapter.lessons.map(lesson => ({
                 ...lesson,
-                content: [], // Initialize with empty content, to be filled by AI
-                quiz: []      // Initialize with empty quiz, to be filled by AI
+                content: [], // Initialize with empty content, to be filled by AI on demand
+                quiz: []      // Initialize with empty quiz, to be filled by AI on demand
             }))
         }))
     }));
@@ -116,9 +115,9 @@ export async function seedInitialCourses() {
     console.log('Seeding initial courses to Firestore...');
     try {
         const coursesToSeed = getFullCourses();
-        // The generateFullCourseContent function will be passed to addInitialCourses
-        // to be called for any featured courses that need content.
-        await addInitialCourses(coursesToSeed, generateFullCourseContent);
+        // This will now only seed the course structure if it doesn't exist,
+        // without generating content, to avoid hitting API rate limits.
+        await addInitialCourses(coursesToSeed);
         console.log('Initial courses have been successfully seeded.');
     } catch (error) {
         console.error('Error seeding initial courses:', error);

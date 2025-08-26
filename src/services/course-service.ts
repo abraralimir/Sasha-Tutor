@@ -28,13 +28,18 @@ export const QuizQuestionSchema = z.object({
     correctAnswer: z.string(),
 });
 
-// Refactored schema to avoid z.discriminatedUnion which can cause issues with some model backends.
-// This schema is more explicit and compatible.
+// Refactored schema to be more explicit and compatible with the Google AI API.
 export const ContentBlockSchema = z.object({
   type: z.enum(['text', 'interactiveCode']),
   content: z.string().optional().describe("The text content for a 'text' block."),
   description: z.string().optional().describe("The exercise description for an 'interactiveCode' block."),
   expectedOutput: z.string().optional().describe("The expected code answer for an 'interactiveCode' block."),
+}).refine(data => {
+    if (data.type === 'text') return typeof data.content === 'string';
+    if (data.type === 'interactiveCode') return typeof data.description === 'string' && typeof data.expectedOutput === 'string';
+    return false;
+}, {
+    message: 'Required fields are missing for the selected block type.'
 });
 
 
@@ -148,38 +153,18 @@ export async function addCourse(course: Omit<Course, 'id'> & { id?: string }): P
   }
 }
 
-export async function addInitialCourses(courses: Course[], generateContent: (course: Course) => Promise<Course>): Promise<void> {
+export async function addInitialCourses(courses: Course[]): Promise<void> {
     const batch = writeBatch(db);
     const coursesQuery = query(collection(db, 'courses'));
     const existingCoursesSnapshot = await getDocs(coursesQuery);
-    const existingCourses = new Map(existingCoursesSnapshot.docs.map(doc => [doc.id, doc.data() as Course]));
+    const existingCourseIds = new Set(existingCoursesSnapshot.docs.map(doc => doc.id));
 
-    for (const course of courses) {
-        const existingCourse = existingCourses.get(course.id);
-        const isContentEmpty = !existingCourse || existingCourse.chapters.some(c => c.lessons.some(l => !l.content || l.content.length === 0));
-
-        // Only generate content if the course is new or has empty lessons and is featured
-        if (course.showOnHomepage && isContentEmpty) {
-             console.log(`Featured course "${course.title}" needs content. Generating...`);
-             try {
-                const courseWithContent = await generateContent(course);
-                const docRef = doc(db, 'courses', courseWithContent.id);
-                batch.set(docRef, courseWithContent);
-                console.log(`Content generated for "${course.title}".`);
-             } catch (error) {
-                console.error(`Failed to generate content for ${course.title}. Saving without content.`, error);
-                // Save the course without content if generation fails
-                if (!existingCourse) {
-                    const docRef = doc(db, 'courses', course.id);
-                    batch.set(docRef, course);
-                }
-             }
-        } else if (!existingCourse) {
-            // If it's not a featured course and doesn't exist, just add it
+    courses.forEach(course => {
+        if (!existingCourseIds.has(course.id)) {
             const docRef = doc(db, 'courses', course.id);
             batch.set(docRef, course);
         }
-    }
+    });
 
     await batch.commit();
 }
