@@ -113,7 +113,7 @@ export function AISearch({ isDisabled = false }: { isDisabled?: boolean }) {
           isDisabled && 'opacity-50 cursor-not-allowed'
         )}
       >
-         <div className="absolute inset-[-1px] -z-10 rounded-[inherit] bg-[conic-gradient(from_0deg_at_50%_50%,hsl(var(--primary))_0%,transparent_10%,transparent_90%,hsl(var(--primary))_100%)] opacity-20 group-hover:opacity-100 transition-opacity duration-500 animate-[spin_4s_linear_infinite]"></div>
+         <div className="absolute inset-[-1px] rounded-[inherit] bg-[conic-gradient(from_0deg_at_50%_50%,hsl(var(--primary))_0%,transparent_10%,transparent_90%,hsl(var(--primary))_100%)] opacity-20 group-hover:opacity-100 transition-opacity duration-500 animate-[spin_4s_linear_infinite]"></div>
         <Search className="h-4 w-4 mr-2" />
         Ask AI to create a course...
       </button>
