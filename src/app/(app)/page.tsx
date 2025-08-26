@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ArrowRight, BookOpen, Code, Table, Cloud, BarChart, Loader2, Bell, MoreVertical, Trash2 } from 'lucide-react';
+import { ArrowRight, BookOpen, Code, Table, Cloud, BarChart, Loader2, Bell, MoreVertical, Trash2, Zap, BrainCircuit, Bot, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { getCourses, Course, UserProfile, getUserProfileStream, removeCourseFromUserProfile } from '@/services/course-service';
 import { Button } from '@/components/ui/button';
@@ -159,6 +159,29 @@ function AIStatusIndicator() {
     </div>
   );
 }
+
+const features = [
+  {
+    icon: Zap,
+    title: "Instant Course Generation",
+    description: "Just type a topic, and Sasha's AI instantly builds a comprehensive course outline. From Python to Public Speaking, your learning path is ready in seconds."
+  },
+  {
+    icon: BookOpen,
+    title: "Interactive Learning Paths",
+    description: "Dive into lessons filled with AI-generated content, hands-on coding exercises, and quizzes that test your knowledge, ensuring you master every concept."
+  },
+  {
+    icon: BrainCircuit,
+    title: "Powerful AI Tools",
+    description: "Go beyond courses with a suite of AI tools. Get code explanations, generate practice problems, or chat with Sasha to get answers, all in one place."
+  },
+  {
+    icon: Bot,
+    title: "Your Personal Workbook",
+    description: "Upload your documents, and let Sasha's OCR and AI summarize them into neat notes. Combined with a spreadsheet and calculator, it's your ultimate study companion."
+  }
+];
 
 
 export default function DashboardPage() {
@@ -321,6 +344,109 @@ export default function DashboardPage() {
                 </div>
             )}
         </div>
+
+        {/* Features Section */}
+        <section className="max-w-5xl mx-auto py-16 md:py-24">
+            <div className="text-center">
+                <h2 className="text-3xl md:text-4xl font-bold">How Sasha Works Its Magic</h2>
+                <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
+                    Your personal AI tutor, designed to create a learning experience that's as unique as you are.
+                </p>
+            </div>
+            <div className="mt-12 grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                {features.map((feature) => (
+                    <div key={feature.title} className="text-center p-6 bg-card rounded-lg border">
+                        <div className="flex items-center justify-center h-12 w-12 rounded-full bg-primary/10 text-primary mx-auto">
+                            <feature.icon className="h-6 w-6" />
+                        </div>
+                        <h3 className="mt-4 text-lg font-semibold">{feature.title}</h3>
+                        <p className="mt-2 text-sm text-muted-foreground">{feature.description}</p>
+                    </div>
+                ))}
+            </div>
+        </section>
+        
+        {/* Pricing Section */}
+        <section className="max-w-5xl mx-auto py-16 md:py-24">
+          <div className="text-center">
+            <h2 className="text-3xl md:text-4xl font-bold">Choose Your Path</h2>
+            <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
+              Start for free and scale up as you grow. Simple, transparent pricing for every learner.
+            </p>
+          </div>
+          <div className="mt-12 grid lg:grid-cols-3 gap-8 items-start">
+            {/* Free Plan */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Free</CardTitle>
+                <CardDescription>For casual learners getting started.</CardDescription>
+                <p className="text-4xl font-bold pt-4">$0 <span className="text-sm font-normal text-muted-foreground">/ month</span></p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-center gap-2"><CheckCircle className="text-green-500 h-4 w-4" /> 5 Course Generations / 10 days</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="text-green-500 h-4 w-4" /> Limited access to AI Tools</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="text-green-500 h-4 w-4" /> Limited access to Workbook</li>
+                </ul>
+              </CardContent>
+              <CardFooter>
+                <Button variant="outline" className="w-full">Get Started</Button>
+              </CardFooter>
+            </Card>
+
+            {/* Pro Plan */}
+            <Card className="border-primary shadow-lg">
+              <CardHeader>
+                <CardTitle>Pro</CardTitle>
+                <CardDescription>For dedicated learners who want to go deeper.</CardDescription>
+                <p className="text-4xl font-bold pt-4">$10 <span className="text-sm font-normal text-muted-foreground">/ month</span></p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                 <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-center gap-2"><CheckCircle className="text-green-500 h-4 w-4" /> Unlimited Course Generations</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="text-green-500 h-4 w-4" /> Full access to AI Tools</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="text-green-500 h-4 w-4" /> Full access to Workbook</li>
+                </ul>
+              </CardContent>
+              <CardFooter>
+                <Button className="w-full">Choose Pro</Button>
+              </CardFooter>
+            </Card>
+
+            {/* Premium Plan */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Premium</CardTitle>
+                <CardDescription>For professionals seeking a premium experience.</CardDescription>
+                <p className="text-4xl font-bold pt-4">$30 <span className="text-sm font-normal text-muted-foreground">/ month</span></p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                 <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-center gap-2"><CheckCircle className="text-green-500 h-4 w-4" /> Everything in Pro, plus:</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="text-green-500 h-4 w-4" /> Downloadable Content (PDFs)</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="text-green-500 h-4 w-4" /> Access to Special Sasha Models</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="text-green-500 h-4 w-4" /> Priority Support</li>
+                </ul>
+              </CardContent>
+              <CardFooter>
+                <Button variant="outline" className="w-full">Choose Premium</Button>
+              </CardFooter>
+            </Card>
+          </div>
+        </section>
+
+        {/* Enterprise Section */}
+        <section className="max-w-4xl mx-auto text-center py-16">
+            <h3 className="text-2xl font-bold">For Teams & Enterprises</h3>
+            <p className="mt-2 text-muted-foreground">
+                Empower your organization with a custom-branded learning platform. We offer white-labelling, custom domains, and dedicated support for enterprise clients.
+            </p>
+            <div className="mt-6">
+                <a href="mailto:alimirabrar@gmail.com">
+                    <Button size="lg">Contact Us</Button>
+                </a>
+            </div>
+        </section>
 
       </main>
     </div>
