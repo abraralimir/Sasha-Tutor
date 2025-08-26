@@ -53,6 +53,10 @@ import {
     generateCompleteCourse as generateCompleteCourseFlow,
     type GenerateCompleteCourseInput,
 } from "@/ai/flows/generate-complete-course";
+import {
+    extractTextFromImage as extractTextFromImageFlow,
+    type ExtractTextFromImageInput,
+} from "@/ai/flows/extract-text-from-image";
 
 
 export async function generateCodingExercise(
@@ -107,4 +111,8 @@ export async function completeNote(input: CompleteNoteInput) {
 
 export async function generateCompleteCourse(input: GenerateCompleteCourseInput) {
     return await generateCompleteCourseFlow(input);
+}
+
+export async function extractTextFromImage(input: ExtractTextFromImageInput) {
+    return await extractTextFromImageFlow(input);
 }

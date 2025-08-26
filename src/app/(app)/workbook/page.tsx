@@ -4,15 +4,16 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/auth-context';
-import { Bot, Loader2, Sparkles, BrainCircuit, GripVertical, Plus, Trash2, Calculator, Sheet, FileText } from 'lucide-react';
-import { completeNote } from '@/lib/actions';
+import { Bot, Loader2, Sparkles, BrainCircuit, GripVertical, Plus, Trash2, Calculator, Sheet, FileText, Upload } from 'lucide-react';
+import { completeNote, extractTextFromImage } from '@/lib/actions';
 import { PageHeader } from '@/components/page-header';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 // --- Scientific Calculator Component ---
 const ScientificCalculator = () => {
@@ -65,7 +66,7 @@ const ScientificCalculator = () => {
         </CardHeader>
         <CardContent>
             <div className="bg-muted text-right p-4 rounded-lg mb-4">
-                <p className="text-xs text-muted-foreground break-all">{expression || '\u00A0'}</p>
+                <p className="text-xs text-muted-foreground break-all">{expression || ' '}</p>
                 <p className="text-3xl font-bold break-all">{display}</p>
             </div>
             <div className="grid grid-cols-4 gap-2">
@@ -186,6 +187,120 @@ const Spreadsheet = () => {
     );
 };
 
+// --- Document Hub Component ---
+const DocumentHub = () => {
+    const [extractedText, setExtractedText] = useState('');
+    const [isExtracting, setIsExtracting] = useState(false);
+    const [isCompleting, setIsCompleting] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const { toast } = useToast();
+
+    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        // For now, only handle images. PDF/Word would require more complex libraries.
+        if (!file.type.startsWith('image/')) {
+            setError('Please upload an image file (e.g., PNG, JPG, WEBP).');
+            return;
+        }
+
+        setIsExtracting(true);
+        setError(null);
+        setExtractedText('');
+
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = async () => {
+            const imageDataUri = reader.result as string;
+            try {
+                const result = await extractTextFromImage({ imageDataUri });
+                setExtractedText(result.extractedText);
+                toast({ title: 'Text Extracted', description: 'The text from your image is now ready.' });
+            } catch (err) {
+                console.error('OCR failed', err);
+                setError('Failed to extract text from the image. Please try again.');
+            } finally {
+                setIsExtracting(false);
+            }
+        };
+        reader.onerror = () => {
+            setError('Failed to read the file.');
+            setIsExtracting(false);
+        };
+    };
+
+    const handleAutocomplete = async () => {
+        if (!extractedText) return;
+        setIsCompleting(true);
+        try {
+            const result = await completeNote({ text: extractedText });
+            setExtractedText(prev => prev + result.completion);
+            toast({
+                title: 'Notes Completed',
+                description: 'Sasha has helped organize your extracted text.',
+            });
+        } catch (error) {
+            console.error('Failed to get completion', error);
+            toast({
+                title: 'Error',
+                description: 'An error occurred while completing the text.',
+                variant: 'destructive',
+            });
+        } finally {
+            setIsCompleting(false);
+        }
+    };
+    
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Document Hub</CardTitle>
+                <CardDescription>
+                    Upload an image of a document to extract its text, then let AI turn it into comprehensive notes.
+                </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+                <div className="flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-lg">
+                     <Upload className="w-10 h-10 text-muted-foreground" />
+                    <p className="mt-2 text-sm text-muted-foreground">Drag & drop or click to upload an image</p>
+                    <Input id="file-upload" type="file" className="sr-only" onChange={handleFileChange} accept="image/*" disabled={isExtracting} />
+                    <label htmlFor="file-upload" className="mt-2">
+                        <Button asChild variant="outline" disabled={isExtracting}>
+                            <span>{isExtracting ? "Processing..." : "Select File"}</span>
+                        </Button>
+                    </label>
+                </div>
+
+                {error && <Alert variant="destructive"><AlertTitle>Error</AlertTitle><AlertDescription>{error}</AlertDescription></Alert>}
+                
+                {(isExtracting || extractedText) && (
+                     <div className="flex flex-col gap-4">
+                        <h3 className="text-lg font-semibold">Extracted Text</h3>
+                        <Textarea
+                        value={isExtracting ? "AI is reading your document..." : extractedText}
+                        onChange={(e) => setExtractedText(e.target.value)}
+                        placeholder="Extracted text will appear here..."
+                        className="h-96 resize-none font-body text-base"
+                        disabled={isExtracting}
+                        />
+                        <div className="flex justify-end">
+                            <Button onClick={handleAutocomplete} disabled={isCompleting || !extractedText || isExtracting}>
+                            {isCompleting ? (
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            ) : (
+                                <Sparkles className="mr-2 h-4 w-4" />
+                            )}
+                            {isCompleting ? 'Organizing...' : 'Autocomplete with AI'}
+                            </Button>
+                        </div>
+                    </div>
+                )}
+            </CardContent>
+        </Card>
+    )
+}
+
 
 export default function WorkbookPage() {
   const { user, loading: authLoading } = useAuth();
@@ -238,8 +353,9 @@ export default function WorkbookPage() {
       />
       <main className="flex-1 overflow-auto p-6">
         <Tabs defaultValue="notes" className="max-w-4xl mx-auto">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="notes"><FileText className="mr-2"/>Notes</TabsTrigger>
+            <TabsTrigger value="hub"><BrainCircuit className="mr-2"/>Document Hub</TabsTrigger>
             <TabsTrigger value="calculator"><Calculator className="mr-2"/>Calculator</TabsTrigger>
             <TabsTrigger value="spreadsheet"><Sheet className="mr-2"/>Spreadsheet</TabsTrigger>
           </TabsList>
@@ -267,6 +383,10 @@ export default function WorkbookPage() {
             </div>
           </TabsContent>
           
+          <TabsContent value="hub" className="mt-6">
+            <DocumentHub />
+          </TabsContent>
+
           <TabsContent value="calculator" className="mt-6">
              <ScientificCalculator />
           </TabsContent>
@@ -280,4 +400,3 @@ export default function WorkbookPage() {
     </div>
   );
 }
-
