@@ -110,7 +110,7 @@ export function RateLimitHeader() {
         </TooltipTrigger>
         <TooltipContent>
             {isExhausted ? (
-                 <p>{countdown || "Our AI is resting. Please check back soon."}</p>
+                 <p>{countdown || "Calculating refresh time..."}</p>
             ) : (
                 <p>
                     {USER_QUOTA_LIMIT - usage.count} AI actions remaining today for users.
