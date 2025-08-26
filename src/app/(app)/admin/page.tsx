@@ -3,9 +3,10 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { PlusCircle, Loader2, Trash2, Edit, Users, Bell } from 'lucide-react';
-import { getCourses, deleteCourse, Course } from '@/services/course-service';
+import { PlusCircle, Loader2, Trash2, Edit, Users, Bell, Sparkles } from 'lucide-react';
+import { getCourses, deleteCourse, Course, addCourse } from '@/services/course-service';
 import { getTotalUsers, getNotificationSubscriberCount } from '@/services/analytics-service';
+import { generateCompleteCourse } from '@/lib/actions';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import {
@@ -26,7 +27,19 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/context/auth-context';
 
 function StatCard({ title, value, icon: Icon }: { title: string, value: string | number, icon: React.ElementType }) {
   return (
@@ -40,6 +53,85 @@ function StatCard({ title, value, icon: Icon }: { title: string, value: string |
       </CardContent>
     </Card>
   );
+}
+
+function GenerateCourseDialog() {
+  const { user } = useAuth();
+  const router = useRouter();
+  const { toast } = useToast();
+  const [isOpen, setIsOpen] = useState(false);
+  const [topic, setTopic] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const handleGenerate = async () => {
+    if (!topic || !user) return;
+    setIsGenerating(true);
+    toast({
+      title: 'Course Generation Started',
+      description: `Sasha is now creating a full course on "${topic}". This may take a few minutes.`,
+      duration: 10000,
+    });
+    try {
+      const newCourse = await generateCompleteCourse({ topic, userId: user.uid });
+      const newCourseId = await addCourse(newCourse);
+      toast({
+        title: 'Course Created!',
+        description: `Successfully generated and saved the new course. You can now edit it.`,
+      });
+      setIsOpen(false);
+      setTopic('');
+      router.push(`/admin/courses/${newCourseId}`);
+    } catch (err) {
+      console.error('Failed to generate complete course', err);
+      toast({
+        title: 'Error',
+        description: 'Failed to generate the course. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+  
+  return (
+     <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button>
+          <PlusCircle className="mr-2 h-4 w-4" />
+          Create New Course
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2"><Sparkles className='text-primary'/> One-Click Course Generation</DialogTitle>
+          <DialogDescription>
+            Enter a topic, and Sasha will generate the entire course curriculum, content, and quizzes for you.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="topic" className="text-right">
+              Topic
+            </Label>
+            <Input
+              id="topic"
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              className="col-span-3"
+              placeholder="e.g., Introduction to SQL"
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button type="button" variant="outline" onClick={() => setIsOpen(false)} disabled={isGenerating}>Cancel</Button>
+          <Button type="submit" onClick={handleGenerate} disabled={isGenerating || !topic}>
+            {isGenerating && <Loader2 className="mr-2 animate-spin" />}
+            {isGenerating ? 'Generating...' : 'Generate Course'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
 }
 
 
@@ -88,10 +180,6 @@ export default function AdminDashboardPage() {
     return () => unsubscribe();
   }, []);
 
-  const handleCreateCourse = () => {
-    router.push('/admin/courses/new');
-  };
-
   const handleEditCourse = (courseId: string) => {
     router.push(`/admin/courses/${courseId}`);
   };
@@ -137,10 +225,7 @@ export default function AdminDashboardPage() {
 
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold">Your Courses</h2>
-            <Button onClick={handleCreateCourse}>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Create New Course
-            </Button>
+            <GenerateCourseDialog />
           </div>
           {isLoading && (
             <div className="flex justify-center items-center py-10">

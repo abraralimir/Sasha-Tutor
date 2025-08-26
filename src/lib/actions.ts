@@ -49,6 +49,10 @@ import {
     generateFullCourseContent as generateFullCourseContentFlow,
     type GenerateFullCourseContentInput,
 } from "@/ai/flows/generate-full-course-content";
+import {
+    generateCompleteCourse as generateCompleteCourseFlow,
+    type GenerateCompleteCourseInput,
+} from "@/ai/flows/generate-complete-course";
 
 
 export async function generateCodingExercise(
@@ -99,4 +103,8 @@ export async function sendNotification(input: SendNotificationInput) {
 
 export async function completeNote(input: CompleteNoteInput) {
     return await completeNoteFlow(input);
+}
+
+export async function generateCompleteCourse(input: GenerateCompleteCourseInput) {
+    return await generateCompleteCourseFlow(input);
 }
