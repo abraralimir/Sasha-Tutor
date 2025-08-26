@@ -262,11 +262,33 @@ export async function updateLessonQuiz(courseId: string, chapterId: string, less
 
 export async function deleteCourse(courseId: string): Promise<void> {
     try {
-        const docRef = doc(db, 'courses', courseId);
-        await deleteDoc(docRef);
+        const batch = writeBatch(db);
+
+        // 1. Find all users who have this course and remove it from their profiles
+        const usersQuery = query(usersCollection, where('courses', '!=', []));
+        const usersSnapshot = await getDocs(usersQuery);
+        
+        usersSnapshot.forEach(userDoc => {
+            const userProfile = userDoc.data() as UserProfile;
+            const courseToRemove = userProfile.courses.find(c => c.courseId === courseId);
+            if (courseToRemove) {
+                const userRef = doc(db, 'users', userDoc.id);
+                batch.update(userRef, {
+                    courses: arrayRemove(courseToRemove)
+                });
+            }
+        });
+
+        // 2. Delete the main course document
+        const courseRef = doc(db, 'courses', courseId);
+        batch.delete(courseRef);
+        
+        // 3. Commit all batched writes
+        await batch.commit();
+        
     } catch (error) {
-        console.error("Error deleting course: ", error);
-        throw new Error("Failed to delete course.");
+        console.error("Error deleting course and user references: ", error);
+        throw new Error("Failed to delete course completely.");
     }
 }
 
@@ -280,7 +302,8 @@ export function formatGeneratedCourse(generated: GenerateCourseOutput): Course {
             ...chapter,
             lessons: chapter.lessons.map(lesson => ({
                 ...lesson,
-                content: [] // Initialize with empty content array
+                content: [], // Initialize with empty content array
+                quiz: [],    // Initialize with empty quiz array
             }))
         })),
         showOnHomepage: false, // AI courses are not featured by default
