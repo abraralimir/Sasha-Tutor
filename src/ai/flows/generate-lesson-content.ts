@@ -11,6 +11,8 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { ContentBlockSchema } from '@/services/course-service';
+
 
 const GenerateLessonContentInputSchema = z.object({
   topic: z.string().describe('The topic of the lesson.'),
@@ -18,18 +20,6 @@ const GenerateLessonContentInputSchema = z.object({
 });
 export type GenerateLessonContentInput = z.infer<typeof GenerateLessonContentInputSchema>;
 
-
-const ContentBlockSchema = z.discriminatedUnion('type', [
-  z.object({
-    type: z.literal('text'),
-    content: z.string().describe('The Markdown text content for this block.'),
-  }),
-  z.object({
-    type: z.literal('interactiveCode'),
-    description: z.string().describe('A clear, simple instruction for the student for the code exercise.'),
-    expectedOutput: z.string().describe('The exact, single-line of code that is the correct answer.'),
-  }),
-]);
 
 const GenerateLessonContentOutputSchema = z.object({
   content: z.array(ContentBlockSchema).describe('An array of content blocks that make up the lesson.'),
