@@ -4,6 +4,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { onSnapshot, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { useAuth } from '@/context/auth-context';
 import { Header } from '@/components/header';
 import { Loader2, Bot } from 'lucide-react';
 
@@ -12,20 +13,24 @@ const RESERVED_QUOTA = Math.floor(DAILY_QUOTA * 0.2);
 const USER_QUOTA_LIMIT = DAILY_QUOTA - RESERVED_QUOTA;
 
 
-function LockScreen({ countdown }: { countdown: string }) {
+function LockScreen({ countdown, userName }: { countdown: string, userName: string }) {
     return (
         <div className="flex flex-col items-center justify-center h-[calc(100vh-3.5rem-0.25rem)] text-center p-8 bg-background">
             <Bot className="h-24 w-24 text-primary animate-bounce" />
-            <h1 className="mt-8 text-4xl font-bold tracking-tight">Sasha will be right back!</h1>
+            <h1 className="mt-8 text-3xl md:text-4xl font-bold tracking-tight">
+                Dear {userName}, Sasha is exhausted.
+            </h1>
             <p className="mt-4 text-lg text-muted-foreground">
-                Our AI has been working hard and needs a short break to recharge.
+                She will be right back after:
             </p>
-            <div className="mt-8">
-                <p className="text-sm text-muted-foreground">Service will resume in:</p>
+            <div className="mt-2">
                 <p className="text-5xl font-bold tracking-tighter text-primary">
                     {countdown || <Loader2 className="inline-block animate-spin" />}
                 </p>
             </div>
+            <p className="mt-8 text-md text-muted-foreground italic">
+             😴 "A moment of rest leads to a marathon of knowledge."
+            </p>
         </div>
     );
 }
@@ -36,6 +41,7 @@ export default function AppLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { user } = useAuth();
   const [usage, setUsage] = useState({ count: 0, lastUpdated: new Date() });
   const [countdown, setCountdown] = useState('');
   const [isClient, setIsClient] = useState(false);
@@ -96,13 +102,15 @@ export default function AppLayout({
     return () => clearInterval(interval);
 
   }, [isClient, isExceeded, resetTime]);
-
+  
+  // Only show lock screen if user is logged in and quota is exceeded
+  const showLockScreen = isExceeded && !!user;
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
+      <Header isLocked={showLockScreen} />
       <main className="flex-1">
-        {isExceeded ? <LockScreen countdown={countdown} /> : children}
+        {showLockScreen ? <LockScreen countdown={countdown} userName={user?.displayName || 'learner'} /> : children}
       </main>
     </div>
   );

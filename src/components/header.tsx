@@ -61,7 +61,7 @@ const tools = [
 
 const ADMIN_EMAIL = 'abrar@sashaspath.com';
 
-export function Header() {
+export function Header({ isLocked = false }: { isLocked?: boolean }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const { user } = useAuth();
   const router = useRouter();
@@ -82,73 +82,80 @@ export function Header() {
           </Link>
         </div>
 
-        <div className="flex-1 flex justify-center">
-           <AISearch />
-        </div>
+        {!isLocked && (
+            <div className="flex-1 flex justify-center">
+            <AISearch />
+            </div>
+        )}
         
-        <div className="flex items-center justify-end space-x-2">
+        <div className="flex items-center justify-end space-x-2 flex-1">
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex">
-            <NavigationMenu>
-              <NavigationMenuList>
-                <NavigationMenuItem>
-                  <Link href="/python/learning-path" legacyBehavior passHref>
-                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                      Learning Path
-                    </NavigationMenuLink>
-                  </Link>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <Link href="/workbook" legacyBehavior passHref>
-                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                      Workbook
-                    </NavigationMenuLink>
-                  </Link>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger>AI Tools</NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-                      {tools.map((tool) => (
-                        <ListItem
-                          key={tool.title}
-                          title={tool.title}
-                          href={tool.href}
-                          icon={tool.icon}
-                        >
-                          {tool.description}
-                        </ListItem>
-                      ))}
-                    </ul>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
-                {isAdmin && (
+          {!isLocked && (
+            <nav className="hidden md:flex">
+              <NavigationMenu>
+                <NavigationMenuList>
                   <NavigationMenuItem>
-                    <NavigationMenuTrigger>
-                      <Shield className="h-4 w-4 mr-1" /> Admin
-                    </NavigationMenuTrigger>
+                    <Link href="/python/learning-path" legacyBehavior passHref>
+                      <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                        Learning Path
+                      </NavigationMenuLink>
+                    </Link>
+                  </NavigationMenuItem>
+                  <NavigationMenuItem>
+                    <Link href="/workbook" legacyBehavior passHref>
+                      <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                        Workbook
+                      </NavigationMenuLink>
+                    </Link>
+                  </NavigationMenuItem>
+                  <NavigationMenuItem>
+                    <NavigationMenuTrigger>AI Tools</NavigationMenuTrigger>
                     <NavigationMenuContent>
-                      <ul className="grid w-[300px] gap-3 p-4">
-                         <ListItem title="Course Management" href="/admin" icon={Shield}>
-                           Manage all courses and their content.
-                         </ListItem>
-                         <ListItem title="Send Notifications" href="/admin/notifications" icon={Bell}>
-                            Send push notifications to all users.
-                         </ListItem>
+                      <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
+                        {tools.map((tool) => (
+                          <ListItem
+                            key={tool.title}
+                            title={tool.title}
+                            href={tool.href}
+                            icon={tool.icon}
+                          >
+                            {tool.description}
+                          </ListItem>
+                        ))}
                       </ul>
                     </NavigationMenuContent>
                   </NavigationMenuItem>
-                )}
-              </NavigationMenuList>
-            </NavigationMenu>
-          </nav>
+                  {isAdmin && (
+                    <NavigationMenuItem>
+                      <NavigationMenuTrigger>
+                        <Shield className="h-4 w-4 mr-1" /> Admin
+                      </NavigationMenuTrigger>
+                      <NavigationMenuContent>
+                        <ul className="grid w-[300px] gap-3 p-4">
+                           <ListItem title="Course Management" href="/admin" icon={Shield}>
+                             Manage all courses and their content.
+                           </ListItem>
+                           <ListItem title="Send Notifications" href="/admin/notifications" icon={Bell}>
+                              Send push notifications to all users.
+                           </ListItem>
+                        </ul>
+                      </NavigationMenuContent>
+                    </NavigationMenuItem>
+                  )}
+                </NavigationMenuList>
+              </NavigationMenu>
+            </nav>
+          )}
 
           {/* Auth buttons */}
           <div className="hidden md:flex items-center space-x-2">
             {user ? (
-              <Button variant="ghost" onClick={handleLogout}>
-                <LogOut className="mr-2 h-4 w-4" /> Logout
-              </Button>
+                <div className='flex items-center gap-2'>
+                    <span className="text-sm font-medium">{user.displayName}</span>
+                    <Button variant="ghost" onClick={handleLogout}>
+                        <LogOut className="mr-2 h-4 w-4" /> Logout
+                    </Button>
+                </div>
             ) : (
               <>
                 <Link href="/login">
@@ -180,40 +187,44 @@ export function Header() {
                 <div className="mt-8 flex flex-col gap-4">
                   {user ? (
                     <div className="px-4 py-2 border-b">
-                      <p className="text-sm font-medium">{user.email}</p>
+                      <p className="text-sm font-medium">{user.displayName || user.email}</p>
                     </div>
                   ) : null}
-                  <Link href="/python/learning-path" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Button variant="ghost" className="w-full justify-start text-base">Learning Path</Button>
-                  </Link>
-                  <Link href="/workbook" onClick={() => setIsMobileMenuOpen(false)}>
-                     <Button variant="ghost" className="w-full justify-start text-base">Workbook</Button>
-                  </Link>
-                   <h3 className="px-4 pt-4 text-sm font-semibold text-muted-foreground">AI Tools</h3>
-                   {tools.map((tool) => (
-                     <Link href={tool.href} key={tool.title} className="flex items-center gap-3 rounded-md p-3 transition-colors hover:bg-accent" onClick={() => setIsMobileMenuOpen(false)}>
-                        <tool.icon className="h-5 w-5 text-primary" />
-                        <div>
-                            <p className="font-medium">{tool.title}</p>
-                            <p className="text-xs text-muted-foreground">{tool.description}</p>
-                        </div>
-                     </Link>
-                   ))}
-                    {isAdmin && (
-                      <>
-                        <h3 className="px-4 pt-4 text-sm font-semibold text-muted-foreground">Admin</h3>
-                        <Link href="/admin" onClick={() => setIsMobileMenuOpen(false)}>
-                            <Button variant="ghost" className="w-full justify-start text-base gap-2">
-                                <Shield /> Course Management
-                            </Button>
+                  {!isLocked && (
+                    <>
+                        <Link href="/python/learning-path" onClick={() => setIsMobileMenuOpen(false)}>
+                            <Button variant="ghost" className="w-full justify-start text-base">Learning Path</Button>
                         </Link>
-                        <Link href="/admin/notifications" onClick={() => setIsMobileMenuOpen(false)}>
-                            <Button variant="ghost" className="w-full justify-start text-base gap-2">
-                                <Bell /> Send Notifications
-                            </Button>
+                        <Link href="/workbook" onClick={() => setIsMobileMenuOpen(false)}>
+                            <Button variant="ghost" className="w-full justify-start text-base">Workbook</Button>
                         </Link>
-                      </>
-                    )}
+                        <h3 className="px-4 pt-4 text-sm font-semibold text-muted-foreground">AI Tools</h3>
+                        {tools.map((tool) => (
+                            <Link href={tool.href} key={tool.title} className="flex items-center gap-3 rounded-md p-3 transition-colors hover:bg-accent" onClick={() => setIsMobileMenuOpen(false)}>
+                                <tool.icon className="h-5 w-5 text-primary" />
+                                <div>
+                                    <p className="font-medium">{tool.title}</p>
+                                    <p className="text-xs text-muted-foreground">{tool.description}</p>
+                                </div>
+                            </Link>
+                        ))}
+                          {isAdmin && (
+                            <>
+                              <h3 className="px-4 pt-4 text-sm font-semibold text-muted-foreground">Admin</h3>
+                              <Link href="/admin" onClick={() => setIsMobileMenuOpen(false)}>
+                                  <Button variant="ghost" className="w-full justify-start text-base gap-2">
+                                      <Shield /> Course Management
+                                  </Button>
+                              </Link>
+                              <Link href="/admin/notifications" onClick={() => setIsMobileMenuOpen(false)}>
+                                  <Button variant="ghost" className="w-full justify-start text-base gap-2">
+                                      <Bell /> Send Notifications
+                                  </Button>
+                              </Link>
+                            </>
+                          )}
+                    </>
+                  )}
                 </div>
                 <div className="absolute bottom-4 left-4 right-4 flex flex-col gap-2">
                   {user ? (
