@@ -185,6 +185,7 @@ function ArticleWithInteractiveContent({ contentBlocks }: { contentBlocks: Conte
 
   // Helper to parse markdown-like code tags into proper code blocks
   const parseContent = (htmlContent: string) => {
+    if (!htmlContent) return '';
     const contentWithCodeBlocks = htmlContent.replace(/<code>(.*?)<\/code>/gs, (match, code) => {
         return `<pre><code class="font-code bg-muted px-2 py-1 rounded-sm">${code.trim()}</code></pre>`;
     });
@@ -194,10 +195,10 @@ function ArticleWithInteractiveContent({ contentBlocks }: { contentBlocks: Conte
   return (
     <article className="prose prose-lg dark:prose-invert max-w-4xl mx-auto p-4 md:p-12">
       {contentBlocks.map((block, index) => {
-        if (block.type === 'text') {
+        if (block.type === 'text' && block.content) {
           return <div key={index} dangerouslySetInnerHTML={{ __html: parseContent(block.content) }} />;
         }
-        if (block.type === 'interactiveCode') {
+        if (block.type === 'interactiveCode' && block.description && block.expectedOutput) {
           return <InteractiveCodeCell key={index} exerciseDescription={block.description} expectedOutput={block.expectedOutput} />;
         }
         return null;

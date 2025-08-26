@@ -138,7 +138,7 @@ export async function getCourse(courseId: string): Promise<Course | null> {
 
 export async function addCourse(course: Omit<Course, 'id'> & { id?: string }): Promise<string> {
   try {
-    const courseId = course.id || course.title.toLowerCase().replace(/\s+/g, '-');
+    const courseId = course.id || course.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
     const docRef = doc(db, 'courses', courseId);
     await setDoc(docRef, { ...course, id: courseId });
     return courseId;
@@ -239,7 +239,7 @@ export async function deleteCourse(courseId: string): Promise<void> {
 
 
 export function formatGeneratedCourse(generated: GenerateCourseOutput): Course {
-    const courseId = generated.id.toLowerCase().replace(/\s+/g, '-');
+    const courseId = generated.id.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
     return {
         ...generated,
         id: courseId,
@@ -354,5 +354,3 @@ export async function updateUserLessonProgress(uid: string, courseId: string, le
     
     await updateDoc(userRef, { courses: updatedCourses });
 }
-
-    

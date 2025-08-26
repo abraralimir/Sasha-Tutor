@@ -19,25 +19,6 @@ import { getCourse, addCourse, formatGeneratedCourse, associateCourseWithUser, u
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/auth-context';
 
-// Helper function to parse AI-generated markdown into structured content blocks
-const parseGeneratedContent = (markdown: string) => {
-    const blocks = [];
-    const parts = markdown.split(/<interactive-code-cell\s+description="([^"]+)"\s+expected="([^"]+)"\s*\/>/g);
-
-    for (let i = 0; i < parts.length; i++) {
-        const part = parts[i].trim();
-        if (i % 3 === 0) {
-            if (part) blocks.push({ type: 'text', content: part });
-        } else if (i % 3 === 1) {
-            const description = part;
-            const expectedOutput = parts[i + 1];
-            blocks.push({ type: 'interactiveCode', description, expectedOutput });
-            i++;
-        }
-    }
-    return blocks;
-};
-
 export function AISearch() {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -84,10 +65,9 @@ export function AISearch() {
 
         if (firstChapter && firstLesson) {
             const lessonContentResult = await generateLessonContent({ topic: firstLesson.title, studentLevel: 'beginner' });
-            const contentBlocks = parseGeneratedContent(lessonContentResult.content);
             
             // Inject the content into the newCourse object
-            newCourse.chapters[0].lessons[0].content = contentBlocks;
+            newCourse.chapters[0].lessons[0].content = lessonContentResult.content;
         }
 
         // Step 3: Save the new course (with first lesson content) to the global collection

@@ -1,13 +1,14 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useForm, useFieldArray, Controller, useFormContext } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ChevronLeft, Plus, Trash, Loader2, Code, FileText } from 'lucide-react';
-import { getCourse, addCourse, updateCourse, Course, ContentBlock } from '@/services/course-service';
+import { ChevronLeft, Plus, Trash, Loader2, Code, FileText, Sparkles, AlertCircle } from 'lucide-react';
+import { getCourse, addCourse, updateCourse, CourseSchema, Course } from '@/services/course-service';
+import { generateFullCourseContent } from '@/lib/actions';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import {
@@ -37,7 +38,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const contentBlockSchema = z.object({
   type: z.enum(['text', 'interactiveCode']),
@@ -66,6 +67,7 @@ const chapterSchema = z.object({
 });
 
 const courseSchema = z.object({
+  id: z.string(),
   title: z.string().min(3, 'Course title must be at least 3 characters.'),
   chapters: z.array(chapterSchema),
   showOnHomepage: z.boolean().default(false),
@@ -78,12 +80,14 @@ export default function CourseEditPage() {
   const params = useParams();
   const { toast } = useToast();
   const [isPageLoading, setIsPageLoading] = useState(true);
+  const [isGenerating, setIsGenerating] = useState(false);
   const courseId = params.courseId as string;
   const isNewCourse = courseId === 'new';
 
   const form = useForm<CourseFormData>({
     resolver: zodResolver(courseSchema),
     defaultValues: {
+      id: '',
       title: '',
       chapters: [],
       showOnHomepage: false,
@@ -123,7 +127,7 @@ export default function CourseEditPage() {
   const onSubmit = async (data: CourseFormData) => {
     try {
       if (isNewCourse) {
-        const newCourseId = await addCourse(data);
+        const newCourseId = await addCourse({ ...data, id: data.title.toLowerCase().replace(/\s+/g, '-') });
         toast({ title: 'Success', description: 'Course created successfully.' });
         router.push(`/admin`);
       } else {
@@ -136,6 +140,29 @@ export default function CourseEditPage() {
       toast({ title: 'Error', description: 'Failed to save course.', variant: 'destructive' });
     }
   };
+
+  const handleGenerateContent = async () => {
+      setIsGenerating(true);
+      toast({ title: "Hang tight!", description: "Sasha is generating the full course content. This might take a few minutes." });
+      try {
+        const courseOutline = form.getValues();
+        const fullCourse = await generateFullCourseContent(courseOutline);
+        form.reset(fullCourse); // Update the form with the new content
+        toast({ title: "Success!", description: "All lesson content has been generated. Don't forget to save." });
+      } catch (error) {
+          console.error(error);
+          toast({ title: 'Generation Failed', description: 'An error occurred while generating content.', variant: 'destructive' });
+      } finally {
+          setIsGenerating(false);
+      }
+  }
+
+  const isContentGenerated = useMemo(() => {
+    const chapters = form.watch('chapters');
+    if (!chapters || chapters.length === 0) return false;
+    return chapters.every(ch => ch.lessons.every(l => l.content && l.content.length > 0));
+  }, [form.watch('chapters')]);
+
 
   if (isPageLoading) {
     return <div className="flex justify-center items-center h-full"><Loader2 className="animate-spin h-8 w-8" /></div>;
@@ -197,7 +224,7 @@ export default function CourseEditPage() {
 
               <Card>
                 <CardHeader>
-                    <div className='flex justify-between items-center'>
+                    <div className='flex justify-between items-start'>
                         <div>
                             <CardTitle>Curriculum</CardTitle>
                             <CardDescription>Add and manage chapters and lessons.</CardDescription>
@@ -208,6 +235,35 @@ export default function CourseEditPage() {
                     </div>
                 </CardHeader>
                 <CardContent>
+                    {!isNewCourse && (
+                         <Card className="mb-6 bg-blue-50 border-blue-200 dark:bg-blue-950 dark:border-blue-800">
+                            <CardHeader>
+                                <CardTitle className="text-lg flex items-center gap-2"><Sparkles className='text-blue-500'/>AI Content Generation</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                {isContentGenerated ? (
+                                    <Alert variant="default" className='border-green-500'>
+                                        <AlertCircle className="h-4 w-4 text-green-500" />
+                                        <AlertTitle>Content Ready!</AlertTitle>
+                                        <AlertDescription>
+                                        All lesson content has been generated for this course. You can now edit it manually below.
+                                        </AlertDescription>
+                                    </Alert>
+                                ) : (
+                                    <>
+                                        <p className="text-sm text-muted-foreground mb-4">
+                                            Save time by letting Sasha pre-generate all the lesson content, including explanations and interactive code cells. You can manually edit it afterwards.
+                                        </p>
+                                        <Button type="button" onClick={handleGenerateContent} disabled={isGenerating}>
+                                            {isGenerating && <Loader2 className="animate-spin mr-2" />}
+                                            {isGenerating ? "Generating..." : "Generate All Content with AI"}
+                                        </Button>
+                                    </>
+                                )}
+                            </CardContent>
+                        </Card>
+                    )}
+
                     <Accordion type="multiple" className="w-full">
                     {chapterFields.map((chapter, chapterIndex) => (
                         <AccordionItem value={chapter.id} key={chapter.id}>
@@ -248,8 +304,8 @@ export default function CourseEditPage() {
                 <Button type="button" variant="outline" onClick={() => router.push('/admin')}>
                   Cancel
                 </Button>
-                <Button type="submit" disabled={form.formState.isSubmitting}>
-                   {form.formState.isSubmitting && <Loader2 className="animate-spin mr-2" />}
+                <Button type="submit" disabled={form.formState.isSubmitting || isGenerating}>
+                   {(form.formState.isSubmitting || isGenerating) && <Loader2 className="animate-spin mr-2" />}
                   Save Course
                 </Button>
               </div>
@@ -383,7 +439,7 @@ function LessonContentArray({ chapterIndex, lessonIndex }: { chapterIndex: numbe
                             <div className="space-y-4 mt-4">
                                 <FormField
                                     control={control}
-                                    name={`chapters.${chapterIndex}.lessons.${lessonIndex}.content.${index}.description`}
+                                    name={`chapters.${chapterIndex}.lessons.${lessonIndex}.description`}
                                     render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Exercise Description</FormLabel>
@@ -396,7 +452,7 @@ function LessonContentArray({ chapterIndex, lessonIndex }: { chapterIndex: numbe
                                 />
                                 <FormField
                                     control={control}
-                                    name={`chapters.${chapterIndex}.lessons.${lessonIndex}.content.${index}.expectedOutput`}
+                                    name={`chapters.${chapterIndex}.lessons.${lessonIndex}.expectedOutput`}
                                     render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Expected Answer (Code)</FormLabel>
@@ -415,5 +471,3 @@ function LessonContentArray({ chapterIndex, lessonIndex }: { chapterIndex: numbe
         </div>
     )
 }
-
-    

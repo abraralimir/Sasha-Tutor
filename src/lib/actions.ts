@@ -34,10 +34,6 @@ import {
     type GenerateCourseInput,
 } from "@/ai/flows/generate-course";
 import {
-    generateFullCourseContent as generateFullCourseContentFlow,
-    type GenerateFullCourseContentInput,
-} from "@/ai/flows/generate-full-course-content";
-import {
     generateLessonContent as generateLessonContentFlow,
     type GenerateLessonContentInput,
 } from "@/ai/flows/generate-lesson-content";
@@ -49,6 +45,10 @@ import {
     completeNote as completeNoteFlow,
     type CompleteNoteInput,
 } from "@/ai/flows/complete-note";
+import {
+    generateFullCourseContent as generateFullCourseContentFlow,
+    type GenerateFullCourseContentInput,
+} from "@/ai/flows/generate-full-course-content";
 
 
 export async function generateCodingExercise(
