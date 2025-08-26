@@ -18,16 +18,15 @@ interface RateLimitDoc {
 
 /**
  * Checks if the user-facing rate limit has been exceeded for the day.
- * If not, it increments the counter.
+ * If not, it increments the counter. This function now throws an error
+ * when the limit is exceeded, which should be caught by the calling flow.
  * @returns {Promise<{
  *   isExceeded: boolean;
- *   message?: string;
  *   remaining?: number;
  * }>}
  */
 export async function checkAndIncrementRateLimit(): Promise<{
   isExceeded: boolean;
-  message?: string;
   remaining?: number;
 }> {
   const today = new Date().toISOString().split('T')[0]; // e.g., "2024-05-21"
@@ -39,11 +38,8 @@ export async function checkAndIncrementRateLimit(): Promise<{
     if (docSnap.exists()) {
       const data = docSnap.data() as RateLimitDoc;
       if (data.count >= USER_QUOTA_LIMIT) {
-        return {
-          isExceeded: true,
-          message: 'The daily AI quota has been reached. Please try again tomorrow.',
-          remaining: 0,
-        };
+        // Throw an error that can be caught by the calling AI flow.
+        throw new Error('The daily AI quota has been reached. Please try again tomorrow.');
       }
       // Increment the count
       await setDoc(docRef, { count: increment(1) }, { merge: true });
@@ -58,8 +54,7 @@ export async function checkAndIncrementRateLimit(): Promise<{
     }
   } catch (error) {
     console.error('Error in rate limiting service:', error);
-    // Fail open: In case of error, allow the request but log it.
-    // In a production app, you might want to fail closed.
-    return { isExceeded: false };
+    // Re-throw the error to be handled by the caller.
+    throw error;
   }
 }

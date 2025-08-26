@@ -1,11 +1,10 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { onSnapshot, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { cn } from '@/lib/utils';
-import { Sparkles } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
@@ -13,13 +12,12 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 
-
 const DAILY_QUOTA = 50; 
 const RESERVED_QUOTA = Math.floor(DAILY_QUOTA * 0.2); 
 const USER_QUOTA_LIMIT = DAILY_QUOTA - RESERVED_QUOTA;
 
 export function RateLimitHeader() {
-  const [usage, setUsage] = useState({ count: 0 });
+  const [usage, setUsage] = useState({ count: 0, lastUpdated: new Date() });
   const [countdown, setCountdown] = useState('');
   const [isClient, setIsClient] = useState(false);
 
@@ -30,9 +28,13 @@ export function RateLimitHeader() {
 
     const unsubscribe = onSnapshot(docRef, (doc) => {
       if (doc.exists()) {
-        setUsage({ count: doc.data().count });
+        const data = doc.data();
+        setUsage({ 
+          count: data.count,
+          lastUpdated: data.createdAt?.toDate() || new Date()
+        });
       } else {
-        setUsage({ count: 0 });
+        setUsage({ count: 0, lastUpdated: new Date() });
       }
     });
 
@@ -41,44 +43,42 @@ export function RateLimitHeader() {
   
   const isExhausted = usage.count >= USER_QUOTA_LIMIT;
 
+  const resetTime = useMemo(() => {
+    if (!isClient) return null;
+    // Set reset time to 12 hours after the *first* request of the day that created the doc.
+    const baseTime = usage.lastUpdated;
+    const newResetTime = new Date(baseTime);
+    newResetTime.setHours(newResetTime.getHours() + 12);
+    return newResetTime;
+  }, [isClient, usage.lastUpdated]);
+
+
   useEffect(() => {
-    if (!isClient || !isExhausted) return;
+    if (!isClient || !isExhausted || !resetTime) return;
 
-    const calculateCountdown = () => {
+    const interval = setInterval(() => {
       const now = new Date();
-      // Set reset time to 12 hours from now, or midnight UTC, whichever is more relevant.
-      // For this immediate request, we will use a 12-hour countdown.
-      // A more robust solution for future would be midnight UTC.
-      const resetTime = new Date(now.getTime() + 12 * 60 * 60 * 1000);
+      const totalSeconds = (resetTime.getTime() - now.getTime()) / 1000;
 
-      const interval = setInterval(() => {
-        const currentTime = new Date();
-        const totalSeconds = (resetTime.getTime() - currentTime.getTime()) / 1000;
+      if (totalSeconds <= 0) {
+        setCountdown('Limits should be refreshed now.');
+        clearInterval(interval);
+      } else {
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = Math.floor(totalSeconds % 60);
+        setCountdown(
+          `Limits refresh in ${String(hours).padStart(2, '0')}:${String(minutes).padStart(
+            2,
+            '0'
+          )}:${String(seconds).padStart(2, '0')}`
+        );
+      }
+    }, 1000);
 
-        if (totalSeconds <= 0) {
-          setCountdown('Refreshing now...');
-          clearInterval(interval);
-          // Optionally trigger a page reload or state refresh
-          // window.location.reload(); 
-        } else {
-          const hours = Math.floor(totalSeconds / 3600);
-          const minutes = Math.floor((totalSeconds % 3600) / 60);
-          const seconds = Math.floor(totalSeconds % 60);
-          setCountdown(
-            `Limits refresh in ${String(hours).padStart(2, '0')}:${String(minutes).padStart(
-              2,
-              '0'
-            )}:${String(seconds).padStart(2, '0')}`
-          );
-        }
-      }, 1000);
+    return () => clearInterval(interval);
 
-      return () => clearInterval(interval);
-    };
-
-    return calculateCountdown();
-
-  }, [isClient, isExhausted]);
+  }, [isClient, isExhausted, resetTime]);
 
 
   if (!isClient) {

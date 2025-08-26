@@ -83,7 +83,12 @@ export function AISearch() {
       setIsOpen(false);
       setQuery('');
     } catch (err: any) {
-      setError(err.message || 'Sorry, something went wrong. Please try again.');
+       // Display a user-friendly message for rate limit errors.
+       if (err.message && err.message.includes('The daily AI quota has been reached')) {
+           setError('The daily AI quota has been reached. Please try again tomorrow.');
+       } else {
+           setError('Sorry, something went wrong. Please try again.');
+       }
       console.error(err);
     } finally {
       setIsLoading(false);
