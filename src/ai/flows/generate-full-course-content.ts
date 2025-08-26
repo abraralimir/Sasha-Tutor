@@ -56,15 +56,10 @@ const generateFullCourseContentFlow = ai.defineFlow(
               return { ...lesson, content, quiz: [] }; // Ensure quiz is initialized
             } catch (error) {
               console.error(`Failed to generate content for lesson "${lesson.title}":`, error);
-              // Return lesson with an error message in its content, ensuring it's an array
+              // Return lesson with empty content on failure.
               return {
                 ...lesson,
-                content: [
-                  {
-                    type: 'text' as const,
-                    content: `Sorry, an error occurred while generating this lesson. Please try again later.`,
-                  },
-                ],
+                content: [],
                 quiz: [],
               };
             }

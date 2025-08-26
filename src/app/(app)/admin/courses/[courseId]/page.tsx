@@ -39,6 +39,7 @@ import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const contentBlockSchema = z.object({
   type: z.enum(['text', 'interactiveCode']),
@@ -319,7 +320,7 @@ export default function CourseEditPage() {
 
 
 function LessonsArray({ chapterIndex }: { chapterIndex: number }) {
-  const { control } = useFormContext<CourseFormData>();
+  const { control, watch } = useFormContext<CourseFormData>();
   const { fields, append, remove } = useFieldArray({
     control,
     name: `chapters.${chapterIndex}.lessons`,
@@ -334,34 +335,51 @@ function LessonsArray({ chapterIndex }: { chapterIndex: number }) {
                 <Plus className="mr-2" /> Add Lesson
             </Button>
         </div>
-      {fields.map((lesson, lessonIndex) => (
-        <Card key={lesson.id} className='bg-background'>
-            <CardContent className='p-4'>
-                <div className='flex justify-between items-start mb-4'>
-                     <p className='font-medium pt-2'>Lesson {lessonIndex + 1}</p>
-                     <Button type="button" variant="ghost" size="icon" onClick={() => remove(lessonIndex)}>
-                        <Trash className="h-4 w-4" />
-                    </Button>
-                </div>
-                <div className='space-y-4'>
-                    <FormField
-                        control={control}
-                        name={`chapters.${chapterIndex}.lessons.${lessonIndex}.title`}
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Lesson Title</FormLabel>
-                            <FormControl>
-                            <Input placeholder="e.g., Variables and Data Types" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                        )}
-                    />
-                    <LessonContentArray chapterIndex={chapterIndex} lessonIndex={lessonIndex} />
-                </div>
-            </CardContent>
-        </Card>
-      ))}
+      {fields.map((lesson, lessonIndex) => {
+        const hasContent = watch(`chapters.${chapterIndex}.lessons.${lessonIndex}.content`)?.length > 0;
+        return (
+            <Card key={lesson.id} className='bg-background'>
+                <CardContent className='p-4'>
+                    <div className='flex justify-between items-start mb-4'>
+                         <div className='flex items-center gap-2 pt-2'>
+                            <p className='font-medium'>Lesson {lessonIndex + 1}</p>
+                             {!hasContent && (
+                                <TooltipProvider>
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <AlertCircle className="h-4 w-4 text-destructive" />
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p>This lesson has no content. It may have failed during AI generation.</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
+                             )}
+                         </div>
+                         <Button type="button" variant="ghost" size="icon" onClick={() => remove(lessonIndex)}>
+                            <Trash className="h-4 w-4" />
+                        </Button>
+                    </div>
+                    <div className='space-y-4'>
+                        <FormField
+                            control={control}
+                            name={`chapters.${chapterIndex}.lessons.${lessonIndex}.title`}
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Lesson Title</FormLabel>
+                                <FormControl>
+                                <Input placeholder="e.g., Variables and Data Types" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                            )}
+                        />
+                        <LessonContentArray chapterIndex={chapterIndex} lessonIndex={lessonIndex} />
+                    </div>
+                </CardContent>
+            </Card>
+        )
+      })}
     </div>
   );
 }
