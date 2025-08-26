@@ -6,7 +6,7 @@ import { Check, Lock, Play, Loader2, Sparkles, Pencil, ChevronRight, AlertCircle
 import { explainCode, evaluatePythonCode, generatePracticeSession, generateLessonContent } from '@/lib/actions';
 import type { EvaluatePythonCodeOutput } from '@/ai/flows/evaluate-python-code';
 import type { GeneratePracticeSessionOutput } from '@/ai/flows/generate-practice-session';
-import { getCourse, updateCourse, Course, Chapter, Lesson, QuizQuestion, ContentBlock, updateLessonContent, UserProfile, getUserProfile, updateUserLessonProgress } from '@/services/course-service';
+import { getCourse, updateCourse, Course, Chapter, Lesson, QuizQuestion, ContentBlock, updateLessonContent, UserProfile, getUserProfile, updateUserLessonProgress, updateLessonQuiz } from '@/services/course-service';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -212,9 +212,9 @@ type QuizAttempt = {
   isCorrect: boolean;
 };
 
-function EndOfLessonQuiz({ lesson, onQuizComplete }: { lesson: Lesson, onQuizComplete: () => void }) {
+function EndOfLessonQuiz({ lesson, onQuizComplete, courseId, chapterId }: { lesson: Lesson, onQuizComplete: () => void, courseId: string, chapterId: string }) {
     const [isOpen, setIsOpen] = useState(false);
-    const [quizSession, setQuizSession] = useState<GeneratePracticeSessionOutput | { quiz: QuizQuestion[] } | null>(null);
+    const [quizSession, setQuizSession] = useState<{ quiz: QuizQuestion[] } | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [activeQuestion, setActiveQuestion] = useState(0);
@@ -243,15 +243,16 @@ function EndOfLessonQuiz({ lesson, onQuizComplete }: { lesson: Lesson, onQuizCom
                 topic: lesson.title,
                 studentLevel: 'beginner',
             });
-            // TODO: Here you would save the generated quiz back to the lesson in Firestore
-            setQuizSession(result);
+            // Save the generated quiz back to the lesson in Firestore
+            await updateLessonQuiz(courseId, chapterId, lesson.id, result.quiz);
+            setQuizSession({ quiz: result.quiz });
         } catch (err) {
             setError('Failed to generate quiz. Please try again.');
             console.error(err);
         } finally {
             setIsLoading(false);
         }
-    }, [lesson, isLoading, resetQuizState]);
+    }, [lesson, isLoading, resetQuizState, courseId, chapterId]);
     
     const handleOpenChange = (open: boolean) => {
         setIsOpen(open);
@@ -722,7 +723,7 @@ export default function LearningPathClient({ topic: topicParam }: { topic: strin
                     Next Lesson <Play className="w-4 h-4 ml-2" />
                 </Button>
                 ) : (
-                <EndOfLessonQuiz lesson={activeLesson} onQuizComplete={completeLesson} />
+                <EndOfLessonQuiz lesson={activeLesson} onQuizComplete={completeLesson} courseId={course.id} chapterId={activeChapter.id}/>
                 )}
             </div>
           </div>

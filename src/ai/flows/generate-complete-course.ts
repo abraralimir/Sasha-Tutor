@@ -2,18 +2,16 @@
 'use server';
 
 /**
- * @fileOverview An AI agent to generate a complete course, including outline, content, and quizzes, from a single topic.
+ * @fileOverview An AI agent to generate a complete course outline from a single topic.
  *
- * - generateCompleteCourse - A function that handles the entire course creation process.
+ * - generateCompleteCourse - A function that handles the course outline creation process.
  * - GenerateCompleteCourseInput - The input type for the function.
- * - GenerateCompleteCourseOutput - The return type for the function (a full Course object).
+ * - GenerateCompleteCourseOutput - The return type for the function (a Course outline object).
  */
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { generateCourse, GenerateCourseOutput } from './generate-course';
-import { generateLessonContent } from './generate-lesson-content';
-import { generatePracticeSession } from './generate-practice-session';
+import { generateCourse } from './generate-course';
 import { CourseSchema, Course } from '@/services/course-service';
 
 const GenerateCompleteCourseInputSchema = z.object({
@@ -35,55 +33,26 @@ const generateCompleteCourseFlow = ai.defineFlow(
     outputSchema: CourseSchema,
   },
   async ({ topic, userId }) => {
-    console.log(`Starting complete course generation for topic: ${topic}`);
+    console.log(`Starting course outline generation for topic: ${topic}`);
 
     // Step 1: Generate the course outline (chapters and lessons)
     const courseOutline = await generateCourse({ topic, userId });
-    
-    // Step 2: Generate content and quizzes for each lesson in parallel
-    const updatedChapters = await Promise.all(
-      courseOutline.chapters.map(async (chapter) => {
-        const updatedLessons = await Promise.all(
-          chapter.lessons.map(async (lesson) => {
-            try {
-              // Generate lesson content and practice session concurrently
-              const [contentResult, practiceSessionResult] = await Promise.all([
-                generateLessonContent({
-                  topic: lesson.title,
-                  studentLevel: 'beginner',
-                }),
-                generatePracticeSession({
-                  topic: lesson.title,
-                  studentLevel: 'beginner',
-                }),
-              ]);
 
-              const content = Array.isArray(contentResult.content) ? contentResult.content : [];
-              const quiz = Array.isArray(practiceSessionResult.quiz) ? practiceSessionResult.quiz : [];
-
-              return { ...lesson, content, quiz };
-            } catch (error) {
-              console.error(`Failed to generate content/quiz for lesson "${lesson.title}":`, error);
-              // Return lesson with empty content/quiz on failure
-              return {
-                ...lesson,
-                content: [],
-                quiz: [],
-              };
-            }
-          })
-        );
-        return { ...chapter, lessons: updatedLessons };
-      })
-    );
-
+    // Step 2: Ensure the course structure includes empty content/quiz arrays
     const finalCourse: Course = {
       ...courseOutline,
-      chapters: updatedChapters,
+      chapters: courseOutline.chapters.map(chapter => ({
+        ...chapter,
+        lessons: chapter.lessons.map(lesson => ({
+          ...lesson,
+          content: [],
+          quiz: [],
+        })),
+      })),
       showOnHomepage: false, // Default to not showing on homepage
     };
 
-    console.log(`Finished complete course generation for: ${topic}`);
+    console.log(`Finished course outline generation for: ${topic}`);
     return finalCourse;
   }
 );

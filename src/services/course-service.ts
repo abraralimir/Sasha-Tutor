@@ -227,6 +227,39 @@ export async function updateLessonContent(courseId: string, chapterId: string, l
     }
 }
 
+export async function updateLessonQuiz(courseId: string, chapterId: string, lessonId: string, quiz: QuizQuestion[]): Promise<void> {
+    try {
+        const courseRef = doc(db, 'courses', courseId);
+        const courseSnap = await getDoc(courseRef);
+        if (!courseSnap.exists()) {
+            throw new Error("Course not found");
+        }
+        
+        const courseData = courseSnap.data() as Course;
+        const updatedChapters = courseData.chapters.map(chapter => {
+            if (chapter.id === chapterId) {
+                return {
+                    ...chapter,
+                    lessons: chapter.lessons.map(lesson => {
+                        if (lesson.id === lessonId) {
+                            return { ...lesson, quiz };
+                        }
+                        return lesson;
+                    })
+                };
+            }
+            return chapter;
+        });
+
+        await updateDoc(courseRef, { chapters: updatedChapters });
+
+    } catch (error) {
+        console.error("Error updating lesson quiz: ", error);
+        throw new Error("Failed to update lesson quiz.");
+    }
+}
+
+
 export async function deleteCourse(courseId: string): Promise<void> {
     try {
         const docRef = doc(db, 'courses', courseId);
