@@ -11,7 +11,8 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { ChapterSchema as FullChapterSchema, LessonSchema as FullLessonSchema, CourseSchema } from '@/services/course-service';
+import { CourseSchema, ChapterSchema as FullChapterSchema, LessonSchema as FullLessonSchema } from '@/services/course-service';
+import { generateLessonContent } from './generate-lesson-content';
 
 // We only need the structure, not the content, for the input.
 const LessonOutlineSchema = FullLessonSchema.omit({ content: true, quiz: true });
@@ -32,85 +33,53 @@ export async function generateFullCourseContent(input: GenerateFullCourseContent
   return generateFullCourseContentFlow(input);
 }
 
-const prompt = ai.definePrompt({
-  name: 'generateFullCourseContentPrompt',
-  input: { schema: GenerateFullCourseContentInputSchema.extend({ chaptersJson: z.string() }) },
-  output: { schema: GenerateFullCourseContentOutputSchema },
-  prompt: `You are an expert curriculum designer and educator named Sasha. Your task is to take a given course outline and generate comprehensive content for every single lesson.
-
-Course Title: {{{title}}}
-
-For each lesson in each chapter, you must generate engaging and educational content in Markdown format. The content for each lesson must include:
-1.  A clear, concise introduction to the topic.
-2.  Detailed explanations of core concepts with a friendly and encouraging tone.
-3.  Multiple, well-commented code examples demonstrating the concepts.
-4.  A concluding summary.
-5.  At least one interactive coding cell placeholder using the format: <interactive-code-cell description="[A clear, simple instruction for the student]" expected="[The exact, single-line of code that is the correct answer]" />. This is crucial for hands-on learning.
-
-Make the content for each lesson easy to understand, well-structured, and suitable for an interactive learning path.
-For code blocks, do NOT use markdown fences (\`\`\`). Instead, use <code>...</code> HTML tags.
-
-Return the complete course object, with the generated content added to each lesson.
-
-Course Structure to be filled:
----
-{{{chaptersJson}}}
----
-`,
-});
-
 const generateFullCourseContentFlow = ai.defineFlow(
   {
     name: 'generateFullCourseContentFlow',
     inputSchema: GenerateFullCourseContentInputSchema,
     outputSchema: GenerateFullCourseContentOutputSchema,
   },
-  async (input) => {
-    console.log(`Starting full course generation for: ${input.title}`);
-    const { output } = await prompt({
-        ...input,
-        chaptersJson: JSON.stringify(input.chapters, null, 2),
-    });
-    console.log(`Finished full course generation for: ${input.title}`);
+  async (courseOutline) => {
+    console.log(`Starting full course generation for: ${courseOutline.title}`);
 
-    if (!output) {
-        throw new Error("Failed to generate full course content.");
-    }
-    
-    // The AI might not perfectly structure the content into the ContentBlock format.
-    // We need to parse it manually.
-    const parseGeneratedContent = (markdown: string | undefined) => {
-        if (!markdown) return [];
-        const blocks: any[] = [];
-        const parts = markdown.split(/<interactive-code-cell\s+description="([^"]+)"\s+expected="([^"]+)"\s*\/>/g);
-
-        for (let i = 0; i < parts.length; i++) {
-            const part = parts[i].trim();
-            if (i % 3 === 0) {
-                if (part) blocks.push({ type: 'text', content: part });
-            } else if (i % 3 === 1) {
-                const description = part;
-                const expectedOutput = parts[i + 1];
-                blocks.push({ type: 'interactiveCode', description, expectedOutput });
-                i++;
-            }
-        }
-        return blocks;
-    };
-    
-    // Ensure the output has the correct structure with parsed content blocks.
-    const finalCourse = {
-        ...output,
-        chapters: output.chapters.map(chapter => ({
-            ...chapter,
-            lessons: chapter.lessons.map(lesson => ({
+    const updatedChapters = await Promise.all(
+      courseOutline.chapters.map(async (chapter) => {
+        const updatedLessons = await Promise.all(
+          chapter.lessons.map(async (lesson) => {
+            try {
+              const lessonContent = await generateLessonContent({
+                topic: lesson.title,
+                studentLevel: 'beginner',
+              });
+              // Ensure content is an array. If the AI fails and returns something else, default to an empty array.
+              const content = Array.isArray(lessonContent.content) ? lessonContent.content : [];
+              return { ...lesson, content, quiz: [] }; // Ensure quiz is initialized
+            } catch (error) {
+              console.error(`Failed to generate content for lesson "${lesson.title}":`, error);
+              // Return lesson with an error message in its content, ensuring it's an array
+              return {
                 ...lesson,
-                // @ts-ignore - The AI returns content as a single string, we parse it.
-                content: parseGeneratedContent(lesson.content as string),
-            }))
-        }))
+                content: [
+                  {
+                    type: 'text' as const,
+                    content: `Sorry, an error occurred while generating this lesson. Please try again later.`,
+                  },
+                ],
+                quiz: [],
+              };
+            }
+          })
+        );
+        return { ...chapter, lessons: updatedLessons };
+      })
+    );
+    
+    const finalCourse: GenerateFullCourseContentOutput = {
+      ...courseOutline,
+      chapters: updatedChapters,
     };
 
+    console.log(`Finished full course generation for: ${courseOutline.title}`);
     return finalCourse;
   }
 );

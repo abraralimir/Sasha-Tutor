@@ -438,28 +438,6 @@ function LearningPathSidebar({
   );
 }
 
-// Helper function to parse AI-generated markdown into structured content blocks
-const parseGeneratedContent = (markdown: string): ContentBlock[] => {
-    const blocks: ContentBlock[] = [];
-    // Split by the interactive code cell placeholder
-    const parts = markdown.split(/<interactive-code-cell\s+description="([^"]+)"\s+expected="([^"]+)"\s*\/>/g);
-
-    for (let i = 0; i < parts.length; i++) {
-        const part = parts[i].trim();
-        if (i % 3 === 0) { // This is the text content
-            if (part) {
-                blocks.push({ type: 'text', content: part });
-            }
-        } else if (i % 3 === 1) { // This is the description
-            const description = part;
-            const expectedOutput = parts[i + 1];
-            blocks.push({ type: 'interactiveCode', description, expectedOutput });
-            i++; // Skip the next part as it's the expected output
-        }
-    }
-    return blocks;
-};
-
 export default function LearningPathClient({ topic: topicParam }: { topic: string }) {
   const topic = decodeURIComponent(topicParam);
   const router = useRouter();
@@ -512,7 +490,7 @@ export default function LearningPathClient({ topic: topicParam }: { topic: strin
           try {
             toast({ title: "Building Your Lesson...", description: "The AI is generating this content for you." });
             const result = await generateLessonContent({ topic: lesson.title, studentLevel: 'beginner' });
-            const newContentBlocks = parseGeneratedContent(result.content);
+            const newContentBlocks = result.content;
             
             // Update the lesson content in Firestore
             await updateLessonContent(course.id, chapter.id, lesson.id, newContentBlocks);

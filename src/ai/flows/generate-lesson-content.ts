@@ -18,10 +18,24 @@ const GenerateLessonContentInputSchema = z.object({
 });
 export type GenerateLessonContentInput = z.infer<typeof GenerateLessonContentInputSchema>;
 
+
+const ContentBlockSchema = z.discriminatedUnion('type', [
+  z.object({
+    type: z.literal('text'),
+    content: z.string().describe('The Markdown text content for this block.'),
+  }),
+  z.object({
+    type: z.literal('interactiveCode'),
+    description: z.string().describe('A clear, simple instruction for the student for the code exercise.'),
+    expectedOutput: z.string().describe('The exact, single-line of code that is the correct answer.'),
+  }),
+]);
+
 const GenerateLessonContentOutputSchema = z.object({
-  content: z.string().describe('The generated lesson content in Markdown format, including interactive placeholders if applicable.'),
+  content: z.array(ContentBlockSchema).describe('An array of content blocks that make up the lesson.'),
 });
 export type GenerateLessonContentOutput = z.infer<typeof GenerateLessonContentOutputSchema>;
+
 
 export async function generateLessonContent(input: GenerateLessonContentInput): Promise<GenerateLessonContentOutput> {
   return generateLessonContentFlow(input);
@@ -36,15 +50,15 @@ const prompt = ai.definePrompt({
 Topic: {{{topic}}}
 Student Level: {{{studentLevel}}}
 
-The lesson should be in Markdown format. It must include:
-1.  A clear, concise introduction to the topic.
-2.  Detailed explanations of core concepts with a friendly and encouraging tone.
+The lesson should be structured as a series of content blocks. It must include:
+1.  A clear, concise introduction to the topic in a text block.
+2.  Detailed explanations of core concepts with a friendly and encouraging tone, broken into logical text blocks.
 3.  Multiple, well-commented code examples demonstrating the concepts.
-4.  A concluding summary.
-5.  At least one interactive coding cell placeholder using the format: <interactive-code-cell description="[A clear, simple instruction for the student]" expected="[The exact, single-line of code that is the correct answer]" />. This is crucial for hands-on learning.
+4.  A concluding summary in a text block.
+5.  At least one interactive coding cell. This is crucial for hands-on learning.
 
 Make the content easy to understand, well-structured, and suitable for an interactive learning path.
-For code blocks, do NOT use markdown fences (\`\`\`). Instead, use <code>...</code> HTML tags.
+For code blocks inside your text content, do NOT use markdown fences (\`\`\`). Instead, use <code>...</code> HTML tags.
 `,
 });
 
