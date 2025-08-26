@@ -29,6 +29,8 @@ import { useAuth } from '@/context/auth-context';
 import { useRouter } from 'next/navigation';
 import { useFcmToken } from '@/lib/fcm';
 import { useToast } from '@/hooks/use-toast';
+import { useAIBreak } from '@/hooks/use-ai-break';
+import { cn } from '@/lib/utils';
 
 
 const ICONS: { [key: string]: React.ElementType } = {
@@ -120,6 +122,42 @@ function CourseCard({ course, progress, completedLessons, totalLessons, onStart,
       </AlertDialog>
     </>
   )
+}
+
+function AIStatusIndicator() {
+  const { user } = useAuth();
+  const { isBreakTime, countdown } = useAIBreak();
+
+  const userName = user?.displayName || 'learner';
+
+  return (
+    <div className="mt-8 flex items-center justify-center text-center p-4 rounded-lg bg-card border min-h-[120px]">
+      <div className="relative flex items-center gap-4">
+        <div className="relative flex h-3 w-3">
+          <span className={cn(
+            "animate-ping absolute inline-flex h-full w-full rounded-full opacity-75",
+            isBreakTime ? "bg-red-400" : "bg-green-400"
+          )}></span>
+          <span className={cn(
+            "relative inline-flex rounded-full h-3 w-3",
+            isBreakTime ? "bg-red-500" : "bg-green-500"
+          )}></span>
+        </div>
+        <div>
+          {isBreakTime ? (
+            <div>
+              <p className="font-semibold">Dear {userName}, Sasha is taking a rest 😴.</p>
+              <p className="text-muted-foreground text-sm">
+                She will be back in <span className="font-bold text-primary">{countdown}</span>. A moment of rest leads to a marathon of knowledge.
+              </p>
+            </div>
+          ) : (
+            <p className="font-semibold text-lg">Sasha is working at full power!</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 
@@ -232,6 +270,7 @@ export default function DashboardPage() {
                 </Button>
             )}
           </div>
+          {user && <AIStatusIndicator />}
         </div>
         
         <div className="max-w-5xl mx-auto mt-12 md:mt-16 space-y-16">

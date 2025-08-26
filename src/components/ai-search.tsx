@@ -18,8 +18,14 @@ import { cn } from '@/lib/utils';
 import { getCourse, addCourse, formatGeneratedCourse, associateCourseWithUser, updateLessonContent } from '@/services/course-service';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/auth-context';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
-export function AISearch() {
+export function AISearch({ isDisabled = false }: { isDisabled?: boolean }) {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -30,7 +36,7 @@ export function AISearch() {
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!query) return;
+    if (!query || isDisabled) return;
 
     if (!user) {
       router.push('/login');
@@ -94,23 +100,42 @@ export function AISearch() {
       setIsLoading(false);
     }
   };
+  
+  const SearchButton = (
+      <button
+        disabled={isDisabled}
+        className={cn(
+          'relative inline-flex h-10 w-full max-w-xs items-center justify-start rounded-md px-4',
+          'text-sm font-medium text-muted-foreground',
+          'bg-background shadow-sm border border-input',
+          'hover:bg-accent hover:text-accent-foreground',
+          'transition-colors duration-200',
+          isDisabled && 'opacity-50 cursor-not-allowed'
+        )}
+      >
+         <div className="absolute inset-[-1px] -z-10 rounded-[inherit] bg-[conic-gradient(from_0deg_at_50%_50%,hsl(var(--primary))_0%,transparent_10%,transparent_90%,hsl(var(--primary))_100%)] opacity-20 group-hover:opacity-100 transition-opacity duration-500 animate-[spin_4s_linear_infinite]"></div>
+        <Search className="h-4 w-4 mr-2" />
+        Ask AI to create a course...
+      </button>
+  );
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <button
-          className={cn(
-            'relative inline-flex h-10 w-full max-w-xs items-center justify-start rounded-md px-4',
-            'text-sm font-medium text-muted-foreground',
-            'bg-background shadow-sm border border-input',
-            'hover:bg-accent hover:text-accent-foreground',
-            'transition-colors duration-200'
-          )}
-        >
-           <div className="absolute inset-[-1px] -z-10 rounded-[inherit] bg-[conic-gradient(from_0deg_at_50%_50%,hsl(var(--primary))_0%,transparent_10%,transparent_90%,hsl(var(--primary))_100%)] opacity-20 group-hover:opacity-100 transition-opacity duration-500 animate-[spin_4s_linear_infinite]"></div>
-          <Search className="h-4 w-4 mr-2" />
-          Ask AI to create a course...
-        </button>
+        {isDisabled ? (
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        {SearchButton}
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>Sasha is on a break. Please try again later.</p>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+        ) : (
+            SearchButton
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[625px]">
         <DialogHeader>
