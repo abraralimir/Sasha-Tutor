@@ -20,6 +20,7 @@ const USER_QUOTA_LIMIT = DAILY_QUOTA - RESERVED_QUOTA;
 
 export function RateLimitHeader() {
   const [usage, setUsage] = useState({ count: 0 });
+  const [countdown, setCountdown] = useState('');
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -37,13 +38,54 @@ export function RateLimitHeader() {
 
     return () => unsubscribe();
   }, []);
+  
+  const isExhausted = usage.count >= USER_QUOTA_LIMIT;
+
+  useEffect(() => {
+    if (!isClient || !isExhausted) return;
+
+    const calculateCountdown = () => {
+      const now = new Date();
+      // Set reset time to 12 hours from now, or midnight UTC, whichever is more relevant.
+      // For this immediate request, we will use a 12-hour countdown.
+      // A more robust solution for future would be midnight UTC.
+      const resetTime = new Date(now.getTime() + 12 * 60 * 60 * 1000);
+
+      const interval = setInterval(() => {
+        const currentTime = new Date();
+        const totalSeconds = (resetTime.getTime() - currentTime.getTime()) / 1000;
+
+        if (totalSeconds <= 0) {
+          setCountdown('Refreshing now...');
+          clearInterval(interval);
+          // Optionally trigger a page reload or state refresh
+          // window.location.reload(); 
+        } else {
+          const hours = Math.floor(totalSeconds / 3600);
+          const minutes = Math.floor((totalSeconds % 3600) / 60);
+          const seconds = Math.floor(totalSeconds % 60);
+          setCountdown(
+            `Limits refresh in ${String(hours).padStart(2, '0')}:${String(minutes).padStart(
+              2,
+              '0'
+            )}:${String(seconds).padStart(2, '0')}`
+          );
+        }
+      }, 1000);
+
+      return () => clearInterval(interval);
+    };
+
+    return calculateCountdown();
+
+  }, [isClient, isExhausted]);
+
 
   if (!isClient) {
     return null; 
   }
 
   const usagePercent = Math.min((usage.count / USER_QUOTA_LIMIT) * 100, 100);
-  const isExhausted = usage.count >= USER_QUOTA_LIMIT;
 
   const getGradientColor = () => {
     if (usagePercent < 50) return 'from-green-400 to-cyan-400';
@@ -68,7 +110,7 @@ export function RateLimitHeader() {
         </TooltipTrigger>
         <TooltipContent>
             {isExhausted ? (
-                 <p>Our AI is resting. Please check back tomorrow.</p>
+                 <p>{countdown || "Our AI is resting. Please check back soon."}</p>
             ) : (
                 <p>
                     {USER_QUOTA_LIMIT - usage.count} AI actions remaining today for users.
